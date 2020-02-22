@@ -22,7 +22,7 @@ In the end, client receives result from root node after all node computation fin
 ##Algorithm
 Simple Depth First Search of the tree.
 Time Complexity : O(N)
-Travse each node for query and joining.
+Traverse each node for query and joining.
 
 Space Complexity: O(kN), where k is the level of tree
 Buffer storage of query result, intermediate join result.
@@ -42,19 +42,23 @@ The request to the root node carries this json file.
 {
   "description": "Query both 5Y and 10Y bond trade",
   "action": "FLATTEN",
+  "cluster": "A",
   "elements": [
     {
       "description": "Joinning bond trades and Bond security set with 5Y tenor",
       "action": "INNER_JOIN",
+      "cluster": "A",
        "elements":[{
             "description": "Load Bond Trades",
             "action": "LOAD",
+            "cluster": "B",
             "source" : "gs://dexbigdata-bondtrade/bondtrade1.avro",
             "avro_schema": {"name":"BondTrade","type":"record","namespace":"io.exp.security.model.avro","fields":[{"name":"id","type":"string"},{"name":"cust","type":"string"},{"name":"tradeDate","type":"string"},{"name":"tradeType","type":"string"},{"name":"timestamp","type":"long","logicalType":"time-millis"},{"name":"asset","type":{"name":"Asset","type":"record","fields":[{"name":"securityId","type":"string"},{"name":"notional","type":"double"},{"name":"price","type":"double"},{"name":"currency","type":"string"},{"name":"bidask","type":{"name":"BidAsk","type":"enum","symbols":["BID","ASK"]}}]}}]}
           },
           {
             "description": "Query Mongo Security",
-            "action": "QUERY":
+            "action": "QUERY",:
+            "cluster": "A",
             "queryType" : "MONGO",
             "source" : "localmongo",
             "database" : "hkma",
@@ -68,8 +72,40 @@ The request to the root node carries this json file.
   ]
 }
 
-
 ```
+Here, entire tree run by two clusters: A, B
+A: Flatten, INNER_JOIN, QUERY
+B: LOAD
+A has dependency of B
+Executor analyze the action plan of dependency.
+Such that, B run first in cluster B.
+After cluster B finish and return result,
+cluster A triggers to finish the final calculation.
+
+### Algorithm
+The cluster dependency detection added into Depth First Search.
+
+Starting from root node, we register the first Cluster A.
+Then, it traverses down to child.
+If Child Cluster <> parent cluster, 
+register into Data Structure: Dict[Set[Node]] if ONE to MANY dependency
+Dict[Node "INNER_JOIN"].add([Node LOAD])
+Also cache Dict[Node] of the MANY to ONE dependency: (node child only have one parent!)
+Dict[Node "LOAD" ] = Node "INNER_JOIN"
+
+Create dependency map
+Time complexity O(N)
+Space complexity O(N)
+
+CHoose job to run
+Search in ONE to MANY dependency for entry having zero sized set
+
+JOb finish and return
+Remove from ONE to MANY dependency and Many to ONE dependency 
+Time complexity O(1) to remove from ONE to MANY dependency and MANY to ONE dependency
+
+Python code to illustrate the relationship:
+
 
 ## Performance optimization
 Caching the intermediate/hash result into flat file/Redis with a key hashed from the node
