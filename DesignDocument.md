@@ -78,14 +78,19 @@ In the end, FLATTEN of 5Y and 10Y result running in cluster A
 }
 
 ```
-Here, entire tree run by two clusters: A, B
-A: Flatten, INNER_JOIN, QUERY
-B: LOAD
-A has dependency of B
+Here, entire tree run by three clusters: A, B, C
+A: INNER_JOIN 5Y, QUERY 5Y, LOAD 5Y, LOAD 10Y
+B: INNER_JOIN 10Y, QUERY 10Y
+C: FLATTEN
+INNER_JOIN 10Y in B has dependency of LOAD 10Y in A
+FLATTEN has dependency on both INNER_JOIN 5Y in A and INNER_JOIN 10Y in B
 Executor analyze the action plan of dependency.
-Such that, B run first in cluster B.
-After cluster B finish and return result,
-cluster A triggers to finish the final calculation.
+Such that, calculation without ANY dependency running first,
+LOAD 10Y , INNER_JOIN 5Y running first
+->
+INNER_JOIN 10Y
+->
+Finally, FLATTEN run last
 
 ### Algorithm
 The cluster dependency graph detection added into Depth First Search.
