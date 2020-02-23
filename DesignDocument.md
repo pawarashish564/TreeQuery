@@ -114,9 +114,8 @@ Job finish and return
 Remove from ONE to MANY dependency and Many to ONE dependency 
 Time complexity O(1) to remove from ONE to MANY dependency and MANY to ONE dependency
 
-Python code to illustrate the relationship:
-
-
+Python code to illustrate the relationship: <br>
+[Algorithm illustration in Python](resource/TreeQueryCluster.py)
 
 ## Performance optimization
 Caching the intermediate/hash result into flat file/Redis with a key hashed from the node
