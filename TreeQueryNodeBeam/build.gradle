@@ -22,11 +22,22 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+
+
     compile "org.apache.avro:avro:${avroVersion}"
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
+
+
+    testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
+
+
+
 }
 
 test {

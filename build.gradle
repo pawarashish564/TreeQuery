@@ -29,4 +29,6 @@ ext{
     cliVersion = '1.4'
     kafkaVersion = '2.4.0'
     avroVersion = "1.9.2"
+    jacksonVersion = "2.10.2"
+    mockitVersion = "3.2.4"
 }
