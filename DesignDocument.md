@@ -29,18 +29,23 @@ Buffer storage of query result, intermediate join result.
 
 ##High Level architecture design
 
-![High level architecture](resource/TreeQueryArchitecture.png)
+![High level architecture](resource/TreeQueryArchitectureCluster.png)
 
-Each node is stateless with identical code.
-A json file describes the tree schema.
-The request to the root node carries this json file.
+Each node is stateless with identical code. <br>
+A json file describes the tree schema. <br>
+The request to the root node carries this json file.<br>
+Nodes run in different clusters representing different zones/regions.<br>
+In the diagram, <br>
+10Y analysis INNER JOIN, I/O running in cluster B.<br>
+5Y analysis INNER JOIN, I/O running in cluster A.<br>
+In the end, FLATTEN of 5Y and 10Y result running in cluster A
 
 ##Json file describing tree schema
 
 ```Json
 
 {
-  "description": "Query both 5Y and 10Y bond trade",
+  "description": "Flatten Query of both 5Y and 10Y bond trade result",
   "action": "FLATTEN",
   "cluster": "A",
   "elements": [
