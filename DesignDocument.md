@@ -48,12 +48,12 @@ In the end, FLATTEN of 5Y and 10Y result running in cluster A
   "description": "Flatten Query of both 5Y and 10Y bond trade result",
   "action": "FLATTEN",
   "cluster": "A",
-  "elements": [
+  "children": [
     {
       "description": "Joinning bond trades and Bond security set with 5Y tenor",
       "action": "INNER_JOIN",
       "cluster": "A",
-       "elements":[{
+       "children":[{
             "description": "Load Bond Trades",
             "action": "LOAD",
             "cluster": "B",
@@ -88,7 +88,7 @@ After cluster B finish and return result,
 cluster A triggers to finish the final calculation.
 
 ### Algorithm
-The cluster dependency detection added into Depth First Search.
+The cluster dependency graph detection added into Depth First Search.
 
 Starting from root node, we register the first Cluster A.
 Then, it traverses down to child.
@@ -102,14 +102,15 @@ Create dependency map
 Time complexity O(N)
 Space complexity O(N)
 
-CHoose job to run
+Choose job to run
 Search in ONE to MANY dependency for entry having zero sized set
 
-JOb finish and return
+Job finish and return
 Remove from ONE to MANY dependency and Many to ONE dependency 
 Time complexity O(1) to remove from ONE to MANY dependency and MANY to ONE dependency
 
 Python code to illustrate the relationship:
+
 
 
 ## Performance optimization
