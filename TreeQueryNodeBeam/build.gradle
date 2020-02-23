@@ -25,6 +25,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
 
+    compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
 
     compile "org.apache.avro:avro:${avroVersion}"
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"

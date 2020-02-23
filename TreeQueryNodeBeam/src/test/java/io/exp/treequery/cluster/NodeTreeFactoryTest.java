@@ -14,11 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
@@ -44,20 +44,12 @@ class NodeTreeFactoryTest {
 
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File file = new File(classLoader.getResource(fileName).getFile());
-
-        when (nodeFactory.nodeFactoryMethod(any(JsonNode.class))).then(
-            invocation -> {
-                JsonNode jsonNode = invocation.getArgument(0);
-                DummyNode node = new DummyNode();
-                node.setDescription(jsonNode.get("description").asText());
-                node.setAction(ActionTypeEnum.valueOf(jsonNode.get("action").asText()));
-                node.setCluster(Cluster.builder()
-                        .clusterName(jsonNode.get("cluster").asText())
-                        .build());
-                return node;
-            }
-        );
-        Node node = nodeTreeFactory.parseJsonFile(file.getAbsolutePath());
+        DummyNode.createMockBehavior(nodeFactory);
+        Node[] nodes = new Node[1];
+        assertTimeout(Duration.ofMillis(500), () -> {
+            nodes[0] = nodeTreeFactory.parseJsonFile(file.getAbsolutePath());
+        });
+        Node node = nodes[0];
         log.debug(node.toString());
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
