@@ -83,6 +83,8 @@ class ClusterDependencyGraphTest {
         );
     }
 
+
+
     @Test
     void verifyInitialClusterWithoutDependency() {
         ClusterDependencyGraph.ClusterDependencyGraphBuilder clusterDependencyGraphBuilder = ClusterDependencyGraph.builder();
@@ -109,4 +111,51 @@ class ClusterDependencyGraphTest {
         ));
 
     }
+
+    @Test
+    void verifyBauWorkflowClusterDependency(){
+        ClusterDependencyGraph.ClusterDependencyGraphBuilder clusterDependencyGraphBuilder = ClusterDependencyGraph.builder();
+        clusterDependencyGraphBuilder.constructDependencyGraph(node);
+        ClusterDependencyGraph clusterDependencyGraph = clusterDependencyGraphBuilder.build();
+
+        List<Node> nodeList = null;
+        int step = 0;
+        while (true){
+            int cnt = 0;
+            nodeList = clusterDependencyGraph.findClusterWithoutDependency();
+            if (nodeList.size()==0){
+                break;
+            }
+            for (Node node: nodeList){
+                String sampleAnswer = TreeQueryInput3SampleAnswer(step, cnt);
+                assertThat(node.getDescription()).isEqualTo(sampleAnswer);
+                clusterDependencyGraph.removeClusterDependency(node);
+                cnt++;
+            }
+
+            step++;
+        }
+
+    }
+
+    static String TreeQueryInput3SampleAnswer(int step, int cnt){
+        if (step == 0){
+            if (cnt==0){
+                return "Join 5Y data";
+            }
+            if (cnt==1){
+                return "Load BondTrades 10Y";
+            }
+        }else if (step == 1){
+            if (cnt==0){
+                return "Join 10Y data";
+            }
+        }else if(step == 2){
+            if (cnt==0){
+                return "Flatten 5Y+10Y data";
+            }
+        }
+        return "";
+    }
+
 }

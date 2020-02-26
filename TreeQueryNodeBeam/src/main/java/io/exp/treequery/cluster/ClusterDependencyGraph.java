@@ -36,12 +36,13 @@ public class ClusterDependencyGraph implements Serializable {
                     }
             );
         }
+        result.sort((a,b)->a.getDescription().compareTo(b.getDescription()));
         return result;
     }
     public Node removeClusterDependency (Node node){
         Node parentClusterNode = null;
         synchronized (this.clusterDepGraph){
-            parentClusterNode = Optional.of(this.cacheDependency.get(node)).orElseThrow();
+            parentClusterNode = this.cacheDependency.get(node);
             if (this.clusterDepGraph.get(node).size()==0){
                 this.clusterDepGraph.remove(node);
             }
