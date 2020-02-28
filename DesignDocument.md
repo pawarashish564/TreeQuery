@@ -2,7 +2,7 @@
 
 ## Our business problem
 When working on open source project [AutoIbank](https://github.com/dexterchan/AutoIBank/blob/master/README.md),
-we faced the challenge of sourcing and joinning investor/issers data located in different region / technology stack.
+we faced the challenge of sourcing and joining investor/issuers data located in different region / technology stack.
 
 Concrete use cases <br>
 AutoIbank analyzes trade data from investors/issuers from different location.<br>
