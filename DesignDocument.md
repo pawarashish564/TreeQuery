@@ -1,4 +1,4 @@
-#System Design Document - Tree Query
+# System Design Document - Tree Query
 
 ## Our business problem
 When working on open source project [AutoIbank](https://github.com/dexterchan/AutoIBank/blob/master/README.md),
@@ -14,7 +14,7 @@ The analysis should be able to source and join investors/issuers from different 
 Therefore, we are seeking an effective distributed batch query to solve this problem.
 
 
-##Objective
+## Objective
 An asynchronous distributed batch query system distributes data query and joining of data from different source in n-ary tree compute nodes.<br>
 
 Leaf node queries from different sources:<br>
@@ -33,7 +33,7 @@ Each node output results into Avro Flat File/Redis for upper level of node calcu
 
 In the end, client receives result from root node after all node computation finish.
 
-##Algorithm
+## Algorithm
 Simple Depth First Search of the tree.
 Time Complexity : O(N)
 Traverse each node for query and joining.
@@ -41,7 +41,7 @@ Traverse each node for query and joining.
 Space Complexity: O(kN), where k is the level of tree
 Buffer storage of query result, intermediate join result.
 
-##High Level architecture design
+## High Level architecture design
 
 ![High level architecture](resource/TreeQueryArchitectureCluster.png)
 
@@ -54,7 +54,7 @@ In the diagram, <br>
 5Y analysis INNER JOIN, I/O running in cluster A.<br>
 In the end, FLATTEN of 5Y and 10Y result running in cluster A
 
-##Json file describing tree schema
+## Json file describing tree schema
 
 ```Json
 
@@ -135,5 +135,5 @@ Python code to illustrate the relationship: <br>
 Caching the intermediate/hash result into flat file/Redis with a key hashed from the node
 To be further elaborated.
 
-##Potential Usage
+## Potential Usage
 Big Query application sourcing data from different sources in different locations
