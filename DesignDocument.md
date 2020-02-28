@@ -1,5 +1,19 @@
 #System Design Document - Tree Query
 
+## Our business problem
+When working on open source project [AutoIbank](https://github.com/dexterchan/AutoIBank/blob/master/README.md),
+we faced the challenge of sourcing and joinning investor/issers data located in different region / technology stack.
+
+Concrete use cases <br>
+AutoIbank analyzes trade data from investors/issuers from different location.<br>
+Some regulatory jurisdiction has a strict Data Privacy/Residency barrier <br>
+For example, China Cybersecurity Law, Indonesian OJK onshore rule, <br>
+All trade activities can only stay onshore database. <br>
+The analysis should be able to source and join investors/issuers from different database globally.
+
+Therefore, we are seeking an effective distributed batch query to solve this problem.
+
+
 ##Objective
 An asynchronous distributed batch query system distributes data query and joining of data from different source in n-ary tree compute nodes.<br>
 
