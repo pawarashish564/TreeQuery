@@ -9,7 +9,7 @@ AutoIbank analyzes trade data from investors/issuers from different location.<br
 Some regulatory jurisdiction has a strict Data Privacy/Residency barrier <br>
 For example, China Cybersecurity Law, Indonesian OJK onshore rule, <br>
 All trade activities can only stay onshore database. <br>
-The analysis should be able to source and join investors/issuers from different database globally.
+The analysis should be able to source and join investors/issuers + market data + static data from different database globally.
 
 Therefore, we are seeking an effective distributed batch query to solve this problem.
 
