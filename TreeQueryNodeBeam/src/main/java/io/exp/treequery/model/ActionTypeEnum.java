@@ -1,5 +1,5 @@
 package io.exp.treequery.model;
 
 public enum ActionTypeEnum {
-    FLATTEN, INNER_JOIN, QUERY, LOAD
+    FLATTEN, INNER_JOIN, QUERY, LOAD, RESTAPI
 }

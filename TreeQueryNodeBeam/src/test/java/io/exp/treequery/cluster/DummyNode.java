@@ -18,6 +18,7 @@ public class DummyNode extends Node {
     public void undo(String id) {
     }
 
+    /*
     public void setDescription(String description) {
         this.description = description;
     }
@@ -28,7 +29,7 @@ public class DummyNode extends Node {
 
     public void setCluster(Cluster cluster) {
         this.cluster = cluster;
-    }
+    }*/
 
     public static void createMockBehavior(NodeFactory nodeFactory){
         when (nodeFactory.nodeFactoryMethod(any(JsonNode.class))).then(

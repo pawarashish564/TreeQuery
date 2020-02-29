@@ -1,14 +1,13 @@
 package io.exp.treequery.beam.Transform;
 
+import com.google.common.collect.Lists;
 import io.exp.treequery.model.Node;
 import lombok.Getter;
 
-
 import java.util.List;
-import java.util.Map;
 @Getter
 public class JoinNode extends Node implements io.exp.treequery.model.JoinAble {
-    List<Map<Integer, String>> keys;
+    List<Key> keys = Lists.newLinkedList();
 
     @Override
     public String execute() {
@@ -19,4 +18,5 @@ public class JoinNode extends Node implements io.exp.treequery.model.JoinAble {
     public void undo(String id) {
 
     }
+
 }
