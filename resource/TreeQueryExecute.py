@@ -11,8 +11,6 @@ class NodePipeline(abc.ABC):
     @abc.abstractmethod
     def addNodeToPipeline(self, parentNode:Node, node:Node):
         pass
-    def __retrieveCachedResult(self, identifier):
-        pass
 
 #Decorator of normal Node
 class CacheNode(Node):
@@ -29,12 +27,12 @@ class CacheNode(Node):
     def __str__(self):
         return "CacheData(%s)"%(self.originalNode.description)
 
-    def setRetrievedValue(self, value):
-        self.value = value
+    def getRetrievedValue(self):
+        self.value = "%sCache"%(self.originalNode.identifier())
 
 
 
-class AbstractNodePipeline(NodePipeline):
+class GraphNodePipeline(NodePipeline):
     def __init__(self, cluster):
         #Init the pipeline here
         #We use Graph to model a pipeline
@@ -54,8 +52,7 @@ class AbstractNodePipeline(NodePipeline):
 
         else:
             cacheNode = CacheNode(parentNode)
-            retrievedValue = self.__retrieveCachedResult(parentNode.identifier())
-            cacheNode.setRetrievedValue(retrievedValue)
+            cacheNode.getRetrievedValue()
             assert (cacheNode==parentNode)
             newParentNode = cacheNode
         self.graph[newParentNode].append(node)
@@ -73,9 +70,9 @@ class AbstractNodePipeline(NodePipeline):
             node = s.popleft()
             dependOnList = self.depends[node]
             if len(dependOnList) == 0:
-                self.abstractInsertNode2Pipeline([None], node)
+                self.insertNode2PipelineHelper([None], node)
             else:
-                self.abstractInsertNode2Pipeline(dependOnList, node)
+                self.insertNode2PipelineHelper(dependOnList, node)
             nextChildLst = self.graph[node]
             for c in nextChildLst:
                 try:
@@ -86,12 +83,9 @@ class AbstractNodePipeline(NodePipeline):
 
         return self.pipelineBuilder
 
-    def abstractInsertNode2Pipeline(self, parentList:List[Node], node):
+    def insertNode2PipelineHelper(self, parentList:List[Node], node):
         for p in parentList:
             print("Insert node %s to parents %s"%(node, p))
-
-    def __retrieveCachedResult(self, identifier):
-        return "%sCache"%(identifier)
 
     def __str__(self):
         output = "Cluster:%s\n"%(self.cluster)
@@ -136,7 +130,7 @@ if __name__ == "__main__":
 
         for w in wList:
             print("\tPipeline List begin")
-            nodePipeline = AbstractNodePipeline(w.cluster)
+            nodePipeline = GraphNodePipeline(w.cluster)
             jobList = solu.postOrderTraversalExecution(w, None,[], nodePipeline)
             nodePipeline.getPipelineBuilder()
             node = clusterDepGraph.removeClusterDependency(w)
