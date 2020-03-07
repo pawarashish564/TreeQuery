@@ -72,16 +72,22 @@ public class ClusterDependencyGraph implements Serializable {
                 DepCluster depCluster = stack.pop();
                 Node node = depCluster.node;
                 Node parentClusterNode = depCluster.parentClusterNode;
+                /*
                 if (parentClusterNode == null){
                     this.clusterDepGraph.put(node, Sets.newHashSet());
                     this.cacheDependency.put(node, null);
                     this.__insertChildren2Stack(stack, node, node);
-                }else if(parentClusterNode.isSameCluster(node)){
+                }else */
+                if(parentClusterNode!=null && parentClusterNode.isSameCluster(node)){
                     this.__insertChildren2Stack(stack, node, parentClusterNode);
                 }else{
-                    Optional.of(this.clusterDepGraph.get(parentClusterNode)).get().add(node);
-                    this.cacheDependency.put(node, parentClusterNode);
+                    //Optional.of(this.clusterDepGraph.get(parentClusterNode)).get().add(node);
+                    this.clusterDepGraph.computeIfPresent(parentClusterNode, (kNode, childSet)->{
+                       childSet.add(node);
+                       return childSet;
+                    });
                     this.clusterDepGraph.put(node, Sets.newHashSet());
+                    this.cacheDependency.put(node, parentClusterNode);
                     this.__insertChildren2Stack(stack, node, node);
                 }
             }

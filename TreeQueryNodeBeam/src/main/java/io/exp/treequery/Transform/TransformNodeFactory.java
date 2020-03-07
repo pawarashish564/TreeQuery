@@ -1,13 +1,11 @@
-package io.exp.treequery.beam.Transform;
+package io.exp.treequery.Transform;
 
 
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
-import io.exp.treequery.cluster.Cluster;
 import io.exp.treequery.cluster.NodeFactory;
-import io.exp.treequery.cluster.NodeTreeFactory;
 import io.exp.treequery.model.ActionTypeEnum;
 import io.exp.treequery.model.JoinAble;
 import io.exp.treequery.model.Node;
@@ -15,7 +13,7 @@ import io.exp.treequery.model.Node;
 import java.util.List;
 import java.util.Optional;
 
-public class BeamNodeFactory implements NodeFactory {
+public class TransformNodeFactory implements NodeFactory {
 
     @Override
     public Node nodeFactoryMethod(JsonNode jsonNode) {

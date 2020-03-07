@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @Getter
-public abstract class Node implements Command, Serializable {
+public abstract class Node implements Serializable {
     @NonNull
     protected String description;
     @NonNull
@@ -67,4 +67,5 @@ public abstract class Node implements Command, Serializable {
                 .toString();
         return sha256hex;
     }
+
 }

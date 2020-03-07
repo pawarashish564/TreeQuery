@@ -1,4 +1,4 @@
-package io.exp.treequery.beam.Transform;
+package io.exp.treequery.Transform;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.exp.treequery.cluster.NodeFactory;
