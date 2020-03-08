@@ -9,14 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class DummyNode extends Node {
-    @Override
-    public String execute() {
-        return null;
-    }
 
-    @Override
-    public void undo(String id) {
-    }
 
     /*
     public void setDescription(String description) {

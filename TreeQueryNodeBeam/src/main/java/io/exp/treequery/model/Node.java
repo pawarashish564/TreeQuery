@@ -14,13 +14,15 @@ import java.util.List;
 
 
 @Getter
-public abstract class Node implements Command, Serializable {
+public abstract class Node implements Serializable {
     @NonNull
     protected String description;
     @NonNull
     protected ActionTypeEnum action;
     @NonNull
     protected Cluster cluster;
+
+    private static final boolean SIMPLE_TOSTRING = true;
 
     List<Node> children = Lists.newLinkedList();
 
@@ -53,9 +55,12 @@ public abstract class Node implements Command, Serializable {
     }
 
     public String toString() {
-        Gson gson  = new Gson();
-        return gson.toJson(this);
-        //return "Node(description=" + this.getDescription() + ", action=" + this.getAction() + ", cluster=" + this.getCluster() + ", children=" + this.getChildren() + ")";
+        if (SIMPLE_TOSTRING){
+            return this.getDescription();
+        }else {
+            Gson gson = new Gson();
+            return gson.toJson(this);
+        }
     }
 
     public String getIdentifier(){
@@ -67,4 +72,5 @@ public abstract class Node implements Command, Serializable {
                 .toString();
         return sha256hex;
     }
+
 }

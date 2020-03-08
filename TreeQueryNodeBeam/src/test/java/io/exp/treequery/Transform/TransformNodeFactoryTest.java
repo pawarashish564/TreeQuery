@@ -1,4 +1,4 @@
-package io.exp.treequery.beam.Transform;
+package io.exp.treequery.Transform;
 
 import io.exp.treequery.cluster.Cluster;
 import io.exp.treequery.cluster.NodeFactory;
@@ -14,7 +14,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BeamNodeFactoryTest {
+class TransformNodeFactoryTest {
 
     String fileName = "TreeQueryInput3.json";
     NodeFactory nodeFactory;
@@ -27,7 +27,7 @@ class BeamNodeFactoryTest {
 
     @BeforeEach
     void init(){
-        nodeFactory = new BeamNodeFactory();
+        nodeFactory = new TransformNodeFactory();
         nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File jsonFile = new File(classLoader.getResource(fileName).getFile());

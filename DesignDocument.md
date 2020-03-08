@@ -106,7 +106,7 @@ INNER_JOIN 10Y
 ->
 Finally, FLATTEN run last
 
-### Algorithm
+### Algorithm: Cluster dependency graph
 The cluster dependency graph detection added into Depth First Search.
 
 Starting from root node, we register the first Cluster A.
@@ -128,8 +128,34 @@ Job finish and return
 Remove from ONE to MANY dependency and Many to ONE dependency 
 Time complexity O(1) to remove from ONE to MANY dependency and MANY to ONE dependency
 
-Python code to illustrate the relationship: <br>
-[Algorithm illustration in Python](resource/TreeQueryCluster.py)
+Python code to illustrate the cluster construction: <br>
+[Algorithm Cluster Construction in Python](resource/TreeQueryCluster.py)
+
+### Algorithm: Convert each cluster to workflow pipeline
+####Definition: Pipeline 
+Convert cluster to Pipeline illustration. <br>
+![Cluster to Pipeline](resource/TreeQueryArchitectureClusterExecute.png)
+
+We create pipeline from cluster.
+Cluster to pipeline order is a reverse order of dependency
+Currently, the cluster conversion is a destructive process of cluster dependency map
+1) find the list of clusters  having no dependency
+2) convert clusterlists without dependency to each pipeline
+3) for each cluster in clusterlists
+3.1) Remove cluster from dependency map if dependency[cluster] is empty
+3.2) Remove cluster from dependency map[dependent child cluster].remove(cluster)
+4) go to (1) until cluster dependency is empty
+
+For each cluster, we create pipeline from each subtree.
+
+The Pipeline creation in each cluster is a reverse order read of the tree.
+For any node, its child must be executed before.
+
+Therefore, postorder traversal of the tree construct the pipeline beginning from children.
+
+[Algorithm Cluster to Pipeline conversion in Python](resource/TreeQueryExecute.py)
+
+
 
 ## Performance optimization
 Caching the intermediate/hash result into flat file/Redis with a key hashed from the node

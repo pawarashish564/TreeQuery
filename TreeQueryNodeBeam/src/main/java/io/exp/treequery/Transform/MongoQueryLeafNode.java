@@ -1,4 +1,4 @@
-package io.exp.treequery.beam.Transform;
+package io.exp.treequery.Transform;
 
 import io.exp.treequery.model.Node;
 import io.exp.treequery.model.MongoQueryAble;
@@ -15,15 +15,7 @@ public class MongoQueryLeafNode extends Node implements MongoQueryAble {
     String query;
     String source;
     String avro_schema;
-    @Override
-    public String execute() {
-        return null;
-    }
 
-    @Override
-    public void undo(String id) {
-
-    }
 
 
 
