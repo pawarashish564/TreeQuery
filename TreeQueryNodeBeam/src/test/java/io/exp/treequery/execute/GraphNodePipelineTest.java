@@ -27,6 +27,7 @@ class GraphNodePipelineTest {
     Node node = null;
 
     PipelineBuilderInterface pipelineBuilderInterface;
+    CacheIOInterface cacheIOInterface;
 
     @BeforeEach
     void init(){
@@ -36,7 +37,7 @@ class GraphNodePipelineTest {
         File jsonFile = new File(classLoader.getResource(fileName).getFile());
         node = nodeTreeFactory.parseJsonFile(jsonFile.getAbsolutePath());
 
-
+        cacheIOInterface = mock(CacheIOInterface.class);
 
     }
 
@@ -58,7 +59,7 @@ class GraphNodePipelineTest {
         List<Node> nodeList = null;
         int step = 0;
         while (true){
-            int cnt = 0;
+            int cntClusters = 0;
             nodeList = clusterDependencyGraph.findClusterWithoutDependency();
             if (nodeList.size()==0){
                 break;
@@ -68,17 +69,18 @@ class GraphNodePipelineTest {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
+                        .cacheIOInterface(cacheIOInterface)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
 
                 clusterDependencyGraph.removeClusterDependency(node);
-                cnt++;
+                cntClusters++;
             }
 
             step++;
         }
-        log.debug(String.format("Nodes: %d",countCluster.get()));
+        log.debug(String.format("Number of clusters: %d",countCluster.get()));
         assertEquals(4, countCluster.get());
 
     }
@@ -109,8 +111,9 @@ class GraphNodePipelineTest {
 
         List<Node> nodeList = null;
         int step = 0;
+        int cntClusters = 0;
         while (true){
-            int cnt = 0;
+
             nodeList = clusterDependencyGraph.findClusterWithoutDependency();
             if (nodeList.size()==0){
                 break;
@@ -120,17 +123,21 @@ class GraphNodePipelineTest {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
+                        .cacheIOInterface(cacheIOInterface)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
                 nodePipeline.getPipelineBuilder();
                 clusterDependencyGraph.removeClusterDependency(node);
-                cnt++;
+                cntClusters++;
             }
 
             step++;
         }
         verify(pipelineBuilderInterface,times(3+1+3+3)).buildPipeline(anyList(),any(Node.class));
+        assertEquals(3, step);
+        assertEquals(4, cntClusters);
+        verify(cacheIOInterface, times(3)).getRetrievedValue(any(String.class));
     }
 
 }

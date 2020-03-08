@@ -18,13 +18,15 @@ import java.util.function.Predicate;
 public  class GraphNodePipeline implements NodePipeline {
     Cluster cluster;
     PipelineBuilderInterface pipelineBuilderInterface;
+    CacheIOInterface cacheIOInterface;
     Map<Node, List> graph = Maps.newHashMap();
     Map<Node, List> depends = Maps.newHashMap();
 
     @Builder
-    GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface) {
+    GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface, CacheIOInterface cacheIOInterface) {
         this.cluster = cluster;
         this.pipelineBuilderInterface = pipelineBuilderInterface;
+        this.cacheIOInterface = cacheIOInterface;
     }
 
 
@@ -43,6 +45,7 @@ public  class GraphNodePipeline implements NodePipeline {
             CacheNode cacheNode = CacheNode
                     .builder()
                     .node(parentNode)
+                    .cacheIOInterface(cacheIOInterface)
                     .build();
             cacheNode.getRetrievedValue();
             assert (cacheNode.equals(parentNode));
