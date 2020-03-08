@@ -10,23 +10,21 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
-import java.util.function.Predicate;
 
 @Slf4j
 public  class GraphNodePipeline implements NodePipeline {
     Cluster cluster;
     PipelineBuilderInterface pipelineBuilderInterface;
-    CacheIOInterface cacheIOInterface;
+    CacheInputInterface cacheInputInterface;
     Map<Node, List> graph = Maps.newHashMap();
     Map<Node, List> depends = Maps.newHashMap();
 
     @Builder
-    GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface, CacheIOInterface cacheIOInterface) {
+    GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface, CacheInputInterface cacheInputInterface) {
         this.cluster = cluster;
         this.pipelineBuilderInterface = pipelineBuilderInterface;
-        this.cacheIOInterface = cacheIOInterface;
+        this.cacheInputInterface = cacheInputInterface;
     }
 
 
@@ -45,7 +43,7 @@ public  class GraphNodePipeline implements NodePipeline {
             CacheNode cacheNode = CacheNode
                     .builder()
                     .node(parentNode)
-                    .cacheIOInterface(cacheIOInterface)
+                    .cacheInputInterface(cacheInputInterface)
                     .build();
             cacheNode.getRetrievedValue();
             assert (cacheNode.equals(parentNode));

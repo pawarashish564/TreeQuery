@@ -1,9 +1,9 @@
 package io.exp.treequery.beam;
 
-import io.exp.treequery.execute.CacheIOInterface;
+import io.exp.treequery.execute.CacheInputInterface;
 import org.apache.avro.generic.GenericRecord;
 
-public class FileCacheIOImpl implements CacheIOInterface {
+public class FileCacheInputImpl implements CacheInputInterface {
     String fileDirectory;
 
     @Override

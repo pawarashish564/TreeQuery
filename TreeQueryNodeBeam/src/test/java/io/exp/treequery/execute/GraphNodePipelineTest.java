@@ -1,6 +1,5 @@
 package io.exp.treequery.execute;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import io.exp.treequery.Transform.TransformNodeFactory;
 import io.exp.treequery.cluster.ClusterDependencyGraph;
@@ -27,7 +26,7 @@ class GraphNodePipelineTest {
     Node node = null;
 
     PipelineBuilderInterface pipelineBuilderInterface;
-    CacheIOInterface cacheIOInterface;
+    CacheInputInterface cacheInputInterface;
 
     @BeforeEach
     void init(){
@@ -37,7 +36,7 @@ class GraphNodePipelineTest {
         File jsonFile = new File(classLoader.getResource(fileName).getFile());
         node = nodeTreeFactory.parseJsonFile(jsonFile.getAbsolutePath());
 
-        cacheIOInterface = mock(CacheIOInterface.class);
+        cacheInputInterface = mock(CacheInputInterface.class);
 
     }
 
@@ -69,7 +68,7 @@ class GraphNodePipelineTest {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
-                        .cacheIOInterface(cacheIOInterface)
+                        .cacheInputInterface(cacheInputInterface)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
@@ -123,7 +122,7 @@ class GraphNodePipelineTest {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
-                        .cacheIOInterface(cacheIOInterface)
+                        .cacheInputInterface(cacheInputInterface)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
@@ -137,7 +136,7 @@ class GraphNodePipelineTest {
         verify(pipelineBuilderInterface,times(3+1+3+3)).buildPipeline(anyList(),any(Node.class));
         assertEquals(3, step);
         assertEquals(4, cntClusters);
-        verify(cacheIOInterface, times(3)).getRetrievedValue(any(String.class));
+        verify(cacheInputInterface, times(3)).getRetrievedValue(any(String.class));
     }
 
 }

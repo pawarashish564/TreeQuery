@@ -2,6 +2,6 @@ package io.exp.treequery.execute;
 
 import org.apache.avro.generic.GenericRecord;
 
-public interface CacheIOInterface {
+public interface CacheInputInterface {
     public GenericRecord getRetrievedValue(String identifier);
 }

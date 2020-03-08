@@ -1,13 +1,11 @@
 package io.exp.treequery.beam;
 
-import io.exp.treequery.execute.CacheIOInterface;
+import io.exp.treequery.execute.CacheInputInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class BeamPipelineBuilderImplTest {
-    CacheIOInterface cacheIOInterface;
+    CacheInputInterface cacheInputInterface;
     @BeforeEach
     void init(){
 

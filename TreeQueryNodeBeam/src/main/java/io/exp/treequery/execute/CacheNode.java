@@ -1,6 +1,5 @@
 package io.exp.treequery.execute;
 
-import com.google.gson.Gson;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,20 +14,20 @@ public  class CacheNode extends Node {
     protected Node originalNode;
     protected GenericRecord value;
     protected Schema schema;
-    private CacheIOInterface cacheIOInterface;
+    private CacheInputInterface cacheInputInterface;
     public CacheNode(){
         super();
     }
 
     @Builder
-    CacheNode(Node node, CacheIOInterface cacheIOInterface){
+    CacheNode(Node node, CacheInputInterface cacheInputInterface){
         this();
         this.originalNode = node;
-        this.cacheIOInterface = cacheIOInterface;
+        this.cacheInputInterface = cacheInputInterface;
     }
 
     public void getRetrievedValue(){
-        Optional.of(cacheIOInterface).ifPresent(
+        Optional.of(cacheInputInterface).ifPresent(
                 cachIO -> {
                     cachIO.getRetrievedValue(originalNode.getIdentifier());
                 }
