@@ -22,6 +22,8 @@ public abstract class Node implements Serializable {
     @NonNull
     protected Cluster cluster;
 
+    private static final boolean SIMPLE_TOSTRING = true;
+
     List<Node> children = Lists.newLinkedList();
 
     public void insertChildren(Node childNode){
@@ -53,9 +55,12 @@ public abstract class Node implements Serializable {
     }
 
     public String toString() {
-        Gson gson  = new Gson();
-        return gson.toJson(this);
-        //return "Node(description=" + this.getDescription() + ", action=" + this.getAction() + ", cluster=" + this.getCluster() + ", children=" + this.getChildren() + ")";
+        if (SIMPLE_TOSTRING){
+            return this.getDescription();
+        }else {
+            Gson gson = new Gson();
+            return gson.toJson(this);
+        }
     }
 
     public String getIdentifier(){
