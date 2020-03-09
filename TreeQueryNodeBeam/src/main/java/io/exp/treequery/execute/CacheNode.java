@@ -24,6 +24,9 @@ public  class CacheNode extends Node {
         this();
         this.originalNode = node;
         this.cacheInputInterface = cacheInputInterface;
+        this.description = node.getDescription();
+        this.cluster = node.getCluster();
+        this.action = node.getAction();
     }
 
     public void getRetrievedValue(){
