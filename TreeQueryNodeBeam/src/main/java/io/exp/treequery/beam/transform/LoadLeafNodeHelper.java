@@ -21,7 +21,7 @@ public class LoadLeafNodeHelper implements NodeBeamHelper{
         }
         LoadLeafNode loadLeafNode = (LoadLeafNode) node;
         Schema.Parser parser = new Schema.Parser();
-        Schema schema = parser.parse(loadLeafNode.getAvro_schema().replace("'","\""));
+        Schema schema = parser.parse(loadLeafNode.getAvro_schema());
         PCollection<GenericRecord> avroDocuments = pipeline.apply(AvroIO.readGenericRecords(schema).from(loadLeafNode.getSource()));
 
         return avroDocuments;
