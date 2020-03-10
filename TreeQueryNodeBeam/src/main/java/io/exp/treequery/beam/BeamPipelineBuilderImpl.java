@@ -20,15 +20,9 @@ import java.util.stream.Collectors;
 
 
 public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
-    CacheInputInterface cacheInputInterface;
     @Getter
     private final Pipeline pipeline = Pipeline.create();
     private Map<Node, PCollection<?>> nodePCollectionMap = Maps.newHashMap();
-    @Builder
-    BeamPipelineBuilderImpl(CacheInputInterface cacheInputInterface){
-        this.cacheInputInterface = cacheInputInterface;
-    }
-
 
     @Override
     public void buildPipeline(List<Node> parentNodeLst, Node node) {

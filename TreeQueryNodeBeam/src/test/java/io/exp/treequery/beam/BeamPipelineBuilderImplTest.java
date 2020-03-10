@@ -63,9 +63,8 @@ class BeamPipelineBuilderImplTest {
         assertThat(nodeList).hasSize(1);
 
         for (Node node: nodeList){
-            PipelineBuilderInterface pipelineBuilderInterface = BeamPipelineBuilderImpl.builder()
-                    .cacheInputInterface(cacheInputInterface)
-                    .build();
+            PipelineBuilderInterface pipelineBuilderInterface = new BeamPipelineBuilderImpl();
+
             NodePipeline nodePipeline = GraphNodePipeline.builder()
                     .cluster(node.getCluster())
                     .pipelineBuilderInterface(pipelineBuilderInterface)
