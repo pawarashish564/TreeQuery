@@ -12,7 +12,7 @@ import java.util.List;
 
 public class LoadLeafNodeHelper implements NodeBeamHelper{
     @Override
-    public PCollection<?> apply(Pipeline pipeline, List<PCollection<?>> parentCollectionLst, Node node) {
+    public PCollection<GenericRecord> apply(Pipeline pipeline, List<PCollection<GenericRecord>> parentCollectionLst, Node node) {
         if (!( node instanceof LoadLeafNode)){
             throw new IllegalArgumentException(String.format("%s is not Leaf Avro File Node", node.getDescription()));
         }

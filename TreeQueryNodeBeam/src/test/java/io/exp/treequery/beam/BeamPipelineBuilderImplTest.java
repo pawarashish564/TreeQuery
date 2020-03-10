@@ -82,7 +82,7 @@ class BeamPipelineBuilderImplTest {
             nodePipeline.getPipelineBuilder();
             Pipeline pipeline = pipelineBuilderInterface.getPipeline();
 
-            PCollection<?> record = pipelineBuilderInterface.getPCollection(node);
+            PCollection<GenericRecord> record = pipelineBuilderInterface.getPCollection(node);
             PAssert.that(record).satisfies((input)->{
                 AtomicInteger cnt = new AtomicInteger();
                 input.forEach(
