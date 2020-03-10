@@ -20,8 +20,7 @@ public class LoadLeafNodeHelper implements NodeBeamHelper{
             throw new IllegalArgumentException("Parent nodes should be empty for Leaf Avro File Node");
         }
         LoadLeafNode loadLeafNode = (LoadLeafNode) node;
-        Schema.Parser parser = new Schema.Parser();
-        Schema schema = parser.parse(loadLeafNode.getAvro_schema());
+        Schema schema = loadLeafNode.getAvroSchemaObj();
         PCollection<GenericRecord> avroDocuments = pipeline.apply(AvroIO.readGenericRecords(schema).from(loadLeafNode.getSource()));
 
         return avroDocuments;
