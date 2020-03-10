@@ -46,19 +46,17 @@ class BeamPipelineBuilderImplTest {
     void simpleAvroReadPipeline() throws Exception {
         String simpleAvroTree = "SimpleAvroReadCluster.json";
         Node rootNode = null;
-        nodeFactory = new TransformNodeFactory();
-        nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
+
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File jsonFile = new File(classLoader.getResource(simpleAvroTree).getFile());
 
         String jsonString = this.parseJsonFile(jsonFile.getAbsolutePath());
         jsonString = jsonString.replaceAll("\\$\\{WORKDIR\\}", workDirectory);
+
+        nodeFactory = new TransformNodeFactory();
+        nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
         rootNode = nodeTreeFactory.parseJsonString(jsonString);
-
-
-        ClusterDependencyGraph.ClusterDependencyGraphBuilder clusterDependencyGraphBuilder = ClusterDependencyGraph.builder();
-        clusterDependencyGraphBuilder.constructDependencyGraph(rootNode);
-        ClusterDependencyGraph clusterDependencyGraph = clusterDependencyGraphBuilder.build();
+        ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
 
         List<Node> nodeList = null;
         nodeList = clusterDependencyGraph.findClusterWithoutDependency();

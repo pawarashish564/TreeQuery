@@ -1,5 +1,7 @@
 package io.exp.treequery.service;
 
+import io.exp.treequery.model.Node;
+
 public interface TreeQueryClusterService {
-    public void runQueryTreeNetwork(String jsonTree);
+    public String runQueryTreeNetwork(Node node);
 }

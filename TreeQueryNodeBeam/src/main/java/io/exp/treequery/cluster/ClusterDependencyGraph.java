@@ -114,4 +114,10 @@ public class ClusterDependencyGraph implements Serializable {
         private final Node parentClusterNode;
     }
 
+    public static ClusterDependencyGraph createClusterDependencyGraph(Node rootNode){
+        ClusterDependencyGraph.ClusterDependencyGraphBuilder clusterDependencyGraphBuilder = ClusterDependencyGraph.builder();
+        clusterDependencyGraphBuilder.constructDependencyGraph(rootNode);
+        ClusterDependencyGraph clusterDependencyGraph = clusterDependencyGraphBuilder.build();
+        return clusterDependencyGraph;
+    }
 }
