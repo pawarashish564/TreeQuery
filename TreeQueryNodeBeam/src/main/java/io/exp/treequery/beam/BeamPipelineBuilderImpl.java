@@ -39,7 +39,8 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         nodePCollectionMap.put(node, transform);
     }
 
-
-
-
+    @Override
+    public PCollection<?> getPCollection(Node node) {
+        return Optional.of(nodePCollectionMap.get(node)).get();
+    }
 }

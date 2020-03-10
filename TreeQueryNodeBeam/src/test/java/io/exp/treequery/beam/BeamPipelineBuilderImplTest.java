@@ -8,7 +8,13 @@ import io.exp.treequery.cluster.NodeTreeFactory;
 import io.exp.treequery.execute.*;
 import io.exp.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.testing.PAssert;
+import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,6 +81,23 @@ class BeamPipelineBuilderImplTest {
             NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
             nodePipeline.getPipelineBuilder();
             Pipeline pipeline = pipelineBuilderInterface.getPipeline();
+
+            PCollection<?> record = pipelineBuilderInterface.getPCollection(node);
+            PAssert.that(record).satisfies((input)->{
+                AtomicInteger cnt = new AtomicInteger();
+                input.forEach(
+                        avroR->{
+                            GenericRecord avroRecord = (GenericRecord) avroR;
+                            assertThat(((Utf8)avroRecord.get("id")).toString()).isNotBlank();
+                            GenericData.Record assetRecord = (GenericData.Record)avroRecord.get("asset");
+                            assertThat(((Utf8)assetRecord.get("securityId")).toString()).isNotBlank();
+                            assertThat(((Double)assetRecord.get("notional"))).isNotNaN();
+                            cnt.incrementAndGet();
+                        }
+                );
+                assertThat(cnt.get()).isEqualTo(1000);
+                return null;
+            });
             pipeline.run();
             clusterDependencyGraph.removeClusterDependency(node);
         }
@@ -91,5 +115,8 @@ class BeamPipelineBuilderImplTest {
         }
         return jsonString;
     }
+
+
+
 
 }
