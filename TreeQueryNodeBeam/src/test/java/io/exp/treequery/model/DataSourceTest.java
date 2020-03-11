@@ -86,6 +86,13 @@ class DataSourceTest {
                 secid.append(s.toString());
             });
             assertThat(secid.toString()).isNotBlank();
+
+            Double[] ntl = {0.0};
+            GenericRecordSchemaHelper.getValue(trade,"asset.notional", (obj)->{
+                Double v = (Double)obj;
+                ntl[0] = v;
+            });
+            assertThat(ntl[0]).isNotNaN();
         }
 
 
