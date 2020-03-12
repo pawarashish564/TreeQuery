@@ -2,6 +2,7 @@ package io.exp.treequery.beam;
 
 import com.google.common.collect.Lists;
 import io.exp.treequery.Transform.TransformNodeFactory;
+import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.cluster.ClusterDependencyGraph;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
@@ -29,9 +30,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 @Slf4j
 class BeamPipelineBuilderImplTest {
     CacheInputInterface cacheInputInterface;
+    BeamCacheOutputInterface beamCacheOutputInterface;
     String fileName = "bondtrade1.avro";
 
     String workDirectory = null;
@@ -47,6 +51,7 @@ class BeamPipelineBuilderImplTest {
 
         cacheInputInterface = FileCacheInputImpl.builder()
                                 .fileDirectory(workDirectory).build();
+        beamCacheOutputInterface = mock(BeamCacheOutputInterface.class);
 
     }
 
@@ -71,7 +76,9 @@ class BeamPipelineBuilderImplTest {
         assertThat(nodeList).hasSize(1);
 
         for (Node node: nodeList){
-            PipelineBuilderInterface pipelineBuilderInterface = new BeamPipelineBuilderImpl();
+            PipelineBuilderInterface pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
+                                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                                            .build();
 
             NodePipeline nodePipeline = GraphNodePipeline.builder()
                     .cluster(node.getCluster())

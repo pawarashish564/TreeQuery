@@ -2,10 +2,12 @@ package io.exp.treequery.beam;
 
 import com.google.common.collect.Maps;
 import io.exp.treequery.Transform.LoadLeafNode;
+import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.beam.transform.LoadLeafNodeHelper;
 import io.exp.treequery.beam.transform.NodeBeamHelper;
 import io.exp.treequery.execute.PipelineBuilderInterface;
 import io.exp.treequery.model.Node;
+import lombok.Builder;
 import lombok.Getter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
@@ -22,6 +24,12 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
     @Getter
     private final Pipeline pipeline = Pipeline.create();
     private Map<Node, PCollection<GenericRecord>> nodePCollectionMap = Maps.newHashMap();
+    private BeamCacheOutputInterface beamCacheOutputInterface;
+
+    @Builder
+    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface){
+        this.beamCacheOutputInterface = beamCacheOutputInterface;
+    }
 
     @Override
     public void buildPipeline(List<Node> parentNodeLst, Node node) {
