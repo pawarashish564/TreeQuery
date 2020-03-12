@@ -2,8 +2,6 @@ package io.exp.treequery.model;
 
 import io.exp.treequery.Transform.LoadLeafNode;
 import io.exp.treequery.Transform.TransformNodeFactory;
-import io.exp.treequery.beam.FileCacheInputImpl;
-import io.exp.treequery.cluster.ClusterDependencyGraph;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +11,6 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
-import org.apache.avro.util.Utf8;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -5,6 +5,7 @@ import io.exp.treequery.Transform.TransformNodeFactory;
 import io.exp.treequery.cluster.ClusterDependencyGraph;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
+import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
