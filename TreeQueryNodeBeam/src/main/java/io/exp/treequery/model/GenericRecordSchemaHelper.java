@@ -39,4 +39,28 @@ public class GenericRecordSchemaHelper {
 
     }
 
+    public static class StringField implements Consumer<Object>{
+        StringBuffer value  = new StringBuffer();
+        @Override
+        public void accept(Object obj) {
+            Utf8 s = (Utf8)obj;
+            value.append(s.toString());
+        }
+        public String getValue(){
+            return value.toString();
+        }
+    }
+
+    public static class DoubleField implements Consumer<Object>{
+        Double[] value = {0.0};
+        @Override
+        public void accept(Object obj) {
+            Double v = (Double)obj;
+            value[0] = v;
+        }
+        public Double getValue(){
+            return value[0];
+        }
+    }
+
 }

@@ -9,6 +9,7 @@ import io.exp.treequery.cluster.NodeTreeFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
@@ -73,29 +74,23 @@ class DataSourceTest {
         GenericRecord trade = null;
         while (dataFileReader.hasNext()) {
             trade = dataFileReader.next(trade);
-            StringBuffer id =new StringBuffer();
-            GenericRecordSchemaHelper.getValue(trade,"id", (obj)->{
-                Utf8 s = (Utf8)obj;
-                id.append( s.toString());
-            });
-            assertThat(id.toString()).isNotBlank();
+            GenericRecordSchemaHelper.StringField idField = new GenericRecordSchemaHelper.StringField();
+            GenericRecordSchemaHelper.getValue(trade,"id", idField);
+            assertThat(idField.getValue()).isNotBlank();
 
-            StringBuffer secid  = new StringBuffer();
-            GenericRecordSchemaHelper.getValue(trade,"asset.securityId", (obj)->{
-                Utf8 s = (Utf8)obj;
-                secid.append(s.toString());
-            });
-            assertThat(secid.toString()).isNotBlank();
+            GenericRecordSchemaHelper.StringField secidField = new GenericRecordSchemaHelper.StringField();
+            GenericRecordSchemaHelper.getValue(trade,"asset.securityId", secidField);
+            assertThat(secidField.getValue()).isNotBlank();
 
-            Double[] ntl = {0.0};
-            GenericRecordSchemaHelper.getValue(trade,"asset.notional", (obj)->{
-                Double v = (Double)obj;
-                ntl[0] = v;
+            GenericRecordSchemaHelper.DoubleField ntlField = new GenericRecordSchemaHelper.DoubleField();
+            GenericRecordSchemaHelper.getValue(trade,"asset.notional", ntlField);
+            assertThat(ntlField.getValue()).isNotNaN();
+
+            GenericRecordSchemaHelper.getValue(trade, "asset.bidask", (obj)->{
+                GenericData.EnumSymbol e = (GenericData.EnumSymbol) obj;
+                log.debug(e.toString());
             });
-            assertThat(ntl[0]).isNotNaN();
         }
-
-
     }
 
 
