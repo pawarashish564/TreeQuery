@@ -20,12 +20,16 @@ class AsyncTreeQueryClusterServiceTest {
 
     TreeQueryClusterService treeQueryClusterService = null;
     TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory = null;
+    BeamCacheOutputInterface beamCacheOutputInterface = null;
     @BeforeEach
     void init(){
         treeQueryClusterRunnerFactory = mock(TreeQueryClusterRunnerFactory.class);
+        beamCacheOutputInterface = mock(BeamCacheOutputInterface.class);
         when(treeQueryClusterRunnerFactory.createTreeQueryClusterRunner()).then(
                 invocation -> {
-                    return SimpleLocalTreeQueryClusterRunnerImpl.builder().build();
+                    return SimpleLocalTreeQueryClusterRunnerImpl.builder()
+                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .build();
                 }
         );
          treeQueryClusterService =  AsyncTreeQueryClusterService.builder()

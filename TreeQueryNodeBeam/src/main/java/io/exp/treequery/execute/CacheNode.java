@@ -13,8 +13,6 @@ import java.util.Optional;
 @Getter
 public  class CacheNode extends Node {
     protected Node originalNode;
-    protected GenericRecord value;
-    protected Schema schema;
     private CacheInputInterface cacheInputInterface;
     public CacheNode(){
         super();
@@ -30,11 +28,9 @@ public  class CacheNode extends Node {
         this.action = node.getAction();
     }
 
-    public void getRetrievedValue(){
-        Optional.of(cacheInputInterface).ifPresent(
-                cachIO -> {
-                    cachIO.getRetrievedValue(originalNode.getIdentifier());
-                }
+    public Object getRetrievedValue(){
+        return Optional.of(cacheInputInterface).map(
+               cacheIO->cacheIO.getRetrievedValue(originalNode.getIdentifier())
         );
     }
 
