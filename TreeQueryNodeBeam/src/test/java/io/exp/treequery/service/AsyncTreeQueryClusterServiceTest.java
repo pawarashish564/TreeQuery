@@ -14,15 +14,23 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 class AsyncTreeQueryClusterServiceTest {
 
     TreeQueryClusterService treeQueryClusterService = null;
-
+    TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory = null;
     @BeforeEach
     void init(){
-         treeQueryClusterService = new AsyncTreeQueryClusterService();
+        treeQueryClusterRunnerFactory = mock(TreeQueryClusterRunnerFactory.class);
+        when(treeQueryClusterRunnerFactory.createTreeQueryClusterRunner()).then(
+                invocation -> {
+                    return SimpleLocalTreeQueryClusterRunnerImpl.builder().build();
+                }
+        );
+         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+                 .treeQueryClusterRunnerFactory(treeQueryClusterRunnerFactory)
+                 .build();
     }
 
     private String prepareNodeFromJsonInstruction(String jsonFileName){

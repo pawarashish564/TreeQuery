@@ -2,13 +2,13 @@ package io.exp.treequery.service;
 
 import com.google.common.collect.Maps;
 import io.exp.treequery.model.Node;
+import lombok.Builder;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 
 public class AsyncTreeQueryClusterService implements TreeQueryClusterService {
@@ -16,10 +16,16 @@ public class AsyncTreeQueryClusterService implements TreeQueryClusterService {
     ExecutorService executor = Executors.newFixedThreadPool(MAX_THREAD_RUN);
     Map<String, TreeQueryClusterRunner> treeQueryClusterRunnerMap = Maps.newConcurrentMap();
 
+    TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory;
+    @Builder
+    AsyncTreeQueryClusterService(TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory){
+        this.treeQueryClusterRunnerFactory = treeQueryClusterRunnerFactory;
+    }
+
     @Override
     public String runQueryTreeNetwork(Node node, Consumer<StatusTreeQueryCluster> statusCallback) {
         String uniqueId = UUID.randomUUID().toString();
-        TreeQueryClusterRunner treeQueryClusterRunner = TreeQueryClusterRunnerImpl.builder().build();
+        TreeQueryClusterRunner treeQueryClusterRunner = treeQueryClusterRunnerFactory.createTreeQueryClusterRunner();
         treeQueryClusterRunnerMap.put(uniqueId, treeQueryClusterRunner);
 
         Runnable runnableTask = () -> {
