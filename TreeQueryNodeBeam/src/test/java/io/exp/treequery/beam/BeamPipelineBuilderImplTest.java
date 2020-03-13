@@ -10,6 +10,7 @@ import io.exp.treequery.execute.*;
 import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.execute.cache.FileCacheInputImpl;
 import io.exp.treequery.model.Node;
+import io.exp.treequery.util.JsonInstructionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -63,7 +64,7 @@ class BeamPipelineBuilderImplTest {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File jsonFile = new File(classLoader.getResource(simpleAvroTree).getFile());
 
-        String jsonString = this.parseJsonFile(jsonFile.getAbsolutePath());
+        String jsonString = JsonInstructionHelper.parseJsonFile(jsonFile.getAbsolutePath());
         jsonString = jsonString.replaceAll("\\$\\{WORKDIR\\}", workDirectory);
 
         nodeFactory = new TransformNodeFactory();
@@ -112,17 +113,7 @@ class BeamPipelineBuilderImplTest {
 
     }
 
-    private  String parseJsonFile (String jsonFile)  {
-        String jsonString="";
-        StringBuilder contentBuilder = new StringBuilder();
-        try(Stream<String> stream = Files.lines( Paths.get(jsonFile), StandardCharsets.UTF_8)){
-            stream.forEach(s -> contentBuilder.append(s));
-             jsonString= contentBuilder.toString();
-        }catch(IOException ioe){
-            log.error(ioe.getMessage());
-        }
-        return jsonString;
-    }
+
 
 
 
