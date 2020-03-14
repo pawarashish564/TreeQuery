@@ -6,7 +6,6 @@ import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
 import io.exp.treequery.execute.cache.CacheInputInterface;
-import io.exp.treequery.execute.cache.FileCacheInputImpl;
 import io.exp.treequery.model.Node;
 import io.exp.treequery.util.JsonInstructionHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AsyncTreeQueryClusterServiceTest {
@@ -30,7 +28,7 @@ class AsyncTreeQueryClusterServiceTest {
         cacheInputInterface = mock(CacheInputInterface.class);
         when(treeQueryClusterRunnerFactory.createTreeQueryClusterRunner()).then(
                 invocation -> {
-                    return SimpleLocalTreeQueryClusterRunnerImpl.builder()
+                    return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputInterface(beamCacheOutputInterface)
                             .cacheInputInterface(cacheInputInterface)
                             .build();
@@ -38,7 +36,7 @@ class AsyncTreeQueryClusterServiceTest {
         );
          treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                  .treeQueryClusterRunnerFactory(()->{
-                     return SimpleLocalTreeQueryClusterRunnerImpl.builder()
+                     return TreeQueryClusterRunnerImpl.builder()
                              .beamCacheOutputInterface(beamCacheOutputInterface)
                              .cacheInputInterface(cacheInputInterface)
                              .build();

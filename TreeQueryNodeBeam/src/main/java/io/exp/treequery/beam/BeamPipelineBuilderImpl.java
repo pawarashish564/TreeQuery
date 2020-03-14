@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.values.PCollection;
 
 
@@ -21,10 +22,11 @@ import java.util.stream.Collectors;
 
 
 public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
-    @Getter
+
     private final Pipeline pipeline = Pipeline.create();
     private Map<Node, PCollection<GenericRecord>> nodePCollectionMap = Maps.newHashMap();
     private BeamCacheOutputInterface beamCacheOutputInterface;
+    private Node __node = null;
 
     @Builder
     public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface){
@@ -37,6 +39,7 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         if ( node instanceof LoadLeafNode){
             nodeBeamHelper = new LoadLeafNodeHelper();
         }
+        this.__node = node;
 
         List<PCollection<GenericRecord>> parentLst = parentNodeLst.stream().map(
             pNode->nodePCollectionMap.get(pNode)
@@ -47,7 +50,19 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
     }
 
     @Override
-    public PCollection<GenericRecord> getPCollection(Node node) {
+    public boolean executePipeline() {
+        String hashCode = __node.getIdentifier();
+        Pipeline pipeline = this.pipeline;
+        //Final result Pcollection
+        PCollection<GenericRecord> record = this.getPCollection(__node);
+        this.beamCacheOutputInterface.writeGenericRecord(record, hashCode);
+        //Most simple runner
+        PipelineResult.State state = pipeline.run().waitUntilFinish();
+
+        return true;
+    }
+
+    private PCollection<GenericRecord> getPCollection(Node node) {
         return Optional.of(nodePCollectionMap.get(node)).get();
     }
 }

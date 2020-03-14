@@ -20,24 +20,27 @@ import java.util.function.Consumer;
 
 
 @Builder
-public class SimpleLocalTreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
+public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheInputInterface cacheInputInterface;
     BeamCacheOutputInterface beamCacheOutputInterface;
 
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
-        String hashCode = rootNode.getIdentifier();
+
         while (true){
             List<Node> nodeList = clusterDependencyGraph.findClusterWithoutDependency();
             if (nodeList.size()==0){
                 break;
             }
             for (Node node: nodeList) {
+
+                //Apache Beam pipeline runner creation
                 PipelineBuilderInterface pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
                         .beamCacheOutputInterface(beamCacheOutputInterface)
                         .build();
 
+                //Inject Apache Beam pipeline runner
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
@@ -46,18 +49,26 @@ public class SimpleLocalTreeQueryClusterRunnerImpl implements TreeQueryClusterRu
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
                 nodePipeline.getPipelineBuilder();
-                Pipeline pipeline = pipelineBuilderInterface.getPipeline();
 
-                //Final result Pcollection
-                PCollection<GenericRecord> record = pipelineBuilderInterface.getPCollection(node);
-
-                this.beamCacheOutputInterface.writeGenericRecord(record, String.format("%s.avro", hashCode));
-                //Most simple runner
-                pipeline.run();
+                //Execeute the Pipeline runner
+                try {
+                    pipelineBuilderInterface.executePipeline();
+                }catch(Exception ex){
+                    statusCallback.accept(
+                            StatusTreeQueryCluster.builder()
+                                    .status(StatusTreeQueryCluster.QueryTypeEnum.FAIL)
+                                    .description(ex.getMessage())
+                                    .build()
+                    );
+                    return;
+                }
                 clusterDependencyGraph.removeClusterDependency(node);
             }
         }
 
-        statusCallback.accept(new StatusTreeQueryCluster());
+        statusCallback.accept(StatusTreeQueryCluster.builder()
+                                .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
+                                .description("OK")
+                                .build());
     }
 }
