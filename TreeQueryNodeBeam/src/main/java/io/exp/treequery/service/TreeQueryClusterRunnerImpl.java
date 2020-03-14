@@ -9,6 +9,7 @@ import io.exp.treequery.execute.NodePipeline;
 import io.exp.treequery.execute.NodeTraverser;
 import io.exp.treequery.execute.PipelineBuilderInterface;
 import io.exp.treequery.execute.cache.CacheInputInterface;
+import io.exp.treequery.model.AvroSchemaHelper;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
 import org.apache.avro.generic.GenericRecord;
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
 public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheInputInterface cacheInputInterface;
     BeamCacheOutputInterface beamCacheOutputInterface;
+    AvroSchemaHelper avroSchemaHelper;
 
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
