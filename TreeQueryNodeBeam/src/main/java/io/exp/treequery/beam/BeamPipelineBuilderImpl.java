@@ -60,6 +60,7 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         //Final result Pcollection
         PCollection<GenericRecord> record = this.getPCollection(__node);
         Schema avroSchema = Optional.of(avroSchemaHelper).get().getAvroSchema(__node);
+        Optional.ofNullable(avroSchema).orElseThrow(()->new IllegalArgumentException(String.format("Schema of %s should not be null",__node.getDescription())));
         this.beamCacheOutputInterface.writeGenericRecord(record, avroSchema, hashCode);
         //Most simple runner
         PipelineResult.State state = pipeline.run().waitUntilFinish();

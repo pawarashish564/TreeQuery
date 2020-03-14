@@ -12,6 +12,7 @@ import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.model.AvroSchemaHelper;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.values.PCollection;
@@ -19,7 +20,7 @@ import org.apache.beam.sdk.values.PCollection;
 import java.util.List;
 import java.util.function.Consumer;
 
-
+@Slf4j
 @Builder
 public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheInputInterface cacheInputInterface;
@@ -40,6 +41,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 //Apache Beam pipeline runner creation
                 PipelineBuilderInterface pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
                         .beamCacheOutputInterface(beamCacheOutputInterface)
+                        .avroSchemaHelper(avroSchemaHelper)
                         .build();
 
                 //Inject Apache Beam pipeline runner
@@ -56,6 +58,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 try {
                     pipelineBuilderInterface.executePipeline();
                 }catch(Exception ex){
+                    log.error(ex.getMessage());
                     statusCallback.accept(
                             StatusTreeQueryCluster.builder()
                                     .status(StatusTreeQueryCluster.QueryTypeEnum.FAIL)

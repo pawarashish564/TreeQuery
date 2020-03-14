@@ -1,52 +1,61 @@
 package io.exp.treequery.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.exp.treequery.Transform.LoadLeafNode;
 import io.exp.treequery.Transform.TransformNodeFactory;
 import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
 import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.model.AvroSchemaHelper;
+import io.exp.treequery.model.DataSource;
 import io.exp.treequery.model.Node;
 import io.exp.treequery.util.JsonInstructionHelper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.beam.sdk.io.AvroIO;
+import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.matchers.Any;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
+@Slf4j
 class AsyncTreeQueryClusterServiceTest {
 
     TreeQueryClusterService treeQueryClusterService = null;
-    TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory = null;
+
     BeamCacheOutputInterface beamCacheOutputInterface = null;
     CacheInputInterface cacheInputInterface = null;
     AvroSchemaHelper avroSchemaHelper = null;
     @BeforeEach
-    void init(){
-        treeQueryClusterRunnerFactory = mock(TreeQueryClusterRunnerFactory.class);
-        beamCacheOutputInterface = mock(BeamCacheOutputInterface.class);
+    void init() throws IOException {
+
         cacheInputInterface = mock(CacheInputInterface.class);
         avroSchemaHelper = mock(AvroSchemaHelper.class);
 
-        when(treeQueryClusterRunnerFactory.createTreeQueryClusterRunner()).then(
-                invocation -> {
-                    return TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
-                            .cacheInputInterface(cacheInputInterface)
-                            .build();
-                }
-        );
-         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
-                 .treeQueryClusterRunnerFactory(()->{
-                     return TreeQueryClusterRunnerImpl.builder()
-                             .beamCacheOutputInterface(beamCacheOutputInterface)
-                             .cacheInputInterface(cacheInputInterface)
-                             .avroSchemaHelper(avroSchemaHelper)
-                             .build();
-                 })
-                 .build();
+        Path path = Files.createTempDirectory("TreeQuery_");
+        log.debug("Write temp result into "+path.toAbsolutePath().toString());
+
+
+        beamCacheOutputInterface = new BeamCacheOutputInterface() {
+            @Override
+            public void writeGenericRecord(PCollection<GenericRecord> stream, Schema avroSchema, String outputLabel) {
+                    String fileName = String.format("%s/%s", path.toAbsolutePath().toString(), outputLabel);
+                    stream.apply(
+                            AvroIO.writeGenericRecords(avroSchema).to(fileName).withSuffix(".avro")
+                    );
+            }
+        };
+
+
     }
 
     private String prepareNodeFromJsonInstruction(String jsonFileName){
@@ -74,12 +83,29 @@ class AsyncTreeQueryClusterServiceTest {
         String AvroTree = "SimpleAvroReadCluster.json";
         String jsonString = prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = createNode(jsonString);
+        LoadLeafNode d = (LoadLeafNode) rootNode;
+        when(avroSchemaHelper.getAvroSchema(rootNode)).then(
+                (node)-> {
+                    return d.getAvroSchemaObj();
+                }
+        );
 
+        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+                .treeQueryClusterRunnerFactory(()->{
+                    return TreeQueryClusterRunnerImpl.builder()
+                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .cacheInputInterface(cacheInputInterface)
+                            .avroSchemaHelper(avroSchemaHelper)
+                            .build();
+                })
+                .build();
 
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
+            log.debug(status.toString());
             synchronized (rootNode) {
                 rootNode.notify();
             }
+            assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
         });
         synchronized (rootNode){
             rootNode.wait();
