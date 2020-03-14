@@ -23,10 +23,11 @@ import java.util.function.Consumer;
 public class SimpleLocalTreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheInputInterface cacheInputInterface;
     BeamCacheOutputInterface beamCacheOutputInterface;
+
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
-
+        String hashCode = rootNode.getIdentifier();
         while (true){
             List<Node> nodeList = clusterDependencyGraph.findClusterWithoutDependency();
             if (nodeList.size()==0){
@@ -48,7 +49,9 @@ public class SimpleLocalTreeQueryClusterRunnerImpl implements TreeQueryClusterRu
                 Pipeline pipeline = pipelineBuilderInterface.getPipeline();
 
                 //Final result Pcollection
-                //PCollection<GenericRecord> record = pipelineBuilderInterface.getPCollection(node);
+                PCollection<GenericRecord> record = pipelineBuilderInterface.getPCollection(node);
+
+                this.beamCacheOutputInterface.writeGenericRecord(record, String.format("%s.avro", hashCode));
                 //Most simple runner
                 pipeline.run();
                 clusterDependencyGraph.removeClusterDependency(node);

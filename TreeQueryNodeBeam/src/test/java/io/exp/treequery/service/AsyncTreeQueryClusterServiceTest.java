@@ -5,6 +5,7 @@ import io.exp.treequery.Transform.TransformNodeFactory;
 import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
+import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.execute.cache.FileCacheInputImpl;
 import io.exp.treequery.model.Node;
 import io.exp.treequery.util.JsonInstructionHelper;
@@ -21,19 +22,27 @@ class AsyncTreeQueryClusterServiceTest {
     TreeQueryClusterService treeQueryClusterService = null;
     TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory = null;
     BeamCacheOutputInterface beamCacheOutputInterface = null;
+    CacheInputInterface cacheInputInterface = null;
     @BeforeEach
     void init(){
         treeQueryClusterRunnerFactory = mock(TreeQueryClusterRunnerFactory.class);
         beamCacheOutputInterface = mock(BeamCacheOutputInterface.class);
+        cacheInputInterface = mock(CacheInputInterface.class);
         when(treeQueryClusterRunnerFactory.createTreeQueryClusterRunner()).then(
                 invocation -> {
                     return SimpleLocalTreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .cacheInputInterface(cacheInputInterface)
                             .build();
                 }
         );
          treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
-                 .treeQueryClusterRunnerFactory(treeQueryClusterRunnerFactory)
+                 .treeQueryClusterRunnerFactory(()->{
+                     return SimpleLocalTreeQueryClusterRunnerImpl.builder()
+                             .beamCacheOutputInterface(beamCacheOutputInterface)
+                             .cacheInputInterface(cacheInputInterface)
+                             .build();
+                 })
                  .build();
     }
 

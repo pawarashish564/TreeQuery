@@ -5,5 +5,5 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.values.PCollection;
 
 public interface BeamCacheOutputInterface {
-    public void writeGenericRecord(Node node, String outputLabel);
+    public void writeGenericRecord(PCollection<GenericRecord> stream, String outputLabel);
 }
