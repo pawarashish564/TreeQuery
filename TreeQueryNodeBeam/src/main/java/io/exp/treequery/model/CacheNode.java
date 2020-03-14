@@ -11,7 +11,7 @@ import java.util.Optional;
 
 //Reference Avro: https://avro.apache.org/docs/current/gettingstartedjava.html#Serializing
 @Getter
-public  class CacheNode extends Node {
+public  class CacheNode extends Node implements DataSource{
     protected Node originalNode;
     private CacheInputInterface cacheInputInterface;
     public CacheNode(){
@@ -46,5 +46,15 @@ public  class CacheNode extends Node {
 
     public String toString() {
         return String.format("Cache(%s)",this.originalNode.toString());
+    }
+
+    @Override
+    public String getSource() {
+        return this.originalNode.getIdentifier();
+    }
+
+    @Override
+    public String getAvro_schema() {
+        return this.cacheInputInterface.getSchema(this.originalNode.getIdentifier());
     }
 }
