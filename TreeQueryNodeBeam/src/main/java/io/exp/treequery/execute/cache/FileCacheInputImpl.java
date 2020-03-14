@@ -10,7 +10,12 @@ public class FileCacheInputImpl implements CacheInputInterface {
     String fileDirectory;
 
     @Override
-    public GenericRecord getRetrievedValue(String identifier) {
+    public Object getRetrievedValue(String identifier) {
+        return null;
+    }
+
+    @Override
+    public String getSchema(String identifier) {
         return null;
     }
 }
