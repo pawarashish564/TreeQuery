@@ -77,7 +77,7 @@ class BeamPipelineBuilderImplTest {
         assertThat(nodeList).hasSize(1);
 
         for (Node node: nodeList){
-            PipelineBuilderInterface pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
+            BeamPipelineBuilderImpl pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
                                             .beamCacheOutputInterface(beamCacheOutputInterface)
                                             .build();
 
@@ -89,6 +89,7 @@ class BeamPipelineBuilderImplTest {
             List<Node> traversedResult = Lists.newLinkedList();
             NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
             nodePipeline.getPipelineBuilder();
+
             Pipeline pipeline = pipelineBuilderInterface.getPipeline();
 
             PCollection<GenericRecord> record = pipelineBuilderInterface.getPCollection(node);

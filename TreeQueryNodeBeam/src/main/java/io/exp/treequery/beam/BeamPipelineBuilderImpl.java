@@ -62,7 +62,10 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         return true;
     }
 
-    private PCollection<GenericRecord> getPCollection(Node node) {
+    PCollection<GenericRecord> getPCollection(Node node) {
         return Optional.of(nodePCollectionMap.get(node)).get();
+    }
+    Pipeline getPipeline(){
+        return this.pipeline;
     }
 }
