@@ -1,4 +1,4 @@
-package io.exp.treequery.execute;
+package io.exp.treequery.model;
 
 import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.model.Node;

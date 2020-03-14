@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import io.exp.treequery.cluster.Cluster;
 import io.exp.treequery.execute.cache.CacheInputInterface;
+import io.exp.treequery.model.CacheNode;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
