@@ -8,14 +8,12 @@ import io.exp.treequery.execute.GraphNodePipeline;
 import io.exp.treequery.execute.NodePipeline;
 import io.exp.treequery.execute.NodeTraverser;
 import io.exp.treequery.execute.PipelineBuilderInterface;
-import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.model.AvroSchemaHelper;
+import io.exp.treequery.model.CacheTypeEnum;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.values.PCollection;
+
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,7 +21,7 @@ import java.util.function.Consumer;
 @Slf4j
 @Builder
 public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
-    CacheInputInterface cacheInputInterface;
+    CacheTypeEnum cacheTypeEnum;
     BeamCacheOutputInterface beamCacheOutputInterface;
     AvroSchemaHelper avroSchemaHelper;
 
@@ -48,7 +46,8 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
-                        .cacheInputInterface(cacheInputInterface)
+                        .cacheTypeEnum(cacheTypeEnum)
+                        .avroSchemaHelper(avroSchemaHelper)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );

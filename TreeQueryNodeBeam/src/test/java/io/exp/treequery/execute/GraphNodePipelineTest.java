@@ -5,7 +5,8 @@ import io.exp.treequery.Transform.TransformNodeFactory;
 import io.exp.treequery.cluster.ClusterDependencyGraph;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
-import io.exp.treequery.execute.cache.CacheInputInterface;
+import io.exp.treequery.model.AvroSchemaHelper;
+import io.exp.treequery.model.CacheTypeEnum;
 import io.exp.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,18 +28,18 @@ class GraphNodePipelineTest {
     Node node = null;
 
     PipelineBuilderInterface pipelineBuilderInterface;
-    CacheInputInterface cacheInputInterface;
+    CacheTypeEnum cacheTypeEnum;
+    AvroSchemaHelper avroSchemaHelper;
 
     @BeforeEach
     void init(){
+        cacheTypeEnum = CacheTypeEnum.FILE;
         nodeFactory = new TransformNodeFactory();
         nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File jsonFile = new File(classLoader.getResource(fileName).getFile());
         node = nodeTreeFactory.parseJsonFile(jsonFile.getAbsolutePath());
-
-        cacheInputInterface = mock(CacheInputInterface.class);
-
+        avroSchemaHelper = mock(AvroSchemaHelper.class);
     }
 
     @Test
@@ -69,7 +70,8 @@ class GraphNodePipelineTest {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
-                        .cacheInputInterface(cacheInputInterface)
+                        .cacheTypeEnum(cacheTypeEnum)
+                        .avroSchemaHelper(avroSchemaHelper)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
@@ -123,7 +125,8 @@ class GraphNodePipelineTest {
                 NodePipeline nodePipeline = GraphNodePipeline.builder()
                         .cluster(node.getCluster())
                         .pipelineBuilderInterface(pipelineBuilderInterface)
-                        .cacheInputInterface(cacheInputInterface)
+                        .cacheTypeEnum(cacheTypeEnum)
+                        .avroSchemaHelper(avroSchemaHelper)
                         .build();
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
@@ -137,7 +140,7 @@ class GraphNodePipelineTest {
         verify(pipelineBuilderInterface,times(3+1+3+3)).buildPipeline(anyList(),any(Node.class));
         assertEquals(3, step);
         assertEquals(4, cntClusters);
-        verify(cacheInputInterface, times(3)).getRetrievedValue(any(String.class));
+
     }
 
 }

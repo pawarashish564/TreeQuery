@@ -7,8 +7,8 @@ import io.exp.treequery.cluster.ClusterDependencyGraph;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
 import io.exp.treequery.execute.*;
-import io.exp.treequery.execute.cache.CacheInputInterface;
-import io.exp.treequery.execute.cache.FileCacheInputImpl;
+import io.exp.treequery.model.AvroSchemaHelper;
+import io.exp.treequery.model.CacheTypeEnum;
 import io.exp.treequery.model.Node;
 import io.exp.treequery.util.JsonInstructionHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -35,25 +35,24 @@ import static org.mockito.Mockito.mock;
 
 @Slf4j
 class BeamPipelineBuilderImplTest {
-    CacheInputInterface cacheInputInterface;
+    CacheTypeEnum cacheTypeEnum;
     BeamCacheOutputInterface beamCacheOutputInterface;
     String fileName = "bondtrade1.avro";
 
     String workDirectory = null;
     NodeFactory nodeFactory;
     NodeTreeFactory nodeTreeFactory;
+    AvroSchemaHelper avroSchemaHelper;
 
     @BeforeEach
     void init(){
-
+        cacheTypeEnum = CacheTypeEnum.FILE;
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File jsonFile = new File(classLoader.getResource(fileName).getFile());
         workDirectory = jsonFile.getParent();
 
-        cacheInputInterface = FileCacheInputImpl.builder()
-                                .fileDirectory(workDirectory).build();
         beamCacheOutputInterface = mock(BeamCacheOutputInterface.class);
-
+        avroSchemaHelper = mock(AvroSchemaHelper.class);
     }
 
     @Test
@@ -84,7 +83,8 @@ class BeamPipelineBuilderImplTest {
             NodePipeline nodePipeline = GraphNodePipeline.builder()
                     .cluster(node.getCluster())
                     .pipelineBuilderInterface(pipelineBuilderInterface)
-                    .cacheInputInterface(cacheInputInterface)
+                    .cacheTypeEnum(cacheTypeEnum)
+                    .avroSchemaHelper(avroSchemaHelper)
                     .build();
             List<Node> traversedResult = Lists.newLinkedList();
             NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );

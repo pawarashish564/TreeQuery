@@ -4,29 +4,33 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import io.exp.treequery.cluster.Cluster;
-import io.exp.treequery.execute.cache.CacheInputInterface;
+import io.exp.treequery.model.AvroSchemaHelper;
 import io.exp.treequery.model.CacheNode;
+import io.exp.treequery.model.CacheTypeEnum;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 
 @Slf4j
 public  class GraphNodePipeline implements NodePipeline {
     Cluster cluster;
     PipelineBuilderInterface pipelineBuilderInterface;
-    CacheInputInterface cacheInputInterface;
+    AvroSchemaHelper avroSchemaHelper;
+    CacheTypeEnum cacheTypeEnum;
     Map<Node, List> graph = Maps.newHashMap();
     Map<Node, List> depends = Maps.newHashMap();
 
     @Builder
-    GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface, CacheInputInterface cacheInputInterface) {
+    GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface,AvroSchemaHelper avroSchemaHelper, CacheTypeEnum cacheTypeEnum) {
         this.cluster = cluster;
         this.pipelineBuilderInterface = pipelineBuilderInterface;
-        this.cacheInputInterface = cacheInputInterface;
+        this.avroSchemaHelper = Optional.of(avroSchemaHelper).orElseThrow(()->new IllegalArgumentException("Avro Schema Helper not null"));
+        this.cacheTypeEnum = cacheTypeEnum;
     }
 
 
@@ -45,9 +49,10 @@ public  class GraphNodePipeline implements NodePipeline {
             CacheNode cacheNode = CacheNode
                     .builder()
                     .node(parentNode)
-                    .cacheInputInterface(cacheInputInterface)
+                    .cacheTypeEnum(cacheTypeEnum)
+                    .avroSchemaHelper(avroSchemaHelper)
                     .build();
-            cacheNode.getRetrievedValue();
+
             assert (cacheNode.equals(parentNode));
             newParentNode = cacheNode;
         }

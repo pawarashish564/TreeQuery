@@ -6,8 +6,8 @@ import io.exp.treequery.Transform.TransformNodeFactory;
 import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.cluster.NodeFactory;
 import io.exp.treequery.cluster.NodeTreeFactory;
-import io.exp.treequery.execute.cache.CacheInputInterface;
 import io.exp.treequery.model.AvroSchemaHelper;
+import io.exp.treequery.model.CacheTypeEnum;
 import io.exp.treequery.model.DataSource;
 import io.exp.treequery.model.Node;
 import io.exp.treequery.util.JsonInstructionHelper;
@@ -33,12 +33,12 @@ class AsyncTreeQueryClusterServiceTest {
     TreeQueryClusterService treeQueryClusterService = null;
 
     BeamCacheOutputInterface beamCacheOutputInterface = null;
-    CacheInputInterface cacheInputInterface = null;
+    CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
     @BeforeEach
     void init() throws IOException {
 
-        cacheInputInterface = mock(CacheInputInterface.class);
+        cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = mock(AvroSchemaHelper.class);
 
         Path path = Files.createTempDirectory("TreeQuery_");
@@ -94,7 +94,7 @@ class AsyncTreeQueryClusterServiceTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputInterface(beamCacheOutputInterface)
-                            .cacheInputInterface(cacheInputInterface)
+                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .build();
                 })
