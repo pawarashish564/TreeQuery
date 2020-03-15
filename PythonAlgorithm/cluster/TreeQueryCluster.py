@@ -12,7 +12,7 @@
 #In the end, FLATTEN of 5Y and 10Y result running in cluster A
 
 #Json file is in TreeQueryInput.json
-JsonInput = "TreeQueryInput.json"
+JsonInput = "TreeQueryInput3.json"
 import json
 from collections import deque
 from typing import Dict, Set, List
@@ -30,11 +30,23 @@ class Node:
     def isSameCluster(self, node):
         return self.cluster == node.cluster
 
+    def clone(self):
+        newNode = Node()
+        newNode.description = self.description
+        newNode.action = self.action
+        newNode.cluster = self.cluster
+        return newNode
+
+    def identifier(self):
+        return "identifier_%s"%(self.description)
+
     def __str__(self):
+        return self.description
+    def bfs(self):
         level = 0
         queue = deque()
         queue.append((self, 0))
-        result = ""
+        result = "("
         while len(queue) > 0:
             node, lvl = queue.popleft()
             if lvl != level:
@@ -44,6 +56,7 @@ class Node:
 
             for cNode in node.children:
                 queue.append((cNode, lvl+1))
+        result = result+")"
         return result
 
 def nodeFactory(jNode):
@@ -142,7 +155,6 @@ class ClusterDependencyGraph():
 
 
 if __name__ == "__main__":
-    JsonInput = "TreeQueryInput3.json"
     rootNode = readTreeInput(JsonInput)
     #print (rootNode)
 
@@ -169,25 +181,16 @@ if __name__ == "__main__":
         print ("step %d end"%(step))
         step+=1
     #Expected
-    #step 0 begin
+    # step 0 begin
     #  0 Work Node begin
-    #    Join 5Y data,
-    #    Query Mongo Static,Load BondTrades A,
+    # Join 10Y data,
+    # Query Mongo Static,Load BondTrades B,
     #  0 Work Node end
+    # step 0 end
+    # step 1 begin
     #  1 Work Node begin
-    #    Load BondTrades B,
+    # Flatten 5Y+10Y data,
+    # Join 10Y data,Join 5Y data,
+    # Query Mongo Static,Load BondTrades B,Query Mongo Static,Load BondTrades A,
     #  1 Work Node end
-    #step 0 end
-    #step 1 begin
-    #  0 Work Node begin
-    #    Join 10Y data,
-    #    Query Mongo Static,Load BondTrades B,
-    #  0 Work Node end
-    #step 1 end
-    #step 2 begin
-    #  0 Work Node begin
-    #    Flatten 5Y+10Y data,
-    #    Join 10Y data,Join 5Y data,
-    #    Query Mongo Static,Load BondTrades B,Query Mongo Static,Load BondTrades A,
-    #  0 Work Node end
-    #step 2 end
+    # step 1 end

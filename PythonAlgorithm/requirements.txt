@@ -1,0 +1,5 @@
+avro-python3
+setuptools
+pytest
+mysql-connector
+pymongo

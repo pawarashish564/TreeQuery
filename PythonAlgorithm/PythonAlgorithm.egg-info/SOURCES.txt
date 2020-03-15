@@ -1,0 +1,11 @@
+MANIFEST.in
+setup.py
+PythonAlgorithm.egg-info/PKG-INFO
+PythonAlgorithm.egg-info/SOURCES.txt
+PythonAlgorithm.egg-info/dependency_links.txt
+PythonAlgorithm.egg-info/top_level.txt
+cluster/TreeQueryCluster.py
+cluster/TreeQueryExecute.py
+resource/TreeQueryInput.json
+resource/TreeQueryInput2.json
+resource/TreeQueryInput3.json

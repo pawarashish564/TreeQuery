@@ -1,6 +1,6 @@
-from MyProject.TreeQueryCluster import Node, ClusterDependencyGraph, readTreeInput
+from cluster.TreeQueryCluster import Node, ClusterDependencyGraph, readTreeInput
 import abc
-JsonInput = "TreeQueryInput3.json"
+JsonInput = "resource/TreeQueryInput3.json"
 
 # Demonstrate Postorder traversal of node tree for execution
 

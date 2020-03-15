@@ -129,7 +129,7 @@ Remove from ONE to MANY dependency and Many to ONE dependency
 Time complexity O(1) to remove from ONE to MANY dependency and MANY to ONE dependency
 
 Python code to illustrate the cluster construction: <br>
-[Algorithm Cluster Construction in Python](resource/TreeQueryCluster.py)
+[Algorithm Cluster Construction in Python](PythonAlgorithm/cluster/TreeQueryCluster.py)
 
 ### Algorithm: Convert each cluster to workflow pipeline
 ####Definition: Pipeline 
@@ -153,7 +153,7 @@ For any node, its child must be executed before.
 
 Therefore, postorder traversal of the tree construct the pipeline beginning from children.
 
-[Algorithm Cluster to Pipeline conversion in Python](resource/TreeQueryExecute.py)
+[Algorithm Cluster to Pipeline conversion in Python](PythonAlgorithm/cluster/TreeQueryExecute.py)
 
 
 
