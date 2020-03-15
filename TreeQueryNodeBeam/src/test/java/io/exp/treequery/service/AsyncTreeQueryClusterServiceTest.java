@@ -50,7 +50,7 @@ class AsyncTreeQueryClusterServiceTest {
             public void writeGenericRecord(PCollection<GenericRecord> stream, Schema avroSchema, String outputLabel) {
                     String fileName = String.format("%s/%s", path.toAbsolutePath().toString(), outputLabel);
                     stream.apply(
-                            AvroIO.writeGenericRecords(avroSchema).to(fileName).withSuffix(".avro")
+                            AvroIO.writeGenericRecords(avroSchema).to(fileName).withoutSharding().withSuffix(".avro")
                     );
             }
         };
