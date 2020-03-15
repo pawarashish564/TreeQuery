@@ -10,6 +10,7 @@ import io.exp.treequery.model.AvroSchemaHelper;
 import io.exp.treequery.model.CacheTypeEnum;
 import io.exp.treequery.model.DataSource;
 import io.exp.treequery.model.Node;
+import io.exp.treequery.util.AvroIOHelper;
 import io.exp.treequery.util.JsonInstructionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -24,8 +25,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 @Slf4j
 class AsyncTreeQueryClusterServiceTest {
@@ -45,15 +48,7 @@ class AsyncTreeQueryClusterServiceTest {
         log.debug("Write temp result into "+path.toAbsolutePath().toString());
 
 
-        beamCacheOutputInterface = new BeamCacheOutputInterface() {
-            @Override
-            public void writeGenericRecord(PCollection<GenericRecord> stream, Schema avroSchema, String outputLabel) {
-                    String fileName = String.format("%s/%s", path.toAbsolutePath().toString(), outputLabel);
-                    stream.apply(
-                            AvroIO.writeGenericRecords(avroSchema).to(fileName).withoutSharding().withSuffix(".avro")
-                    );
-            }
-        };
+        beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
 
 
     }
@@ -110,5 +105,16 @@ class AsyncTreeQueryClusterServiceTest {
         synchronized (rootNode){
             rootNode.wait();
         }
+        //Check the avrio file
+        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
+        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        AtomicInteger counter = new AtomicInteger();
+        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
+                (record)->{
+                    assertThat(record).isNotNull();
+                    counter.incrementAndGet();
+                });
+        assertEquals(1000, counter.get());
     }
+
 }
