@@ -27,11 +27,11 @@ public class DataSourceFactory implements NodeFactory {
         MongoQueryLeafNode.MongoQueryLeafNodeBuilder mongoQueryLeafNodeBuilder = MongoQueryLeafNode.builder();
 
         mongoQueryLeafNodeBuilder.queryType(QueryTypeEnum.MONGO);
-        mongoQueryLeafNodeBuilder.database(Optional.of(jNode.get("database")).get().asText());
-        mongoQueryLeafNodeBuilder.source(Optional.of(jNode.get("source")).get().asText());
-        mongoQueryLeafNodeBuilder.collection(Optional.of(jNode.get("collection")).get().asText());
+        mongoQueryLeafNodeBuilder.database(Optional.of(jNode.get("database")).orElseThrow(()->new IllegalArgumentException("Mongo database missing")).asText());
+        mongoQueryLeafNodeBuilder.source(Optional.of(jNode.get("source")).orElseThrow(()->new IllegalArgumentException("Mongo source missing")).asText());
+        mongoQueryLeafNodeBuilder.collection(Optional.of(jNode.get("collection")).orElseThrow(()->new IllegalArgumentException("Mongo collection missing")).asText());
         mongoQueryLeafNodeBuilder.query(Optional.ofNullable(jNode.get("query")).map(q->q.asText()).orElse("{}"));
-        mongoQueryLeafNodeBuilder.avro_schema(Optional.ofNullable(jNode.get("avro_schema")).get().asText());
+        mongoQueryLeafNodeBuilder.avro_schema(Optional.ofNullable(jNode.get("avro_schema")).orElseThrow(()->new IllegalArgumentException("Mongo avro schema missing")).asText());
 
         MongoQueryLeafNode mongoQueryLeafNode = mongoQueryLeafNodeBuilder.build();
         mongoQueryLeafNode.setBasicValue(jNode);

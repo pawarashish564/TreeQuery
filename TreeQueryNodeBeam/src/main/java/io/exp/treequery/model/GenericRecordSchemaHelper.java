@@ -16,7 +16,7 @@ public class GenericRecordSchemaHelper {
         Schema tmpSchema = schema;
         Schema.Field field = null;
         for (String s : path){
-            field = Optional.of(tmpSchema.getField(s)).get();
+            field = Optional.of(tmpSchema.getField(s)).orElseThrow(()->new IllegalArgumentException("Missing field:"+s));
             tmpSchema = field.schema();
         }
         return Optional.of(field).map(f->f.schema().getType()).get();

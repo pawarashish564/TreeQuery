@@ -46,7 +46,7 @@ public class TransformNodeFactory implements NodeFactory {
         JoinNode joinNode = new JoinNode();
         joinNode.setBasicValue(jsonNode);
 
-        JsonNode tmp = Optional.of(jsonNode.get("keys")).get();
+        JsonNode tmp = Optional.of(jsonNode.get("keys")).orElseThrow(()->new IllegalArgumentException("Inner Join keys missing"));
         if (tmp.isArray()){
             JoinNode.Key.KeyBuilder keyBuilder = JoinNode.Key.builder();
             ArrayNode arrayNode = (ArrayNode) tmp;
@@ -54,7 +54,7 @@ public class TransformNodeFactory implements NodeFactory {
                     jCNode->{
                         keyBuilder.left(jCNode.get("left").asInt());
                         keyBuilder.right(jCNode.get("right").asInt());
-                        JsonNode jNodeOn = Optional.of(jCNode.get("on")).get();
+                        JsonNode jNodeOn = Optional.of(jCNode.get("on")).orElseThrow(()->new IllegalArgumentException("Missing on in Inner join"));
 
                         List<JoinAble.KeyColumn> keyColumnList = Lists.newLinkedList();
                         if(!jNodeOn.isArray()){
@@ -66,8 +66,8 @@ public class TransformNodeFactory implements NodeFactory {
                                     JoinAble.KeyColumn.KeyColumnBuilder keyColumnBuilder = JoinAble.KeyColumn.builder();
                                     keyColumnList.add(
                                             keyColumnBuilder
-                                                    .leftColumn(Optional.of(jOnChild.get("left")).get().asText())
-                                                    .rightColumn(Optional.of(jOnChild.get("right")).get().asText())
+                                                    .leftColumn(Optional.of(jOnChild.get("left")).orElseThrow(()->new IllegalArgumentException("Missing left in join")).asText())
+                                                    .rightColumn(Optional.of(jOnChild.get("right")).orElseThrow(()->new IllegalArgumentException("Missing right in join")).asText())
                                             .build()
                                     );
                                 }
@@ -84,8 +84,8 @@ public class TransformNodeFactory implements NodeFactory {
         LoadLeafNode loadLeafNode = null;
         LoadLeafNode.LoadLeafNodeBuilder loadLeafNodeBuilder = LoadLeafNode.builder();
 
-        String source = Optional.of(jsonNode.get("source")).get().asText();
-        String avroSchema = Optional.of(jsonNode.get("avro_schema")).get().asText();
+        String source = Optional.of(jsonNode.get("source")).orElseThrow(()->new IllegalArgumentException("Missing source in Load Node")).asText();
+        String avroSchema = Optional.of(jsonNode.get("avro_schema")).orElseThrow(()->new IllegalArgumentException("Missing avro_schema in Load Node")).asText();
         loadLeafNodeBuilder.source(source);
         loadLeafNodeBuilder.avro_schema(avroSchema);
         loadLeafNode = loadLeafNodeBuilder.build();
