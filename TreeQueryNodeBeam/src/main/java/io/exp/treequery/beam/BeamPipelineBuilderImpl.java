@@ -6,9 +6,11 @@ import io.exp.treequery.beam.cache.BeamCacheOutputInterface;
 import io.exp.treequery.beam.transform.LoadLeafNodeHelper;
 import io.exp.treequery.beam.transform.NodeBeamHelper;
 import io.exp.treequery.execute.PipelineBuilderInterface;
+import io.exp.treequery.model.AvroSchemaHelper;
 import io.exp.treequery.model.Node;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
@@ -26,11 +28,13 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
     private final Pipeline pipeline = Pipeline.create();
     private Map<Node, PCollection<GenericRecord>> nodePCollectionMap = Maps.newHashMap();
     private BeamCacheOutputInterface beamCacheOutputInterface;
+    private AvroSchemaHelper avroSchemaHelper;
     private Node __node = null;
 
     @Builder
-    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface){
+    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface, AvroSchemaHelper avroSchemaHelper){
         this.beamCacheOutputInterface = beamCacheOutputInterface;
+        this.avroSchemaHelper = avroSchemaHelper;
     }
 
     @Override
@@ -55,7 +59,9 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         Pipeline pipeline = this.pipeline;
         //Final result Pcollection
         PCollection<GenericRecord> record = this.getPCollection(__node);
-        this.beamCacheOutputInterface.writeGenericRecord(record, hashCode);
+        Schema avroSchema = Optional.of(avroSchemaHelper).get().getAvroSchema(__node);
+        Optional.ofNullable(avroSchema).orElseThrow(()->new IllegalArgumentException(String.format("Schema of %s should not be null",__node.getDescription())));
+        this.beamCacheOutputInterface.writeGenericRecord(record, avroSchema, hashCode);
         //Most simple runner
         PipelineResult.State state = pipeline.run().waitUntilFinish();
 
