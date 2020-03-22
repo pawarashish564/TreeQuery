@@ -163,3 +163,5 @@ To be further elaborated.
 
 ## Potential Usage
 Big Query application sourcing data from different sources in different locations
+
+

@@ -12,55 +12,14 @@
 #In the end, FLATTEN of 5Y and 10Y result running in cluster A
 
 #Json file is in TreeQueryInput.json
-JsonInput = "TreeQueryInput3.json"
+JsonInput = "resource/TreeQueryInput3.json"
 import json
 from collections import deque
 from typing import Dict, Set, List
+from Model.TreeNode import Node, nodeFactory
 
-class Node:
-    def __init__(self, description, action, cluster):
-        self.description = description
-        self.action = action
-        self.cluster = cluster
-        self.children = []
 
-    def insertChildren(self, node):
-        self.children.append(node)
 
-    def isSameCluster(self, node):
-        return self.cluster == node.cluster
-
-    def clone(self):
-        newNode = Node()
-        newNode.description = self.description
-        newNode.action = self.action
-        newNode.cluster = self.cluster
-        return newNode
-
-    def identifier(self):
-        return "identifier_%s"%(self.description)
-
-    def __str__(self):
-        return self.description
-    def bfs(self):
-        level = 0
-        queue = deque()
-        queue.append((self, 0))
-        result = "("
-        while len(queue) > 0:
-            node, lvl = queue.popleft()
-            if lvl != level:
-                result = result + "\n"
-                level = lvl
-            result = result + node.description +","
-
-            for cNode in node.children:
-                queue.append((cNode, lvl+1))
-        result = result+")"
-        return result
-
-def nodeFactory(jNode):
-    return Node(jNode["description"], jNode["action"], jNode["cluster"])
 
 class __JNodeInsert:
     def __init__(self, jNode:Dict, parent: Node = None):

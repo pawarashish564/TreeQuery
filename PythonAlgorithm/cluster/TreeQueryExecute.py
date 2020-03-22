@@ -1,4 +1,5 @@
-from cluster.TreeQueryCluster import Node, ClusterDependencyGraph, readTreeInput
+from cluster.TreeQueryCluster import ClusterDependencyGraph, readTreeInput
+from Model.TreeNode import Node
 import abc
 JsonInput = "resource/TreeQueryInput3.json"
 

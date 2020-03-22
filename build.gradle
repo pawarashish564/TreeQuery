@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'io.exp.treequery'
+group 'org.treequery'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.11
