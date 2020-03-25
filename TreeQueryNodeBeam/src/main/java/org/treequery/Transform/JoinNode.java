@@ -13,5 +13,7 @@ public class JoinNode extends Node  {
     public JoinNode(){
         this.joinFunction = new InnerJoinAble();
     }
-
+    public JoinNode(JoinAble joinAble){
+        this.joinFunction = joinAble;
+    }
 }

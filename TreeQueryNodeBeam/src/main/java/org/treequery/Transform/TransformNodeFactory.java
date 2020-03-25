@@ -5,6 +5,7 @@ package org.treequery.Transform;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
+import org.treequery.Transform.function.InnerJoinAble;
 import org.treequery.cluster.NodeFactory;
 import org.treequery.model.ActionTypeEnum;
 import org.treequery.model.JoinAble;
@@ -43,7 +44,7 @@ public class TransformNodeFactory implements NodeFactory {
         return flattenNode;
     }
     static Node createInnerJoinNode(JsonNode jsonNode) {
-        JoinNode joinNode = new JoinNode();
+        JoinNode joinNode = new JoinNode(new InnerJoinAble());
         joinNode.setBasicValue(jsonNode);
 
         JsonNode tmp = Optional.of(jsonNode.get("keys")).orElseThrow(()->new IllegalArgumentException("Inner Join keys missing"));
