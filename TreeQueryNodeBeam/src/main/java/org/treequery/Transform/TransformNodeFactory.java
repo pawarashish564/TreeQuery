@@ -48,7 +48,8 @@ public class TransformNodeFactory implements NodeFactory {
 
         JsonNode tmp = Optional.of(jsonNode.get("keys")).orElseThrow(()->new IllegalArgumentException("Inner Join keys missing"));
         if (tmp.isArray()){
-            JoinNode.Key.KeyBuilder keyBuilder = JoinNode.Key.builder();
+
+            JoinAble.Key.KeyBuilder keyBuilder = JoinAble.Key.builder();
             ArrayNode arrayNode = (ArrayNode) tmp;
             arrayNode.forEach(
                     jCNode->{
@@ -73,7 +74,7 @@ public class TransformNodeFactory implements NodeFactory {
                                 }
                         );
                         keyBuilder.columnLst(keyColumnList);
-                        joinNode.keys.add(keyBuilder.build());
+                        joinNode.getJoinFunction().getKeys().add(keyBuilder.build());
                     }
             );
         }

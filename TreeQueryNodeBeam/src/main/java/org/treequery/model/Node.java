@@ -3,6 +3,7 @@ package org.treequery.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
+import org.treequery.Transform.function.NonJoinAble;
 import org.treequery.cluster.Cluster;
 import lombok.Getter;
 import lombok.NonNull;
@@ -21,6 +22,10 @@ public abstract class Node implements Serializable {
     protected ActionTypeEnum action;
     @NonNull
     protected Cluster cluster;
+
+    @NonNull
+    protected JoinAble joinFunction = new NonJoinAble();
+
 
     private static final boolean SIMPLE_TOSTRING = true;
 
