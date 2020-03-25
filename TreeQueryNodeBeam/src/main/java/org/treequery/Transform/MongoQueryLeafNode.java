@@ -1,5 +1,6 @@
 package org.treequery.Transform;
 
+import org.treequery.model.DataSource;
 import org.treequery.model.Node;
 import org.treequery.model.MongoQueryAble;
 import org.treequery.model.QueryTypeEnum;
@@ -8,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MongoQueryLeafNode extends Node implements MongoQueryAble {
+public class MongoQueryLeafNode extends Node implements DataSource, MongoQueryAble {
     QueryTypeEnum queryType;
     String database;
     String collection;

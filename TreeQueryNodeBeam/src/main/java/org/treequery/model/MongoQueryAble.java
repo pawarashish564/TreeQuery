@@ -3,7 +3,7 @@ package org.treequery.model;
 
 
 
-public interface MongoQueryAble extends DataSource {
+public interface MongoQueryAble {
 
     public QueryTypeEnum getQueryType() ;
 

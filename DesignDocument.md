@@ -132,7 +132,7 @@ Python code to illustrate the cluster construction: <br>
 [Algorithm Cluster Construction in Python](PythonAlgorithm/cluster/TreeQueryCluster.py)
 
 ### Algorithm: Convert each cluster to workflow pipeline
-####Definition: Pipeline 
+####Definition: Pipeline creation from Cluster nodes
 Convert cluster to Pipeline illustration. <br>
 ![Cluster to Pipeline](resource/TreeQueryArchitectureClusterExecute.png)
 
@@ -155,6 +155,8 @@ Therefore, postorder traversal of the tree construct the pipeline beginning from
 
 [Algorithm Cluster to Pipeline conversion in Python](PythonAlgorithm/cluster/TreeQueryExecute.py)
 
+### Algorithm: Convert each cluster to workflow pipeline
+####Definition: Pipeline 
 
 
 ## Performance optimization
