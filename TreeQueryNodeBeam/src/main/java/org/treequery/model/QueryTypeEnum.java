@@ -1,5 +1,5 @@
 package org.treequery.model;
 
 public enum QueryTypeEnum {
-    AVRO, MONGO, SQL, REDIS
+    NONE, AVRO, MONGO, SQL, REDIS
 }

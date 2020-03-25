@@ -4,7 +4,7 @@ import org.treequery.model.JoinAble;
 
 import java.util.List;
 
-public class NonJoinAble implements JoinAble {
+public class NoJoinAbleFunction implements JoinAble {
     @Override
     public List<Key> getKeys() {
         throw new IllegalStateException("Join not supported");

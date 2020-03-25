@@ -6,7 +6,7 @@ import org.treequery.model.JoinAble;
 
 import java.util.List;
 @Getter
-public class InnerJoinAble implements JoinAble {
+public class InnerJoinFunction implements JoinAble {
     List<Key> keys = Lists.newLinkedList();
 
 }

@@ -7,7 +7,7 @@ import org.treequery.model.QueryTypeEnum;
 
 import java.util.Optional;
 
-public class DataSourceFactory implements NodeFactory {
+public class QueryableDataSourceFactory implements NodeFactory {
     @Override
     public Node nodeFactoryMethod(JsonNode jNode) {
         //Get queryType
