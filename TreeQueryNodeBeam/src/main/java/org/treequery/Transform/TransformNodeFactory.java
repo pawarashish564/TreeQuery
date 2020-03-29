@@ -5,7 +5,7 @@ package org.treequery.Transform;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
-import org.treequery.Transform.function.InnerJoinFunction;
+import org.treequery.Transform.function.JoinFunction;
 import org.treequery.cluster.NodeFactory;
 import org.treequery.model.ActionTypeEnum;
 import org.treequery.model.JoinAble;
@@ -25,7 +25,7 @@ public class TransformNodeFactory implements NodeFactory {
                 node = createFlattenNode(jsonNode);
                 break;
             case INNER_JOIN:
-                node = createInnerJoinNode(jsonNode);
+                node = createJoinNode(jsonNode);
                 break;
             case LOAD:
                 node = createLoadNode(jsonNode);
@@ -43,42 +43,10 @@ public class TransformNodeFactory implements NodeFactory {
         flattenNode.setBasicValue(jsonNode);
         return flattenNode;
     }
-    static Node createInnerJoinNode(JsonNode jsonNode) {
-        JoinNode joinNode = new JoinNode(new InnerJoinFunction());
+    static Node createJoinNode(JsonNode jsonNode) {
+        JoinAble joinAble = JoinFunction.builder().jsonNode(jsonNode).build();
+        JoinNode joinNode = new JoinNode(joinAble);
         joinNode.setBasicValue(jsonNode);
-
-        JsonNode tmp = Optional.of(jsonNode.get("keys")).orElseThrow(()->new IllegalArgumentException("Inner Join keys missing"));
-        if (tmp.isArray()){
-
-            JoinAble.Key.KeyBuilder keyBuilder = JoinAble.Key.builder();
-            ArrayNode arrayNode = (ArrayNode) tmp;
-            arrayNode.forEach(
-                    jCNode->{
-                        keyBuilder.left(jCNode.get("left").asInt());
-                        keyBuilder.right(jCNode.get("right").asInt());
-                        JsonNode jNodeOn = Optional.of(jCNode.get("on")).orElseThrow(()->new IllegalArgumentException("Missing on in Inner join"));
-
-                        List<JoinAble.KeyColumn> keyColumnList = Lists.newLinkedList();
-                        if(!jNodeOn.isArray()){
-                            throw new IllegalArgumentException("key join 'ON' should be array");
-                        }
-                        ArrayNode arrayOnNode = (ArrayNode) jNodeOn;
-                        arrayOnNode.forEach(
-                                jOnChild->{
-                                    JoinAble.KeyColumn.KeyColumnBuilder keyColumnBuilder = JoinAble.KeyColumn.builder();
-                                    keyColumnList.add(
-                                            keyColumnBuilder
-                                                    .leftColumn(Optional.of(jOnChild.get("left")).orElseThrow(()->new IllegalArgumentException("Missing left in join")).asText())
-                                                    .rightColumn(Optional.of(jOnChild.get("right")).orElseThrow(()->new IllegalArgumentException("Missing right in join")).asText())
-                                            .build()
-                                    );
-                                }
-                        );
-                        keyBuilder.columnLst(keyColumnList);
-                        joinNode.getJoinFunction().getKeys().add(keyBuilder.build());
-                    }
-            );
-        }
         return joinNode;
     }
 

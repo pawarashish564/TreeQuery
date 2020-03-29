@@ -6,7 +6,7 @@ import java.util.List;
 
 public class NoJoinAbleFunction implements JoinAble {
     @Override
-    public List<Key> getKeys() {
+    public List<JoinKey> getJoinKeys() {
         throw new IllegalStateException("Join not supported");
     }
 }
