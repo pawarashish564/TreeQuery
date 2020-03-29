@@ -1,4 +1,5 @@
 {
+  "name": "LoadBondTrades10Y",
   "description": "Load BondTrades 10Y",
   "action": "LOAD",
   "cluster": "A",
