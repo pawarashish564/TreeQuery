@@ -12,10 +12,13 @@ import org.apache.beam.vendor.grpc.v1p21p0.com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 
 @Getter
 public abstract class Node implements Serializable {
+    @NonNull
+    protected String name;
     @NonNull
     protected String description;
     @NonNull
@@ -38,6 +41,8 @@ public abstract class Node implements Serializable {
         return this.cluster.equals(node.cluster);
     }
 
+    public void setName(String name){ this.name = name; }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -51,6 +56,7 @@ public abstract class Node implements Serializable {
     }
 
     public void setBasicValue(JsonNode jsonNode){
+        this.setName(Optional.ofNullable(jsonNode.get("name")).orElseThrow(()->new IllegalArgumentException("No name in node")).asText());
         this.setDescription(jsonNode.get("description").asText());
         this.setAction(ActionTypeEnum.valueOf(jsonNode.get("action").asText()));
         this.setCluster(Cluster.builder()
@@ -60,7 +66,7 @@ public abstract class Node implements Serializable {
 
     public String toString() {
         if (SIMPLE_TOSTRING){
-            return this.getDescription();
+            return String.format("%s%s",this.name, this.getDescription());
         }else {
             Gson gson = new Gson();
             return gson.toJson(this);
