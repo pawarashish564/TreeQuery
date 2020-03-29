@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 @Slf4j
-class AsyncTreeQueryClusterServiceTest {
+class SimpleAsyncTreeQueryOneNodeServiceTest {
 
     TreeQueryClusterService treeQueryClusterService = null;
 
@@ -68,7 +68,7 @@ class AsyncTreeQueryClusterServiceTest {
     }
 
     @Test
-    void runAsyncService() throws Exception{
+    void runAsyncSimpleAvroReadTesting() throws Exception{
         String AvroTree = "SimpleAvroReadCluster.json";
         String jsonString = prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = createNode(jsonString);

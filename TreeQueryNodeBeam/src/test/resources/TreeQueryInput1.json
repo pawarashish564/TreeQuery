@@ -1,0 +1,30 @@
+{
+  "name": "Join5YData",
+  "description": "Join 5Y data",
+  "action": "INNER_JOIN",
+  "cluster": "A",
+  "children":[{
+    "name": "Load5YBondTrade",
+    "description": "Load BondTrades 5Y",
+    "action": "LOAD",
+    "cluster": "A",
+    "source" : "gs://dexbigdata-bondtrade/bondtrade1.avro",
+    "avro_schema": "{\"name\":\"BondTrade\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"cust\",\"type\":\"string\"},{\"name\":\"tradeDate\",\"type\":\"string\"},{\"name\":\"tradeType\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\",\"logicalType\":\"time-millis\"},{\"name\":\"asset\",\"type\":{\"name\":\"Asset\",\"type\":\"record\",\"fields\":[{\"name\":\"securityId\",\"type\":\"string\"},{\"name\":\"notional\",\"type\":\"double\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"currency\",\"type\":\"string\"},{\"name\":\"bidask\",\"type\":{\"name\":\"BidAsk\",\"type\":\"enum\",\"symbols\":[\"BID\",\"ASK\"]}}]}}]}"
+  },
+    {
+      "name": "Load5YMongoStatic",
+      "description": "Query Mongo Static",
+      "action": "QUERY",
+      "cluster": "A",
+      "queryType" : "MONGO",
+      "source" : "localmongo",
+      "database" : "hkma",
+      "collection": "OutstandingGovBond",
+      "query" : "{}",
+      "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"stock_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"double\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"},{\"name\":\"fixfloat\",\"type\":{\"name\":\"FixFloat\",\"type\":\"enum\",\"symbols\":[\"FIX\",\"FLOAT\"]}}]}"
+    }
+  ],
+  "keys": [ {"left":0, "right":1 ,
+    "on":[{"left": "asset.securityId","right": "isin_code"}],
+    "labels":  {"left":"bondtrade", "right":"bondstatic"} } ]
+}
