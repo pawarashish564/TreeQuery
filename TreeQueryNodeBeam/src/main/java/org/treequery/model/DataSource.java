@@ -7,7 +7,7 @@ public interface DataSource {
      public String getSource() ;
      public String getAvro_schema() ;
 
-     public default QueryAble getQueryFunction(){
+     public default QueryAble getQueryAble(){
           return new NoQueryFunction();
      }
 

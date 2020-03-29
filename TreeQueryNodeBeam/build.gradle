@@ -31,6 +31,10 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
+    compile  "org.apache.beam:beam-sdks-java-io-google-cloud-platform:$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-io-mongodb', version: "$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-extensions-join-library', version: "$beamVersion"
+
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
 
 

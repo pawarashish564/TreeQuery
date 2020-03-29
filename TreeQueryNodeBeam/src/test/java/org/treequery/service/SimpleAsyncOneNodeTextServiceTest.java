@@ -14,6 +14,7 @@ import org.treequery.util.JsonInstructionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.utils.TestDataAgent;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,44 +35,20 @@ class SimpleAsyncOneNodeTextServiceTest {
     AvroSchemaHelper avroSchemaHelper = null;
     @BeforeEach
     void init() throws IOException {
-
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = mock(AvroSchemaHelper.class);
-
         Path path = Files.createTempDirectory("TreeQuery_");
         log.debug("Write temp result into "+path.toAbsolutePath().toString());
-
-
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
-
-
     }
 
-    private String prepareNodeFromJsonInstruction(String jsonFileName){
-        String workDirectory = null;
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File jsonFile = new File(classLoader.getResource(jsonFileName).getFile());
-        workDirectory = jsonFile.getParent();
 
-        String jsonString = JsonInstructionHelper.parseJsonFile(jsonFile.getAbsolutePath());
-        return jsonString.replaceAll("\\$\\{WORKDIR\\}", workDirectory);
-    }
-
-    private Node createNode(String jsonString) throws JsonProcessingException {
-        Node rootNode = null;
-        NodeFactory nodeFactory;
-        NodeTreeFactory nodeTreeFactory;
-        nodeFactory = new TransformNodeFactory();
-        nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
-        rootNode = nodeTreeFactory.parseJsonString(jsonString);
-        return rootNode;
-    }
 
     @Test
     void runAsyncSimpleAvroReadTesting() throws Exception{
         String AvroTree = "SimpleAvroReadCluster.json";
-        String jsonString = prepareNodeFromJsonInstruction(AvroTree);
-        Node rootNode = createNode(jsonString);
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        Node rootNode = JsonInstructionHelper.createNode(jsonString);
         LoadLeafNode d = (LoadLeafNode) rootNode;
         when(avroSchemaHelper.getAvroSchema(rootNode)).then(
                 (node)-> {
@@ -99,7 +76,7 @@ class SimpleAsyncOneNodeTextServiceTest {
         synchronized (rootNode){
             rootNode.wait();
         }
-        //Check the avrio file
+        //Check the avro file
         TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
         File avroOutputFile = testFileBeamCacheOutput.getFile();
         AtomicInteger counter = new AtomicInteger();

@@ -1,6 +1,11 @@
 package org.treequery.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.treequery.Transform.TransformNodeFactory;
+import org.treequery.cluster.NodeFactory;
+import org.treequery.cluster.NodeTreeFactory;
+import org.treequery.model.Node;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,5 +26,15 @@ public class JsonInstructionHelper {
             log.error(ioe.getMessage());
         }
         return jsonString;
+    }
+
+    public static Node createNode(String jsonString) throws JsonProcessingException {
+        Node rootNode = null;
+        NodeFactory nodeFactory;
+        NodeTreeFactory nodeTreeFactory;
+        nodeFactory = new TransformNodeFactory();
+        nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
+        rootNode = nodeTreeFactory.parseJsonString(jsonString);
+        return rootNode;
     }
 }

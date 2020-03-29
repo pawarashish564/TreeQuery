@@ -14,7 +14,7 @@ public class LoadLeafNodeHelper implements NodeBeamHelper{
     @Override
     public PCollection<GenericRecord> apply(Pipeline pipeline, List<PCollection<GenericRecord>> parentCollectionLst, Node node) {
         if (!( node instanceof LoadLeafNode)){
-            throw new IllegalArgumentException(String.format("%s is not Leaf Avro File Node", node.getDescription()));
+            throw new IllegalArgumentException(String.format("%s is not Leaf Avro File Node", node.toString()));
         }
         if (parentCollectionLst.size() > 0){
             throw new IllegalArgumentException("Parent nodes should be empty for Leaf Avro File Node");
