@@ -1,10 +1,13 @@
 package org.treequery.beam;
 
 import com.google.common.collect.Maps;
+import org.apache.beam.sdk.coders.AvroCoder;
 import org.treequery.Transform.LoadLeafNode;
+import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.transform.LoadLeafNodeHelper;
 import org.treequery.beam.transform.NodeBeamHelper;
+import org.treequery.beam.transform.QueryLeafNodeHelper;
 import org.treequery.execute.PipelineBuilderInterface;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.Node;
@@ -36,12 +39,20 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         this.avroSchemaHelper = avroSchemaHelper;
     }
 
-    @Override
-    public void buildPipeline(List<Node> parentNodeLst, Node node) {
+    private NodeBeamHelper prepareNodeBeamHelper(Node node){
         NodeBeamHelper nodeBeamHelper = null;
         if ( node instanceof LoadLeafNode){
             nodeBeamHelper = new LoadLeafNodeHelper();
         }
+        else if (node instanceof QueryLeafNode){
+            nodeBeamHelper = new QueryLeafNodeHelper();
+        }
+        return nodeBeamHelper;
+    }
+
+    @Override
+    public void buildPipeline(List<Node> parentNodeLst, Node node) {
+        NodeBeamHelper nodeBeamHelper = prepareNodeBeamHelper(node);
         this.__node = node;
 
         List<PCollection<GenericRecord>> parentLst = parentNodeLst.stream().map(

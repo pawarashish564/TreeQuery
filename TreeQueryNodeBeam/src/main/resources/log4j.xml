@@ -10,7 +10,7 @@
         </layout>
     </appender>
 
-    <logger name="io.exp">
+    <logger name="org.treequery">
         <level value="DEBUG"/>
     </logger>
 

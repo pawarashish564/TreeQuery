@@ -1,0 +1,12 @@
+{
+  "name": "Load5YMongoStatic",
+  "description": "Query Mongo Static",
+  "action": "QUERY",
+  "cluster": "A",
+  "queryType" : "MONGO",
+  "source" : "localmongo",
+  "database" : "hkma",
+  "collection": "OutstandingGovBond",
+  "query" : "{}",
+  "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"string\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"}]}"
+}
