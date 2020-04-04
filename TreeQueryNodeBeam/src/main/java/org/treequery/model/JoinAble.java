@@ -4,13 +4,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
-public interface JoinAble {
+public interface JoinAble extends Serializable{
     public List<JoinKey> getJoinKeys() ;
 
-    static class JoinKey {
+    static class JoinKey implements Serializable {
         @Getter @NonNull
         int leftInx;
         @Getter @NonNull
@@ -34,8 +36,8 @@ public interface JoinAble {
             return new JoinKeyBuilder();
         }
 
-        public Iterator<KeyColumn> getColumnIterator(){
-            return columnLst.iterator();
+        public Stream<KeyColumn> getColumnStream(){
+            return columnLst.stream();
         }
 
         public static class JoinKeyBuilder {
@@ -83,7 +85,7 @@ public interface JoinAble {
         }
     }
     @Getter
-    static class KeyColumn{
+    static class KeyColumn implements Serializable {
         String leftColumn;
         String rightColumn;
 
