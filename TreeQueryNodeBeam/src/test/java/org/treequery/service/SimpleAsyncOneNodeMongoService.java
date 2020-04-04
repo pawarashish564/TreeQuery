@@ -9,14 +9,18 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
+import org.treequery.util.AvroIOHelper;
 import org.treequery.util.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,9 +36,8 @@ public class SimpleAsyncOneNodeMongoService {
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = mock(AvroSchemaHelper.class);
-        Path path = Files.createTempDirectory("TreeQuery_");
-        log.debug("Write temp result into "+path.toAbsolutePath().toString());
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
+
     }
 
     @Test
@@ -72,5 +75,16 @@ public class SimpleAsyncOneNodeMongoService {
         synchronized (rootNode){
             rootNode.wait();
         }
+
+        //Check the avro file
+        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
+        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        AtomicInteger counter = new AtomicInteger();
+        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
+                (record)->{
+                    assertThat(record).isNotNull();
+                    counter.incrementAndGet();
+                });
+        assertEquals(16, counter.get());
     }
 }

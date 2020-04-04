@@ -42,10 +42,51 @@ class SimpleAsyncOneNodeTextServiceTest {
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
     }
 
+    @Test
+    void runAsyncSimpleAvroStaticReadTesting() throws Exception{
+        String AvroTree = "SimpleAvroReadStaticCluster.json";
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        Node rootNode = JsonInstructionHelper.createNode(jsonString);
+        LoadLeafNode d = (LoadLeafNode) rootNode;
+        when(avroSchemaHelper.getAvroSchema(rootNode)).then(
+                (node)-> {
+                    return d.getAvroSchemaObj();
+                }
+        );
+        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+                .treeQueryClusterRunnerFactory(()->{
+                    return TreeQueryClusterRunnerImpl.builder()
+                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .cacheTypeEnum(cacheTypeEnum)
+                            .avroSchemaHelper(avroSchemaHelper)
+                            .build();
+                })
+                .build();
 
+        treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
+            log.debug(status.toString());
+            synchronized (rootNode) {
+                rootNode.notify();
+            }
+            assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        });
+        synchronized (rootNode){
+            rootNode.wait();
+        }
+        //Check the avro file
+        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
+        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        AtomicInteger counter = new AtomicInteger();
+        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
+                (record)->{
+                    assertThat(record).isNotNull();
+                    counter.incrementAndGet();
+                });
+        assertEquals(16, counter.get());
+    }
 
     @Test
-    void runAsyncSimpleAvroReadTesting() throws Exception{
+    void runAsyncSimpleAvroTradeReadTesting() throws Exception{
         String AvroTree = "SimpleAvroReadCluster.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
