@@ -58,13 +58,13 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                     pipelineBuilderInterface.executePipeline();
                 }catch(Exception ex){
                     log.error(ex.getMessage());
+
                     statusCallback.accept(
                             StatusTreeQueryCluster.builder()
                                     .status(StatusTreeQueryCluster.QueryTypeEnum.FAIL)
                                     .description(ex.getMessage())
                                     .build()
                     );
-                    return;
                 }
                 clusterDependencyGraph.removeClusterDependency(node);
             }

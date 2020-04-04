@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.function.JoinFunction;
+import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
 import org.treequery.util.AvroIOHelper;
@@ -20,9 +21,11 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class JoinNodeHelperTest {
     JoinNode joinNode = null;
+    AvroSchemaHelper avroSchemaHelper = null;
     @BeforeEach
     void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
@@ -30,6 +33,7 @@ class JoinNodeHelperTest {
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         assertThat(rootNode).isInstanceOf(JoinNode.class);
         joinNode = (JoinNode)rootNode;
+        avroSchemaHelper = mock(AvroSchemaHelper.class);
     }
 
     List<GenericRecord> getAvroRecord(String fileName) throws Exception{
@@ -45,7 +49,7 @@ class JoinNodeHelperTest {
 
     @Test
     void giveCorrectKeyPerGenericRecordDuringJoin() throws Exception{
-        JoinNodeHelper joinNodeHelper = new JoinNodeHelper();
+        JoinNodeHelper joinNodeHelper = new JoinNodeHelper(avroSchemaHelper);
         List<GenericRecord> bondTrades = getAvroRecord("bondtrade1.avro");
         List<GenericRecord> bondStatics = getAvroRecord("BondStaticSample.avro");
         assertThat(bondTrades).hasSizeGreaterThan(0);

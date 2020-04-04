@@ -1,10 +1,13 @@
 package org.treequery.beam.transform;
 
+import lombok.Builder;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -13,6 +16,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.function.JoinFunction;
 import org.treequery.Transform.function.NoJoinAbleFunction;
+import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
 
@@ -24,7 +28,9 @@ import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.treequery.util.GenericRecordSchemaHelper;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JoinNodeHelper implements NodeBeamHelper{
+    protected final AvroSchemaHelper avroSchemaHelper;
     @Override
     public PCollection<GenericRecord> apply(Pipeline pipeline, List<PCollection<GenericRecord>> parentCollectionLst, Node node) {
         if (node.getJoinFunction() instanceof NoJoinAbleFunction){
@@ -45,14 +51,27 @@ public class JoinNodeHelper implements NodeBeamHelper{
             List<String> leftColumnLst = joinKey.getColumnStream().map(
                     leftColumn->leftColumn.getLeftColumn()
             ).collect(Collectors.toList());
-            PCollection< KV<String, GenericRecord> > leftRecord = parentCollectionLst.get(joinKey.getLeftInx()).apply(
-                new KeyGenericRecordTransform(leftColumnLst)
+            Schema leftSchema = avroSchemaHelper.getAvroSchema(node.getChildren().get(joinKey.getLeftInx()));
+            AvroCoder leftCoder = AvroCoder.of(GenericRecord.class, leftSchema);
+            PCollection<GenericRecord> leftCollection = parentCollectionLst.get(joinKey.getLeftInx());
+            leftCollection.setCoder(leftCoder);
+            PCollection< KV<String, GenericRecord> > leftRecord = leftCollection.apply(
+                 KeyGenericRecordTransform.builder()
+                        .columnLst(leftColumnLst)
+                        .build()
             );
             List<String> rightColumnLst = joinKey.getColumnStream().map(
                     rightColumn->rightColumn.getRightColumn()
             ).collect(Collectors.toList());
-            PCollection< KV<String, GenericRecord> > rightRecord = parentCollectionLst.get(joinKey.getRightInx()).apply(
-                new KeyGenericRecordTransform(rightColumnLst)
+
+            Schema rightSchema = avroSchemaHelper.getAvroSchema(node.getChildren().get(joinKey.getRightInx()));
+            AvroCoder rightCoder = AvroCoder.of(GenericRecord.class, rightSchema);
+            PCollection<GenericRecord> rightCollection = parentCollectionLst.get(joinKey.getRightInx());
+            rightCollection.setCoder(rightCoder);
+            PCollection< KV<String, GenericRecord> > rightRecord = rightCollection.apply(
+                 KeyGenericRecordTransform.builder()
+                    .columnLst(rightColumnLst)
+                    .build()
             );
             PCollection<KV<String, KV<GenericRecord, GenericRecord>>> joinResult = null;
             switch (joinFunction.getJoinTypeEnum()){
@@ -63,6 +82,8 @@ public class JoinNodeHelper implements NodeBeamHelper{
                     throw new NoSuchMethodError("Not support non-inner join");
             }
 
+            Schema outputSchema = avroSchemaHelper.getAvroSchema(node);
+            AvroCoder outputCoder = AvroCoder.of(GenericRecord.class, outputSchema);
             result = joinResult.apply(ParDo.of(
                     new DoFn<KV<String, KV<GenericRecord, GenericRecord>>, GenericRecord>() {
                         @ProcessElement
@@ -71,21 +92,19 @@ public class JoinNodeHelper implements NodeBeamHelper{
                             log.debug(element.getValue().toString());
                         }
                     }
-            ));
+            )).setCoder(outputCoder);
         }
         return result;
     }
 
-
+    @Builder
     private static class KeyGenericRecordTransform extends PTransform <PCollection<GenericRecord>, PCollection<KV<String, GenericRecord>> >{
         @NonNull
         List<String> columnLst;
-        KeyGenericRecordTransform(List<String> columnLst){
-            this.columnLst = columnLst;
-        }
 
         @Override
         public PCollection<KV<String, GenericRecord>> expand(PCollection<GenericRecord> records) {
+
             PCollection< KV <String, GenericRecord> > keyGenericRecord = records.apply(
                 ParDo.of(
                         new DoFn<GenericRecord, KV<String, GenericRecord>>() {

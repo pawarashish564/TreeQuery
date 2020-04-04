@@ -2,9 +2,11 @@ package org.treequery.beam;
 
 import com.google.common.collect.Maps;
 import org.apache.beam.sdk.coders.AvroCoder;
+import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
+import org.treequery.beam.transform.JoinNodeHelper;
 import org.treequery.beam.transform.LoadLeafNodeHelper;
 import org.treequery.beam.transform.NodeBeamHelper;
 import org.treequery.beam.transform.QueryLeafNodeHelper;
@@ -46,6 +48,9 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         }
         else if (node instanceof QueryLeafNode){
             nodeBeamHelper = new QueryLeafNodeHelper();
+        }
+        else if (node instanceof JoinNode){
+            nodeBeamHelper = new JoinNodeHelper(avroSchemaHelper);
         }
         return nodeBeamHelper;
     }
