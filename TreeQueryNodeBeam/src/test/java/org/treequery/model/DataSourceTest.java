@@ -53,7 +53,10 @@ class DataSourceTest {
     void experimentSchemaGetType() throws IOException {
         assertThat(rootNode).isInstanceOf(LoadLeafNode.class);
         LoadLeafNode loadLeafNode = (LoadLeafNode) rootNode;
-        Schema schema = loadLeafNode.getAvroSchemaObj();
+        Node node = loadLeafNode;
+        assertThat(node).isInstanceOf(DataSource.class);
+        DataSource dataSource = (DataSource) node;
+        Schema schema = dataSource.getAvroSchemaObj();
         assertAll(
                 ()->{
             assertEquals(Schema.Type.STRING, GenericRecordSchemaHelper.getSchemaType(schema,"id"));

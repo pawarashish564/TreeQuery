@@ -10,6 +10,7 @@ import org.treequery.model.QueryTypeEnum;
 import java.util.Optional;
 
 public class QueryableDataSourceFactory implements NodeFactory {
+    private static String MongoDBQueryString = "mongodb://mongoadmin:secret@localhost:27017";
     @Override
     public Node nodeFactoryMethod(JsonNode jNode) {
         //Get queryType
@@ -42,7 +43,7 @@ public class QueryableDataSourceFactory implements NodeFactory {
         mongoFunctionBuilder.database(Optional.of(jNode.get("database")).orElseThrow(()->new IllegalArgumentException("Mongo database missing")).asText());
         mongoFunctionBuilder.collection(Optional.of(jNode.get("collection")).orElseThrow(()->new IllegalArgumentException("Mongo collection missing")).asText());
         mongoFunctionBuilder.query(Optional.ofNullable(jNode.get("query")).map(q->q.asText()).orElse("{}"));
-
+        mongoFunctionBuilder.mongoConnString(MongoDBQueryString);
 
         MongoQueryFunction mongoQueryFunction = mongoFunctionBuilder.build();
 

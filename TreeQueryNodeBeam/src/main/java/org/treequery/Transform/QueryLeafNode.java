@@ -18,9 +18,4 @@ public class QueryLeafNode extends Node implements DataSource {
     @NonNull
     QueryAble queryAble;
 
-
-    @Override
-    public  QueryAble getQueryFunction(){
-        return queryAble;
-    }
 }
