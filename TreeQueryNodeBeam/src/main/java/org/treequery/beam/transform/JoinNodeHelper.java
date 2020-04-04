@@ -2,6 +2,7 @@ package org.treequery.beam.transform;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
+import org.treequery.util.GenericRecordSchemaHelper;
 
 @Slf4j
 public class JoinNodeHelper implements NodeBeamHelper{
@@ -95,14 +97,20 @@ public class JoinNodeHelper implements NodeBeamHelper{
                         }
                 )
             );
-
             return keyGenericRecord;
         }
     }
 
 
-    private static String getKeyStringHelper (GenericRecord genericRecord, List<String> columnLst){
-
-        return "";
+    static String getKeyStringHelper (GenericRecord genericRecord, List<String> columnLst){
+        StringBuilder sb = new StringBuilder();
+        for (String column: columnLst){
+            String value = GenericRecordSchemaHelper.StringifyAvroValue(genericRecord, column);
+            sb.append(value);
+            sb.append("-");
+        }
+        return sb.toString();
     }
+
+
 }

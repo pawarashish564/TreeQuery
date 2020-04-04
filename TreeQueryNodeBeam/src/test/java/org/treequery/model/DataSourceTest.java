@@ -13,6 +13,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.util.GenericRecordSchemaHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,6 +87,7 @@ class DataSourceTest {
             GenericRecordSchemaHelper.getValue(trade,"asset.notional", ntlField);
             assertThat(ntlField.getValue()).isNotNaN();
 
+            assertEquals(Schema.Type.ENUM,GenericRecordSchemaHelper.getSchemaType(trade.getSchema(),"asset.bidask"));
             GenericRecordSchemaHelper.getValue(trade, "asset.bidask", (obj)->{
                 GenericData.EnumSymbol e = (GenericData.EnumSymbol) obj;
                 log.debug(e.toString());

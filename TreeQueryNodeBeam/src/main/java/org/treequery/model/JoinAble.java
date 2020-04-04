@@ -13,9 +13,9 @@ public interface JoinAble extends Serializable{
     public List<JoinKey> getJoinKeys() ;
 
     static class JoinKey implements Serializable {
-        @Getter @NonNull
+        @Getter
         int leftInx;
-        @Getter @NonNull
+        @Getter
         int rightInx;
         @Getter @NonNull
         String leftLabel;
