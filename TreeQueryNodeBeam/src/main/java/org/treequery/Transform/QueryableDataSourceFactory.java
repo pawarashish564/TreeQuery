@@ -14,7 +14,7 @@ public class QueryableDataSourceFactory implements NodeFactory {
     @Override
     public Node nodeFactoryMethod(JsonNode jNode) {
         //Get queryType
-        String queryType = Optional.of(jNode.get("queryType")).get().asText();
+        String queryType = Optional.ofNullable(jNode.get("queryType")).orElseThrow(()->new IllegalArgumentException("No query Type")).asText();
         QueryTypeEnum queryTypeEnum = QueryTypeEnum.valueOf(queryType);
 
         QueryAble queryAble = null;
@@ -33,15 +33,15 @@ public class QueryableDataSourceFactory implements NodeFactory {
     }
 
     private QueryLeafNode.QueryLeafNodeBuilder fillBasicInfo(QueryLeafNode.QueryLeafNodeBuilder queryLeafNodeBuilder, JsonNode jNode){
-        queryLeafNodeBuilder.source(Optional.of(jNode.get("source")).orElseThrow(()->new IllegalArgumentException("Mongo source missing")).asText());
+        queryLeafNodeBuilder.source(Optional.ofNullable(jNode.get("source")).orElseThrow(()->new IllegalArgumentException("Mongo source missing")).asText());
         queryLeafNodeBuilder.avro_schema(Optional.ofNullable(jNode.get("avro_schema")).orElseThrow(()->new IllegalArgumentException("Mongo avro schema missing")).asText());
         return queryLeafNodeBuilder;
     }
 
     private QueryAble createMongoLeadNode(JsonNode jNode){
         MongoQueryFunction.MongoQueryFunctionBuilder mongoFunctionBuilder = MongoQueryFunction.builder();
-        mongoFunctionBuilder.database(Optional.of(jNode.get("database")).orElseThrow(()->new IllegalArgumentException("Mongo database missing")).asText());
-        mongoFunctionBuilder.collection(Optional.of(jNode.get("collection")).orElseThrow(()->new IllegalArgumentException("Mongo collection missing")).asText());
+        mongoFunctionBuilder.database(Optional.ofNullable(jNode.get("database")).orElseThrow(()->new IllegalArgumentException("Mongo database missing")).asText());
+        mongoFunctionBuilder.collection(Optional.ofNullable(jNode.get("collection")).orElseThrow(()->new IllegalArgumentException("Mongo collection missing")).asText());
         mongoFunctionBuilder.query(Optional.ofNullable(jNode.get("query")).map(q->q.asText()).orElse("{}"));
         mongoFunctionBuilder.mongoConnString(MongoDBQueryString);
 

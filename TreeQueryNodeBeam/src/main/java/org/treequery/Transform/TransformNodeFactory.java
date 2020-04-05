@@ -54,8 +54,8 @@ public class TransformNodeFactory implements NodeFactory {
         LoadLeafNode loadLeafNode = null;
         LoadLeafNode.LoadLeafNodeBuilder loadLeafNodeBuilder = LoadLeafNode.builder();
 
-        String source = Optional.of(jsonNode.get("source")).orElseThrow(()->new IllegalArgumentException("Missing source in Load Node")).asText();
-        String avroSchema = Optional.of(jsonNode.get("avro_schema")).orElseThrow(()->new IllegalArgumentException("Missing avro_schema in Load Node")).asText();
+        String source = Optional.ofNullable(jsonNode.get("source")).orElseThrow(()->new IllegalArgumentException("Missing source in Load Node")).asText();
+        String avroSchema = Optional.ofNullable(jsonNode.get("avro_schema")).orElseThrow(()->new IllegalArgumentException("Missing avro_schema in Load Node")).asText();
         loadLeafNodeBuilder.source(source);
         loadLeafNodeBuilder.avro_schema(avroSchema);
         loadLeafNode = loadLeafNodeBuilder.build();

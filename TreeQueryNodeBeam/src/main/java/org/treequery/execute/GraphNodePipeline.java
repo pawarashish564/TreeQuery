@@ -29,7 +29,7 @@ public  class GraphNodePipeline implements NodePipeline {
     GraphNodePipeline(Cluster cluster, PipelineBuilderInterface pipelineBuilderInterface,AvroSchemaHelper avroSchemaHelper, CacheTypeEnum cacheTypeEnum) {
         this.cluster = cluster;
         this.pipelineBuilderInterface = pipelineBuilderInterface;
-        this.avroSchemaHelper = Optional.of(avroSchemaHelper).orElseThrow(()->new IllegalArgumentException("Avro Schema Helper not null"));
+        this.avroSchemaHelper = Optional.ofNullable(avroSchemaHelper).orElseThrow(()->new IllegalArgumentException("Avro Schema Helper not null"));
         this.cacheTypeEnum = cacheTypeEnum;
     }
 

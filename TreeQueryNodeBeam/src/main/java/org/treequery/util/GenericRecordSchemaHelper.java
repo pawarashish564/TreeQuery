@@ -16,7 +16,7 @@ public class GenericRecordSchemaHelper {
         Schema tmpSchema = schema;
         Schema.Field field = null;
         for (String s : path){
-            field = Optional.of(tmpSchema.getField(s)).orElseThrow(()->new IllegalArgumentException("Missing field:"+s));
+            field = Optional.ofNullable(tmpSchema.getField(s)).orElseThrow(()->new IllegalArgumentException("Missing field:"+s));
             tmpSchema = field.schema();
         }
         return Optional.of(field).map(f->f.schema().getType()).get();
@@ -27,9 +27,9 @@ public class GenericRecordSchemaHelper {
         Object tmpGenericRecord = genericRecord;
         for (String s: path){
             if (tmpGenericRecord instanceof GenericRecord){
-                tmpGenericRecord = Optional.of(((GenericRecord)tmpGenericRecord).get(s)).get();
+                tmpGenericRecord = Optional.ofNullable(((GenericRecord)tmpGenericRecord).get(s)).get();
             }else if (tmpGenericRecord instanceof GenericData.Record){
-                tmpGenericRecord = Optional.of(((GenericData.Record)tmpGenericRecord).get(s)).get();
+                tmpGenericRecord = Optional.ofNullable(((GenericData.Record)tmpGenericRecord).get(s)).get();
             }else{
                 throw new IllegalArgumentException(String.format("Not found %s", strPath));
             }

@@ -84,19 +84,31 @@ public class JoinNodeHelper implements NodeBeamHelper{
 
             Schema outputSchema = avroSchemaHelper.getAvroSchema(node);
             AvroCoder outputCoder = AvroCoder.of(GenericRecord.class, outputSchema);
-            result = joinResult.apply(ParDo.of(
-                    new DoFn<KV<String, KV<GenericRecord, GenericRecord>>, GenericRecord>() {
-                        @ProcessElement
-                        public void processElement(@Element KV<String, KV<GenericRecord, GenericRecord>> element, OutputReceiver< GenericRecord > out) {
-                            log.debug(element.getKey());
-                            log.debug(element.getValue().toString());
-                        }
-                    }
-            )).setCoder(outputCoder);
+            result = joinResult.apply(
+                new OutputGenericRecordTransform()
+            ).setCoder(outputCoder);
         }
         return result;
     }
 
+    private static class OutputGenericRecordTransform extends PTransform<PCollection< KV<String, KV<GenericRecord, GenericRecord>> >, PCollection<GenericRecord> >{
+
+        @Override
+        public PCollection<GenericRecord> expand(PCollection<  KV<String, KV<GenericRecord, GenericRecord>>   > input) {
+            PCollection<GenericRecord> output = input.apply(
+                    ParDo.of(
+                            new DoFn<KV<String, KV<GenericRecord, GenericRecord>>, GenericRecord>() {
+                                @ProcessElement
+                                public void processElement(@Element KV<String, KV<GenericRecord, GenericRecord>> element, OutputReceiver< GenericRecord > out) {
+                                    log.debug(element.getKey());
+                                    log.debug(element.getValue().toString());
+                                }
+                            }
+                    )
+            );
+            return output;
+        }
+    }
     @Builder
     private static class KeyGenericRecordTransform extends PTransform <PCollection<GenericRecord>, PCollection<KV<String, GenericRecord>> >{
         @NonNull

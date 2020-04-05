@@ -20,7 +20,7 @@ public  class CacheNode extends Node implements DataSource{
         this();
         this.originalNode = node;
         this.cacheTypeEnum = cacheTypeEnum;
-        this.avroSchemaHelper = Optional.of(avroSchemaHelper).orElseThrow(()->new IllegalArgumentException("Avro Schema Helper not null"));
+        this.avroSchemaHelper = Optional.ofNullable(avroSchemaHelper).orElseThrow(()->new IllegalArgumentException("Avro Schema Helper not null"));
         this.description = node.getDescription();
         this.cluster = node.getCluster();
         this.action = node.getAction();

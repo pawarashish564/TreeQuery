@@ -38,7 +38,7 @@ class NodeTreeFactoryTest {
         File file = new File(classLoader.getResource(fileName).getFile());
         DummyNode.createMockBehavior(nodeFactory);
         Node[] nodes = new Node[1];
-        assertTimeout(Duration.ofMillis(500), () -> {
+        assertTimeout(Duration.ofMillis(20000), () -> {
             nodes[0] = nodeTreeFactory.parseJsonFile(file.getAbsolutePath());
         });
         Node node = nodes[0];

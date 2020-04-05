@@ -49,7 +49,9 @@ public class ClusterDependencyGraph implements Serializable {
             if (parentClusterNode == null){
                 return parentClusterNode;
             }
-            Optional.of(this.clusterDepGraph.get(parentClusterNode)).orElseThrow().remove(node);
+            Optional.ofNullable(this.clusterDepGraph.get(parentClusterNode))
+                    .orElseThrow(()->new IllegalArgumentException(String.format("No parent cluster %s", node.getName())))
+                    .remove(node);
         }
         return parentClusterNode;
     }
