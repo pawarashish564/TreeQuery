@@ -53,13 +53,16 @@ public class JoinFunction implements JoinAble {
             }
             JoinAble.JoinKey.JoinKeyBuilder joinKeyBuilder = JoinAble.JoinKey.builder();
             ArrayNode arrayNode = (ArrayNode) keyNode;
+            final int lengthOfKey = ((ArrayNode)(Optional.ofNullable(this.jsonNode.get("children"))
+                    .orElseThrow(()->new IllegalArgumentException(String.format("No children for join node:%s", jsonNode.toString())))))
+                    .size();
             arrayNode.forEach(
                     jCNode->{
                         joinKeyBuilder.leftInx(
-                                Optional.ofNullable(jCNode.get("left")).orElseThrow(()->new IllegalArgumentException("left should not null")).asInt()
+                                lengthOfKey-1-Optional.ofNullable(jCNode.get("left")).orElseThrow(()->new IllegalArgumentException("left should not null")).asInt()
                         );
                         joinKeyBuilder.rightInx(
-                                Optional.ofNullable(jCNode.get("right")).orElseThrow(()->new IllegalArgumentException("right should not null")).asInt()
+                                lengthOfKey-1-Optional.ofNullable(jCNode.get("right")).orElseThrow(()->new IllegalArgumentException("right should not null")).asInt()
                         );
                         JsonNode labelNode = Optional.ofNullable(jCNode.get("labels")).orElseThrow(()->new IllegalArgumentException("labels in key missing"));
                         joinKeyBuilder.leftLabel(
