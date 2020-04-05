@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
@@ -22,6 +23,7 @@ import org.treequery.model.Node;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
@@ -56,9 +58,7 @@ public class JoinNodeHelper implements NodeBeamHelper{
             PCollection<GenericRecord> leftCollection = parentCollectionLst.get(joinKey.getLeftInx());
             leftCollection.setCoder(leftCoder);
             PCollection< KV<String, GenericRecord> > leftRecord = leftCollection.apply(
-                 KeyGenericRecordTransform.builder()
-                        .columnLst(leftColumnLst)
-                        .build()
+                 new KeyGenericRecordTransform(leftColumnLst)
             );
             List<String> rightColumnLst = joinKey.getColumnStream().map(
                     rightColumn->rightColumn.getRightColumn()
@@ -69,9 +69,7 @@ public class JoinNodeHelper implements NodeBeamHelper{
             PCollection<GenericRecord> rightCollection = parentCollectionLst.get(joinKey.getRightInx());
             rightCollection.setCoder(rightCoder);
             PCollection< KV<String, GenericRecord> > rightRecord = rightCollection.apply(
-                 KeyGenericRecordTransform.builder()
-                    .columnLst(rightColumnLst)
-                    .build()
+                 new KeyGenericRecordTransform(rightColumnLst)
             );
             PCollection<KV<String, KV<GenericRecord, GenericRecord>>> joinResult = null;
             switch (joinFunction.getJoinTypeEnum()){
@@ -85,14 +83,20 @@ public class JoinNodeHelper implements NodeBeamHelper{
             Schema outputSchema = avroSchemaHelper.getAvroSchema(node);
             AvroCoder outputCoder = AvroCoder.of(GenericRecord.class, outputSchema);
             result = joinResult.apply(
-                new OutputGenericRecordTransform()
+                    OutputGenericRecordTransform.builder()
+                        .schema(outputSchema)
+                        .leftLabel(joinKey.getLeftLabel())
+                        .rightLabel(joinKey.getRightLabel())
+                        .build()
             ).setCoder(outputCoder);
         }
         return result;
     }
-
+    @Builder
     private static class OutputGenericRecordTransform extends PTransform<PCollection< KV<String, KV<GenericRecord, GenericRecord>> >, PCollection<GenericRecord> >{
-
+        protected final Schema schema;
+        protected final String leftLabel;
+        protected final String rightLabel;
         @Override
         public PCollection<GenericRecord> expand(PCollection<  KV<String, KV<GenericRecord, GenericRecord>>   > input) {
             PCollection<GenericRecord> output = input.apply(
@@ -100,8 +104,17 @@ public class JoinNodeHelper implements NodeBeamHelper{
                             new DoFn<KV<String, KV<GenericRecord, GenericRecord>>, GenericRecord>() {
                                 @ProcessElement
                                 public void processElement(@Element KV<String, KV<GenericRecord, GenericRecord>> element, OutputReceiver< GenericRecord > out) {
-                                    log.debug(element.getKey());
-                                    log.debug(element.getValue().toString());
+                                    KV<GenericRecord, GenericRecord> __value = element.getValue();
+                                    GenericRecord leftValue = Optional.ofNullable(__value)
+                                            .orElseThrow(()->new IllegalArgumentException("failed to get left value"))
+                                            .getKey();
+                                    GenericRecord rightValue = Optional.ofNullable(__value)
+                                            .orElseThrow(()->new IllegalArgumentException("failed to get right value"))
+                                            .getValue();
+                                    GenericRecord joinResult = new GenericData.Record(schema);
+                                    joinResult.put(leftLabel, leftValue);
+                                    joinResult.put(rightLabel,rightValue);
+                                    out.output(joinResult);
                                 }
                             }
                     )
@@ -109,10 +122,10 @@ public class JoinNodeHelper implements NodeBeamHelper{
             return output;
         }
     }
-    @Builder
+    @RequiredArgsConstructor
     private static class KeyGenericRecordTransform extends PTransform <PCollection<GenericRecord>, PCollection<KV<String, GenericRecord>> >{
         @NonNull
-        List<String> columnLst;
+        protected final List<String> columnLst;
 
         @Override
         public PCollection<KV<String, GenericRecord>> expand(PCollection<GenericRecord> records) {
