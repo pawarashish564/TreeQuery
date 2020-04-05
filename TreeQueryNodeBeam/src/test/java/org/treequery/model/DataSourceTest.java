@@ -67,7 +67,7 @@ class DataSourceTest {
         );
 
         Schema.Type type = GenericRecordSchemaHelper.getSchemaType(schema, "asset.bidask");
-        assertThrows(NullPointerException.class, ()->{GenericRecordSchemaHelper.getSchemaType(schema,"asset2.notional");});
+        assertThrows(IllegalArgumentException.class, ()->{GenericRecordSchemaHelper.getSchemaType(schema,"asset2.notional");});
 
         File avroFile = new File(loadLeafNode.getSource());
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
