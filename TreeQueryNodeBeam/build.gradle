@@ -1,9 +1,10 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
-
-group 'io.exp.treequery'
+group 'org.treequery'
 version '1.0-SNAPSHOT'
-
+archivesBaseName = "TreeQueryNodeBeam"
 sourceCompatibility = 1.8
 
 repositories {
@@ -72,3 +73,52 @@ task integrationTest(type: Test) {
 }
 
 apply from: rootProject.file('gradle/profile.gradle')
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            pom.project {
+                name 'Example Application'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'Tree query'
+                url 'https://github.com/dexterchan/TreeQuery'
+
+                scm {
+                    connection 'scm:svn:https://github.com/dexterchan/TreeQuery'
+                    developerConnection 'scm:svn:https://github.com/dexterchan/TreeQuery.git'
+                    url 'https://github.com/dexterchan/TreeQuery'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'Dexter'
+                        name 'Dexter Chan'
+                        email 'dexterchan@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
