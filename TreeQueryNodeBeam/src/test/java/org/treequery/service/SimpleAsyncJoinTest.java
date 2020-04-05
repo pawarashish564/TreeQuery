@@ -56,7 +56,8 @@ public class SimpleAsyncJoinTest {
             }
 
             assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
-            throw new IllegalStateException(status.toString());
+            if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
+                throw new IllegalStateException(status.toString());
         });
         synchronized (rootNode){
             rootNode.wait();
