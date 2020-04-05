@@ -9,14 +9,19 @@ import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
+import org.treequery.util.AvroIOHelper;
+import org.treequery.util.GenericRecordSchemaHelper;
 import org.treequery.util.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
@@ -62,5 +67,21 @@ public class SimpleAsyncJoinTest {
         synchronized (rootNode){
             rootNode.wait();
         }
+
+        //Check the avro file
+        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
+        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        AtomicInteger counter = new AtomicInteger();
+        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
+                (record)->{
+                    assertThat(record).isNotNull();
+                    counter.incrementAndGet();
+                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
+                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                    assertEquals(isinBondTrade, isinSecCode);
+                    assertThat(isinBondTrade.length()).isGreaterThan(5);
+                });
+
+        assertEquals(1000, counter.get());
     }
 }
