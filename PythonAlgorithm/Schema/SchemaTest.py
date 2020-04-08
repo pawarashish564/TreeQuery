@@ -57,14 +57,13 @@ def testSimpleAvroCluster():
     avroSchemaHelper = AvroSchemaHelper()
 
     while True:
-        clusterList = clusterDepGraph.findClusterWithoutDependency()
+        clusterList = clusterDepGraph.popClusterWithoutDependency()
         if len(clusterList) == 0:
             break
         for c in clusterList:
             # DFS to leaf node
             schema = avroSchemaHelper.getAvroSchema(c)
             assert (schema is not None)
-            node = clusterDepGraph.removeClusterDependency(c)
 
 def testClusterOfThree():
     AvroCluster="resource/TreeQueryInput.json"
@@ -75,14 +74,13 @@ def testClusterOfThree():
     avroSchemaHelper = AvroSchemaHelper()
 
     while True:
-        clusterList = clusterDepGraph.findClusterWithoutDependency()
+        clusterList = clusterDepGraph.popClusterWithoutDependency()
         if len(clusterList) == 0:
             break
         for c in clusterList:
             # DFS to leaf node
             schema = avroSchemaHelper.getAvroSchema(c)
             assert (schema is not None)
-            node = clusterDepGraph.removeClusterDependency(c)
 
 if __name__ == "__main__":
     testClusterOfThree()

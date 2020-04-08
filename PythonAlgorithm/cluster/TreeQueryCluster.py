@@ -91,14 +91,20 @@ class ClusterDependencyGraph():
         for cNode in node.children:
             stack.append(DepCluster(cNode, parentClusterNode))
 
-    def findClusterWithoutDependency(self) -> List[Node]:
+    def popClusterWithoutDependency(self) -> List[Node]:
+        result = self.__findClusterWithoutDependency()
+        for node in result:
+            self.__removeClusterDependency(node)
+        return result
+
+    def __findClusterWithoutDependency(self) -> List[Node]:
         result = []
         for node, nodeSet in self.clusterDepGraph.items():
             if len(nodeSet) == 0:
                 result.append(node)
         return result
 
-    def removeClusterDependency(self, node:Node)->Node:
+    def __removeClusterDependency(self, node:Node)->Node:
         if node not in self.cacheDependency:
             raise Exception("No cache dependency found")
         if len(self.clusterDepGraph[node])==0:
@@ -120,14 +126,10 @@ if __name__ == "__main__":
     clusterDepGraph = ClusterDependencyGraph()
     clusterDepGraph.constructDependencyGraph(rootNode)
 
-    #Get workablecluster
-    wList = clusterDepGraph.findClusterWithoutDependency()
-
-
     step = 0
     while True:
         cnt = 0
-        wList = clusterDepGraph.findClusterWithoutDependency()
+        wList = clusterDepGraph.popClusterWithoutDependency()
         if len(wList) == 0 :
             break
         print ("step %d begin"%(step))
@@ -135,7 +137,6 @@ if __name__ == "__main__":
             print("\t%d Work Node begin" % (cnt))
             print (w)
             print("\t%d Work Node end" % (cnt))
-            node = clusterDepGraph.removeClusterDependency(w)
             cnt += 1
         print ("step %d end"%(step))
         step+=1

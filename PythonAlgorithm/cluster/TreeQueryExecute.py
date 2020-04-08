@@ -117,14 +117,13 @@ if __name__ == "__main__":
     clusterDepGraph.constructDependencyGraph(rootNode)
 
     #Get workablecluster
-    wList = clusterDepGraph.findClusterWithoutDependency()
 
     solu = NodeTraverser()
 
     step = 0
     while True:
         cnt = 0
-        wList = clusterDepGraph.findClusterWithoutDependency()
+        wList = clusterDepGraph.popClusterWithoutDependency()
         if len(wList) == 0:
             break
         print("step %d begin" % (step))
@@ -134,7 +133,6 @@ if __name__ == "__main__":
             nodePipeline = GraphNodePipeline(w.cluster)
             jobList = solu.postOrderTraversalExecution(w, None,[], nodePipeline)
             nodePipeline.getPipelineBuilder()
-            node = clusterDepGraph.removeClusterDependency(w)
             cnt += 1
             print("\tPipeline List end")
 
