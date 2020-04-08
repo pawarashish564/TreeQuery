@@ -30,7 +30,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
 
         while (true){
-            List<Node> nodeList = clusterDependencyGraph.findClusterWithoutDependency();
+            List<Node> nodeList = clusterDependencyGraph.popClusterWithoutDependency();
             if (nodeList.size()==0){
                 break;
             }
@@ -66,7 +66,6 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                     .build()
                     );
                 }
-                clusterDependencyGraph.removeClusterDependency(node);
             }
         }
 

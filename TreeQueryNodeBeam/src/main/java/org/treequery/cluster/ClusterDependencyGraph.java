@@ -23,7 +23,12 @@ public class ClusterDependencyGraph implements Serializable {
         return new ClusterDependencyGraphBuilder();
     }
 
-    public List<Node> findClusterWithoutDependency(){
+    public List<Node> popClusterWithoutDependency(){
+        List<Node> result = this.findClusterWithoutDependency();
+        result.forEach(node-> removeClusterDependency(node));
+        return result;
+    }
+    List<Node> findClusterWithoutDependency(){
         List<Node> result = Lists.newLinkedList();
         synchronized (this.clusterDepGraph){
             this.clusterDepGraph.entrySet().forEach(
@@ -39,7 +44,7 @@ public class ClusterDependencyGraph implements Serializable {
         result.sort((a,b)->a.getDescription().compareTo(b.getDescription()));
         return result;
     }
-    public Node removeClusterDependency (Node node){
+    Node removeClusterDependency (Node node){
         Node parentClusterNode = null;
         synchronized (this.clusterDepGraph){
             parentClusterNode = this.cacheDependency.get(node);

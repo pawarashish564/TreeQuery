@@ -61,7 +61,7 @@ class GraphNodePipelineTest {
         int step = 0;
         while (true){
             int cntClusters = 0;
-            nodeList = clusterDependencyGraph.findClusterWithoutDependency();
+            nodeList = clusterDependencyGraph.popClusterWithoutDependency();
             if (nodeList.size()==0){
                 break;
             }
@@ -76,7 +76,6 @@ class GraphNodePipelineTest {
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
 
-                clusterDependencyGraph.removeClusterDependency(node);
                 cntClusters++;
             }
 
@@ -116,7 +115,7 @@ class GraphNodePipelineTest {
         int cntClusters = 0;
         while (true){
 
-            nodeList = clusterDependencyGraph.findClusterWithoutDependency();
+            nodeList = clusterDependencyGraph.popClusterWithoutDependency();
             if (nodeList.size()==0){
                 break;
             }
@@ -131,7 +130,7 @@ class GraphNodePipelineTest {
                 List<Node> traversedResult = Lists.newLinkedList();
                 NodeTraverser.postOrderTraversalExecution(node, null, traversedResult,nodePipeline );
                 nodePipeline.getPipelineBuilder();
-                clusterDependencyGraph.removeClusterDependency(node);
+
                 cntClusters++;
             }
 

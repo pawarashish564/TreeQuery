@@ -69,7 +69,7 @@ class BeamPipelineBuilderImplTest {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
 
         List<Node> nodeList = null;
-        nodeList = clusterDependencyGraph.findClusterWithoutDependency();
+        nodeList = clusterDependencyGraph.popClusterWithoutDependency();
         assertThat(nodeList).hasSize(1);
 
         for (Node node: nodeList){
@@ -106,7 +106,6 @@ class BeamPipelineBuilderImplTest {
                 return null;
             });
             pipeline.run();
-            clusterDependencyGraph.removeClusterDependency(node);
         }
 
     }
