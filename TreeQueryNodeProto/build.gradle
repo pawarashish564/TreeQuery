@@ -10,7 +10,15 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
 }
-
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.9'
+    }
+}
 ext{
     grpcVersion = '1.21.0' // CURRENT_GRPC_VERSION
     protobufVersion = '3.8.0'
