@@ -8,7 +8,7 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-mainClassName = "org.treequery.grpcserver.Main"
+mainClassName = "org.treequery.grpc.server.Main"
 repositories {
     mavenCentral()
 }
@@ -36,6 +36,7 @@ ext{
 
 dependencies {
     compile project(':TreeQueryNodeBeam')
+    compile project(':TreeQueryNodeProto')
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
