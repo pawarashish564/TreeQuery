@@ -5,17 +5,23 @@ import org.apache.avro.generic.GenericRecord;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.cache.FileBeamCacheOutputImpl;
 import org.treequery.beam.cache.RedisCacheOutputImpl;
+import org.treequery.exception.TimeOutException;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.AsyncTreeQueryClusterService;
+import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.TreeQueryClusterService;
+import org.treequery.utils.AsyncRunHelper;
 import org.treequery.utils.JsonInstructionHelper;
 
+import java.io.File;
+import java.util.List;
 import java.util.NoSuchElementException;
+
 @Slf4j
 public class TreeQueryBeamServiceHelper {
     TreeQueryClusterService treeQueryClusterService;
@@ -41,7 +47,7 @@ public class TreeQueryBeamServiceHelper {
                 .build();
     }
 
-    public void process(TreeQueryRequest treeQueryRequest) {
+    public List<GenericRecord> process(TreeQueryRequest treeQueryRequest) {
         TreeQueryRequest.RunMode runMode = treeQueryRequest.getRunMode();
         String jsonInput = treeQueryRequest.getJsonInput();
         boolean renewCache = treeQueryRequest.getRenewCache();
@@ -56,23 +62,27 @@ public class TreeQueryBeamServiceHelper {
         }
         String identifier = rootNode.getIdentifier();
         if (!renewCache){
-
+            throw new IllegalStateException("Not yet implemented cache");
         }
-
+        return this.runQuery(rootNode, pageSize, page);
     }
 
-    private GenericRecord runQuery(Node rootNode, long pageSize, long page){
-
+    private List<GenericRecord> runQuery(Node rootNode, long pageSize, long page){
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
-            synchronized (rootNode) {
-                rootNode.notify();
-            }
+            asyncRunHelper.continueRun(status);
         });
+        try {
+            StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
 
-        GenericRecord genericRecord = null;
-
-        return genericRecord;
+        }catch(TimeOutException te){
+            log.error(te.getMessage());
+            throw new IllegalStateException(String.format("Time out:%s", rootNode.toString()));
+        }
+        List<GenericRecord> genericRecords = null;
+        // beamCacheOutputInterface.getFile();
+        return genericRecords;
     }
 
     static BeamCacheOutputInterface getCacheOutputImpl(CacheTypeEnum cacheTypeEnum){
