@@ -8,12 +8,12 @@ import org.treequery.proto.HealthCheckServiceGrpc;
 
 
 @Slf4j
-public class TreeQueryWebClient {
+public class HealthWebClient {
     private final HealthCheckServiceGrpc.HealthCheckServiceBlockingStub blockingStub;
 
     private GrpcClientChannel grpcClientChannel;
 
-    public TreeQueryWebClient(String host, int port) {
+    public HealthWebClient(String host, int port) {
         grpcClientChannel = new GrpcClientChannel(host, port);
         this.blockingStub = HealthCheckServiceGrpc.newBlockingStub(grpcClientChannel.getChannel());
 
@@ -52,8 +52,8 @@ public class TreeQueryWebClient {
 
     public static void main(String [] args) throws Exception{
         int PORT = 9001;
-        TreeQueryWebClient treeQueryWebClient = new TreeQueryWebClient("localhost", PORT);
-        boolean checkStatus = treeQueryWebClient.healthCheck();
+        HealthWebClient healthWebClient = new HealthWebClient("localhost", PORT);
+        boolean checkStatus = healthWebClient.healthCheck();
         log.info(String.format("Web client health check %b", checkStatus));
     }
 }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.treequery.grpc.client.TreeQueryWebClient;
+import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 
 import java.util.Arrays;
@@ -26,8 +26,8 @@ class HealthWebServerTest {
     }
     @Test
     void checkClient() {
-        TreeQueryWebClient treeQueryWebClient = new TreeQueryWebClient("localhost", PORT);
-        boolean checkStatus = treeQueryWebClient.healthCheck();
+        HealthWebClient healthWebClient = new HealthWebClient("localhost", PORT);
+        boolean checkStatus = healthWebClient.healthCheck();
         assertTrue(checkStatus);
         log.info(String.format("Web client health check %b", checkStatus));
     }
