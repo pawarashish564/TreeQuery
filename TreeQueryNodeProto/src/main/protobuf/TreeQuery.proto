@@ -39,4 +39,5 @@ message TreeQueryResponseResult{
     uint64 page = 2;
     uint64 datasize = 3;
     bytes avroLoad = 4;
+    string avroSchema = 5;
 }

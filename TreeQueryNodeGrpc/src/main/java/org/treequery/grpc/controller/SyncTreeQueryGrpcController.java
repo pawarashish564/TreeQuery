@@ -20,6 +20,7 @@ import org.treequery.service.StatusTreeQueryCluster;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 //Reference: https://www.programcreek.com/java-api-examples/?api=org.apache.avro.io.BinaryEncoder
@@ -66,7 +67,9 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
         treeQueryResponseDataBuilder.setDatasize(dataConsumerIntoByteArray.getDataSize());
         treeQueryResponseDataBuilder.setPage(page);
         treeQueryResponseDataBuilder.setPageSize(pageSize);
+        treeQueryResponseDataBuilder.setAvroSchema(Optional.ofNullable(returnResult.getDataSchema()).map(schema -> schema.toString()).orElse(""));
         treeQueryResponseBuilder.setResult(treeQueryResponseDataBuilder.build());
+
 
         responseObserver.onNext(treeQueryResponseBuilder.build());
         responseObserver.onCompleted();

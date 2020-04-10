@@ -15,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 class HealthWebServerTest {
     static WebServer webServer;
-    static int PORT = 9001;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static int PORT = 9001;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static String HOSTNAME = "localhost";
     @BeforeAll
     static void init() throws Exception{
         BindableService[] bindableServices = {new SyncHealthCheckGrpcController()};
@@ -26,7 +27,7 @@ class HealthWebServerTest {
     }
     @Test
     void checkClient() {
-        HealthWebClient healthWebClient = new HealthWebClient("localhost", PORT);
+        HealthWebClient healthWebClient = new HealthWebClient(HOSTNAME, PORT);
         boolean checkStatus = healthWebClient.healthCheck();
         assertTrue(checkStatus);
         log.info(String.format("Web client health check %b", checkStatus));
