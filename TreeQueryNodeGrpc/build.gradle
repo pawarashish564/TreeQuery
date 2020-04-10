@@ -53,6 +53,9 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 shadowJar {

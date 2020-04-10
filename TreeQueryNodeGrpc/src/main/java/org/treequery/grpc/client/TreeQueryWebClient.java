@@ -1,40 +1,34 @@
 package org.treequery.grpc.client;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.AbstractStub;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.proto.HealthCheckRequest;
 import org.treequery.proto.HealthCheckResponse;
-import org.treequery.proto.TreeQueryServiceGrpc;
-
-import java.util.concurrent.TimeUnit;
+import org.treequery.proto.HealthCheckServiceGrpc;
 
 
 @Slf4j
 public class TreeQueryWebClient {
-    private final TreeQueryServiceGrpc.TreeQueryServiceBlockingStub blockingStub;
-    private  ManagedChannel channel;
+    private final HealthCheckServiceGrpc.HealthCheckServiceBlockingStub blockingStub;
 
-    public static ManagedChannel createChannel(String host, int port){
-        return ManagedChannelBuilder.forAddress(host, port)
-                // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
-                // needing certificates.
-                .usePlaintext()
-                .build();
-    }
+    private GrpcClientChannel grpcClientChannel;
 
     public TreeQueryWebClient(String host, int port) {
-        this.channel = createChannel(host, port);
-        this.blockingStub = TreeQueryServiceGrpc.newBlockingStub(this.channel);
+        grpcClientChannel = new GrpcClientChannel(host, port);
+        this.blockingStub = HealthCheckServiceGrpc.newBlockingStub(grpcClientChannel.getChannel());
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+                log.info("*** shutting down gRPC client since JVM is shutting down");
+                grpcClientChannel.shutdown();
+                log.info("*** client shut down");
+            }
+        });
     }
 
-    public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }
+
 
     public boolean healthCheck(){
         HealthCheckRequest req = HealthCheckRequest.newBuilder().build();

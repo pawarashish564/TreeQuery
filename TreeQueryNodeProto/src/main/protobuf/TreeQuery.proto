@@ -6,19 +6,36 @@ option java_outer_classname = "TreeQueryProto";
 option objc_class_prefix = "HC";
 
 service TreeQueryService {
-    // Sends a healthCheck
-    rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+    rpc query(TreeQueryRequest) returns (TreeQueryResponse);
 }
 
-message HealthCheckRequest {
-    string service = 1;
-}
-
-message HealthCheckResponse {
-    enum ServingStatus {
+message TreeQueryRequest{
+    enum RunMode {
         UNKNOWN = 0;
-        SERVING = 1;
-        NOT_SERVING = 2;
+        DIRECT = 1;
+        FLINK = 2;
+        DATAFLOW = 3;
     }
-    ServingStatus status = 1;
+    RunMode runMode = 1;
+    string jsonInput = 2;
+    bool freshCache = 3;
+    uint64 pageSize = 4;
+    uint64 page = 5;
+}
+
+message TreeQueryResponse{
+    TreeQueryResponseHeader header = 1;
+    TreeQueryResponseResult result = 2;
+}
+
+message TreeQueryResponseHeader{
+    bool success = 1;
+    uint32 err_code = 2;
+    string err_msg = 3;
+}
+message TreeQueryResponseResult{
+    uint64 pageSize = 1;
+    uint64 page = 2;
+    uint64 datasize = 3;
+    bytes avroLoad = 4;
 }
