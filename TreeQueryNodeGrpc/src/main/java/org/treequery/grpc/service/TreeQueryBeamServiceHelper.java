@@ -1,5 +1,7 @@
 package org.treequery.grpc.service;
 
+import com.google.common.collect.Lists;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
@@ -47,13 +49,11 @@ public class TreeQueryBeamServiceHelper {
                 .build();
     }
 
-    public List<GenericRecord> process(TreeQueryRequest treeQueryRequest) {
-        TreeQueryRequest.RunMode runMode = treeQueryRequest.getRunMode();
-        String jsonInput = treeQueryRequest.getJsonInput();
-        boolean renewCache = treeQueryRequest.getRenewCache();
-        long pageSize = treeQueryRequest.getPageSize();
-        long page = treeQueryRequest.getPage();
-
+    public ReturnResult process(TreeQueryRequest.RunMode runMode,
+                                       String jsonInput,
+                                       boolean renewCache,
+                                       long pageSize,
+                                       long page) {
         Node rootNode;
         try {
             rootNode = JsonInstructionHelper.createNode(jsonInput);
@@ -67,7 +67,7 @@ public class TreeQueryBeamServiceHelper {
         return this.runQuery(rootNode, pageSize, page);
     }
 
-    private List<GenericRecord> runQuery(Node rootNode, long pageSize, long page){
+    private ReturnResult runQuery(Node rootNode, long pageSize, long page){
         final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
@@ -75,14 +75,28 @@ public class TreeQueryBeamServiceHelper {
         });
         try {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
-
+            if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+                return ReturnResult.builder()
+                        .statusTreeQueryCluster(statusTreeQueryCluster)
+                        .genericRecordList(Lists.newLinkedList())
+                        .build();
+            }else{
+                List<GenericRecord> genericRecords = beamCacheOutputInterface.getPageRecord(pageSize, page);
+                return ReturnResult.builder()
+                        .statusTreeQueryCluster(statusTreeQueryCluster)
+                        .genericRecordList(genericRecords)
+                        .build();
+            }
         }catch(TimeOutException te){
             log.error(te.getMessage());
             throw new IllegalStateException(String.format("Time out:%s", rootNode.toString()));
         }
-        List<GenericRecord> genericRecords = null;
-        // beamCacheOutputInterface.getFile();
-        return genericRecords;
+    }
+
+    @Builder
+    public static class ReturnResult{
+        StatusTreeQueryCluster statusTreeQueryCluster;
+        List<GenericRecord> genericRecordList;
     }
 
     static BeamCacheOutputInterface getCacheOutputImpl(CacheTypeEnum cacheTypeEnum){

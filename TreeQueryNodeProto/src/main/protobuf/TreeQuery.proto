@@ -24,8 +24,9 @@ message TreeQueryRequest{
 }
 
 message TreeQueryResponse{
-    TreeQueryResponseHeader header = 1;
-    TreeQueryResponseResult result = 2;
+    string requestHash = 1;
+    TreeQueryResponseHeader header = 2;
+    TreeQueryResponseResult result = 3;
 }
 
 message TreeQueryResponseHeader{
