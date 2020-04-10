@@ -5,6 +5,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.values.PCollection;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class RedisCacheOutputImpl  implements BeamCacheOutputInterface {
     @Override
@@ -13,7 +14,7 @@ public class RedisCacheOutputImpl  implements BeamCacheOutputInterface {
     }
 
     @Override
-    public List<GenericRecord> getPageRecord(long pageSize, long page) {
+    public Schema getPageRecord(long pageSize, long page, Consumer<GenericRecord> dataConsumer){
         throw new NoSuchMethodError("Sorry, cache output not yet implemented!");
     }
 }

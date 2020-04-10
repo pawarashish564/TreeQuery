@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Slf4j
 public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
@@ -52,8 +53,8 @@ public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
     }
 
     @Override
-    public List<GenericRecord> getPageRecord(long pageSize, long page) {
-        List<GenericRecord> result = Lists.newLinkedList();
+    public Schema getPageRecord(long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
+        Schema schema;
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
         String readFileName = String.format("%s.avro",this.fileName);
         if (page<1){
@@ -64,7 +65,7 @@ public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
         }
         try {
             DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
-            //Schema schema = dataFileReader.getSchema();
+            schema = dataFileReader.getSchema();
             GenericRecord recordPt = null;
             long counter = 0;
             long lessThan = (page-1)*pageSize;
@@ -77,7 +78,7 @@ public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
                 if (counter> lessThan && counter<=GreaterThan){
                     GenericData.Record data = (GenericData.Record) recordPt;
                     GenericRecordBuilder genericRecordBuilder = new GenericRecordBuilder(data);
-                    result.add(genericRecordBuilder.build());
+                    dataConsumer.accept(genericRecordBuilder.build());
                 }
                 if (counter >= GreaterThan){
                     break;
@@ -89,6 +90,6 @@ public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
             throw new IllegalStateException(String.format("Failed to retrieve %s:%s",fileName+".avro",ioe.getMessage()));
         }
 
-        return result;
+        return schema;
     }
 }
