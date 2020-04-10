@@ -22,7 +22,7 @@ public class AsyncRunHelper {
         return new AsyncRunHelper(object);
     }
 
-    public synchronized void continueRun(StatusTreeQueryCluster __status){
+    public  void continueRun(StatusTreeQueryCluster __status){
         synchronized (__object){
             __object.notifyAll();
             status = __status;
@@ -34,7 +34,7 @@ public class AsyncRunHelper {
         return this.waitFor(WAIT_MS);
     }
 
-    public synchronized StatusTreeQueryCluster waitFor(long milliseconds )throws TimeOutException{
+    public StatusTreeQueryCluster waitFor(long milliseconds )throws TimeOutException{
         synchronized (__object){
             try {
                 __object.wait(milliseconds);

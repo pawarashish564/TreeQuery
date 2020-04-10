@@ -79,4 +79,34 @@ public class SimpleAsyncJoinTest {
 
         assertEquals(1000, counter.get());
     }
+
+    @Test
+    public void FaultSimpleAsyncJoinTestWithSameCluster() throws Exception{
+        String AvroTree = "SimpleJoinFault.json";
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        Node rootNode = JsonInstructionHelper.createNode(jsonString);
+        assertThat(rootNode).isInstanceOf(JoinNode.class);
+        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+                .treeQueryClusterRunnerFactory(()->{
+                    return TreeQueryClusterRunnerImpl.builder()
+                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .cacheTypeEnum(cacheTypeEnum)
+                            .avroSchemaHelper(avroSchemaHelper)
+                            .build();
+                })
+                .build();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
+        treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
+            log.debug(status.toString());
+            asyncRunHelper.continueRun(status);
+
+        });
+        StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
+
+        assertThat(statusTreeQueryCluster.getStatus()).isNotEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        log.debug(statusTreeQueryCluster.getDescription());
+
+
+
+    }
 }
