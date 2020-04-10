@@ -1,22 +1,46 @@
+apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'maven'
-
+apply plugin: 'com.google.protobuf'
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
-archivesBaseName = "TreeQueryNodeBeam"
-sourceCompatibility = 1.8
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+mainClassName = "org.treequery.grpc.server.Main"
 repositories {
     mavenCentral()
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.9'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.2'
+
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+ext{
+    grpcVersion = '1.21.0' // CURRENT_GRPC_VERSION
+    protobufVersion = '3.8.0'
+    protocVersion = protobufVersion
+    commonscompressVersion = '1.18'
+}
 
 dependencies {
+    compile project(':TreeQueryNodeBeam')
+    compile project(':TreeQueryNodeProto')
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
-    compile  "org.apache.beam:beam-sdks-java-core:$beamVersion"
+
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
@@ -24,24 +48,23 @@ dependencies {
 
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
-
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
-
-    compile "org.apache.avro:avro:${avroVersion}"
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-
-    compile  "org.apache.beam:beam-sdks-java-io-google-cloud-platform:$beamVersion"
-    compile group: 'org.apache.beam', name: 'beam-sdks-java-io-mongodb', version: "$beamVersion"
-    compile group: 'org.apache.beam', name: 'beam-sdks-java-extensions-join-library', version: "$beamVersion"
 
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
 
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+}
 
+shadowJar {
+    zip64 true
+    mergeServiceFiles()
 
 }
+
+startScripts.enabled = false
 
 test {
     useJUnitPlatform {
@@ -55,7 +78,6 @@ test {
     }
 }
 
-
 task integrationTest(type: Test) {
     useJUnitPlatform {
         includeTags 'integration'
@@ -68,10 +90,6 @@ task integrationTest(type: Test) {
         events "passed", "skipped", "failed"
     }
 }
-
-apply from: rootProject.file('gradle/profile.gradle')
-
-
 
 
 if(project.hasProperty('nexus')){

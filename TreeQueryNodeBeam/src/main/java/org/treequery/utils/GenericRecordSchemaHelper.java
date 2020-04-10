@@ -1,4 +1,4 @@
-package org.treequery.util;
+package org.treequery.utils;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -7,7 +7,6 @@ import org.apache.avro.util.Utf8;
 
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class GenericRecordSchemaHelper {
 

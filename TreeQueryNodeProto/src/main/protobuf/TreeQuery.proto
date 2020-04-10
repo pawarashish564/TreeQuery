@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+option java_multiple_files = true;
+option java_package = "org.treequery.proto";
+option java_outer_classname = "TreeQueryProto";
+option objc_class_prefix = "HC";
+
+service TreeQueryService {
+    rpc query(TreeQueryRequest) returns (TreeQueryResponse);
+}
+
+message TreeQueryRequest{
+    enum RunMode {
+        UNKNOWN = 0;
+        DIRECT = 1;
+        FLINK = 2;
+        DATAFLOW = 3;
+    }
+    RunMode runMode = 1;
+    string jsonInput = 2;
+    bool renewCache = 3;
+    uint64 pageSize = 4;
+    uint64 page = 5;
+}
+
+message TreeQueryResponse{
+    string requestHash = 1;
+    TreeQueryResponseHeader header = 2;
+    TreeQueryResponseResult result = 3;
+}
+
+message TreeQueryResponseHeader{
+    bool success = 1;
+    uint32 err_code = 2;
+    string err_msg = 3;
+}
+message TreeQueryResponseResult{
+    uint64 pageSize = 1;
+    uint64 page = 2;
+    uint64 datasize = 3;
+    bytes avroLoad = 4;
+    string avroSchema = 5;
+}

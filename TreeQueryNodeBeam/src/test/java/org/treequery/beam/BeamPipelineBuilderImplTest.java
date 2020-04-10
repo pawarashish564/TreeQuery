@@ -11,7 +11,7 @@ import org.treequery.execute.NodeTraverser;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.util.JsonInstructionHelper;
+import org.treequery.utils.JsonInstructionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;

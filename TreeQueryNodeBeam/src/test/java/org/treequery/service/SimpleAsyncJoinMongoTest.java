@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.treequery.Transform.QueryLeafNode;
+import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.model.AvroSchemaHelper;
+import org.treequery.model.BasicAvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;
+import org.treequery.utils.GenericRecordSchemaHelper;
 import org.treequery.utils.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
@@ -19,38 +21,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Slf4j
 @Tag("integration")
-public class SimpleAsyncOneNodeMongoService {
+public class SimpleAsyncJoinMongoTest {
     TreeQueryClusterService treeQueryClusterService = null;
-    AvroSchemaHelper avroSchemaHelper = null;
-    CacheTypeEnum cacheTypeEnum;
+
     BeamCacheOutputInterface beamCacheOutputInterface = null;
+    CacheTypeEnum cacheTypeEnum;
+    AvroSchemaHelper avroSchemaHelper = null;
 
     @BeforeEach
-    void init() throws IOException {
+    public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        avroSchemaHelper = mock(AvroSchemaHelper.class);
+        avroSchemaHelper = new BasicAvroSchemaHelper();
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
-
     }
 
     @Test
-    void runAsyncSimpleMongoReadTesting() throws Exception{
-        String AvroTree = "SimpleMongoReadCluster.json";
+    public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
+        String AvroTree = "SimpleJoinMongo.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        assertThat(jsonString).isNotBlank();
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
-        assertThat(rootNode).isInstanceOf(QueryLeafNode.class);
-        QueryLeafNode queryLeafNode = (QueryLeafNode)rootNode;
-        when(avroSchemaHelper.getAvroSchema(rootNode)).then(
-                (node)-> {
-                    return queryLeafNode.getAvroSchemaObj();
-                }
-        );
+        assertThat(rootNode).isInstanceOf(JoinNode.class);
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
@@ -62,13 +55,13 @@ public class SimpleAsyncOneNodeMongoService {
                 .build();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
-            if (status.status == StatusTreeQueryCluster.QueryTypeEnum.FAIL){
-                throw new IllegalStateException(status.description);
-            }
             synchronized (rootNode) {
                 rootNode.notify();
             }
+
             assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+            if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
+                throw new IllegalStateException(status.toString());
         });
         synchronized (rootNode){
             rootNode.wait();
@@ -82,7 +75,12 @@ public class SimpleAsyncOneNodeMongoService {
                 (record)->{
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
+                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
+                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                    assertEquals(isinBondTrade, isinSecCode);
+                    assertThat(isinBondTrade.length()).isGreaterThan(5);
                 });
-        assertEquals(16, counter.get());
+
+        assertEquals(1000, counter.get());
     }
 }

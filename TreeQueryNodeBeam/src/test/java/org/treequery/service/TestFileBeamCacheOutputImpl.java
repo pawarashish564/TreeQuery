@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.Consumer;
 
 @Slf4j
 public class TestFileBeamCacheOutputImpl implements BeamCacheOutputInterface {
@@ -31,5 +33,10 @@ public class TestFileBeamCacheOutputImpl implements BeamCacheOutputInterface {
     public File getFile(){
         File file = new File(fileName+".avro");
         return file;
+    }
+
+    @Override
+    public Schema getPageRecord(long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
+        throw new NoSuchMethodError("Not yet implemented");
     }
 }

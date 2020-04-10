@@ -13,7 +13,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.treequery.util.GenericRecordSchemaHelper;
+import org.treequery.utils.GenericRecordSchemaHelper;
 
 import java.io.File;
 import java.io.IOException;

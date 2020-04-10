@@ -21,13 +21,12 @@ import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
-import org.treequery.util.GenericRecordSchemaHelper;
+import org.treequery.utils.GenericRecordSchemaHelper;
 
 @Slf4j
 @RequiredArgsConstructor

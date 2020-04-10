@@ -1,4 +1,6 @@
-package org.treequery.utils;
+package org.treequery.grpc.utils;
+
+import org.treequery.utils.JsonInstructionHelper;
 
 import java.io.File;
 
