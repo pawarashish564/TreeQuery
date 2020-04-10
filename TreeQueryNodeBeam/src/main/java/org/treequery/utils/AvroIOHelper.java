@@ -1,4 +1,4 @@
-package org.treequery.util;
+package org.treequery.utils;
 
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;

@@ -1,16 +1,12 @@
 package org.treequery.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.treequery.Transform.LoadLeafNode;
-import org.treequery.Transform.TransformNodeFactory;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.cluster.NodeFactory;
-import org.treequery.cluster.NodeTreeFactory;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.util.AvroIOHelper;
-import org.treequery.util.JsonInstructionHelper;
+import org.treequery.utils.AvroIOHelper;
+import org.treequery.utils.JsonInstructionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

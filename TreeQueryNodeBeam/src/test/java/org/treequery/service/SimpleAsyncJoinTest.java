@@ -9,15 +9,10 @@ import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.util.AvroIOHelper;
-import org.treequery.util.GenericRecordSchemaHelper;
-import org.treequery.util.JsonInstructionHelper;
-import org.treequery.utils.TestDataAgent;
+import org.treequery.utils.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,18 +49,18 @@ public class SimpleAsyncJoinTest {
                             .build();
                 })
                 .build();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
-            synchronized (rootNode) {
-                rootNode.notify();
-            }
+            asyncRunHelper.continueRun(status);
 
             assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
             if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                 throw new IllegalStateException(status.toString());
         });
-        synchronized (rootNode){
-            rootNode.wait();
+        StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
+        if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+            throw new RuntimeException(statusTreeQueryCluster.getDescription());
         }
 
         //Check the avro file

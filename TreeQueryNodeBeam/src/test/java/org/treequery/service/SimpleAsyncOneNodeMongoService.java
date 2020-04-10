@@ -9,14 +9,12 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.util.AvroIOHelper;
-import org.treequery.util.JsonInstructionHelper;
+import org.treequery.utils.AvroIOHelper;
+import org.treequery.utils.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;

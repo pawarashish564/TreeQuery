@@ -10,9 +10,9 @@ import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.util.AvroIOHelper;
-import org.treequery.util.GenericRecordSchemaHelper;
-import org.treequery.util.JsonInstructionHelper;
+import org.treequery.utils.AvroIOHelper;
+import org.treequery.utils.GenericRecordSchemaHelper;
+import org.treequery.utils.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
 import java.io.File;

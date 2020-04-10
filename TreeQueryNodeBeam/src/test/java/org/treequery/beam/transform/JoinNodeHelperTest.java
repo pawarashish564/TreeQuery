@@ -2,7 +2,6 @@ package org.treequery.beam.transform;
 
 import com.google.common.collect.Lists;
 import org.apache.avro.generic.GenericRecord;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
@@ -10,9 +9,9 @@ import org.treequery.Transform.function.JoinFunction;
 import org.treequery.model.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
-import org.treequery.util.AvroIOHelper;
-import org.treequery.util.GenericRecordSchemaHelper;
-import org.treequery.util.JsonInstructionHelper;
+import org.treequery.utils.AvroIOHelper;
+import org.treequery.utils.GenericRecordSchemaHelper;
+import org.treequery.utils.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
 import java.io.File;

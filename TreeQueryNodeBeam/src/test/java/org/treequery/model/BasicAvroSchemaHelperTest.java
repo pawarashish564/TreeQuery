@@ -3,7 +3,7 @@ package org.treequery.model;
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.treequery.util.JsonInstructionHelper;
+import org.treequery.utils.JsonInstructionHelper;
 import org.treequery.utils.TestDataAgent;
 
 import static org.junit.jupiter.api.Assertions.*;

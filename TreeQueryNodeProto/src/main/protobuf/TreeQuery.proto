@@ -18,7 +18,7 @@ message TreeQueryRequest{
     }
     RunMode runMode = 1;
     string jsonInput = 2;
-    bool freshCache = 3;
+    bool renewCache = 3;
     uint64 pageSize = 4;
     uint64 page = 5;
 }

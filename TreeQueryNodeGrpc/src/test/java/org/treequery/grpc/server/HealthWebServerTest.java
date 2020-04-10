@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 class HealthWebServerTest {
     static WebServer webServer;
-    static int PORT = ThreadLocalRandom.current().nextInt(9000,9999);
+    static int PORT = 9001;//ThreadLocalRandom.current().nextInt(9000,9999);
     @BeforeAll
     static void init() throws Exception{
         BindableService[] bindableServices = {new SyncHealthCheckGrpcController()};
