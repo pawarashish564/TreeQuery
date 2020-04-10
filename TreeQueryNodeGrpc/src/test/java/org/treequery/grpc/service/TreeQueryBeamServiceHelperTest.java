@@ -32,8 +32,10 @@ class TreeQueryBeamServiceHelperTest {
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
         int pageSize = 3;
         DataConsumer genericRecordConsumer = new DataConsumer();
+        TreeQueryBeamServiceHelper.PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
+
         TreeQueryBeamServiceHelper.ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
-                jsonString,
+                preprocessInput,
                 true,
                 pageSize,
                 2,

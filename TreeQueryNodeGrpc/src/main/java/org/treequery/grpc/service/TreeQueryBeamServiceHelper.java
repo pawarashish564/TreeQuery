@@ -53,23 +53,34 @@ public class TreeQueryBeamServiceHelper {
                 .build();
     }
 
+    public PreprocessInput preprocess(String jsonInput){
+        Node rootNode;
+        Schema outputSchema;
+        try {
+            rootNode = JsonInstructionHelper.createNode(jsonInput);
+            outputSchema = avroSchemaHelper.getAvroSchema(rootNode);
+        }catch(Exception je){
+            throw new IllegalArgumentException(String.format("Not able to parse:%s", jsonInput));
+        }
+        return PreprocessInput.builder()
+                .node(rootNode)
+                .outputSchema(outputSchema)
+                .build();
+    }
+
     public ReturnResult process(TreeQueryRequest.RunMode runMode,
-                                       String jsonInput,
+                                PreprocessInput preprocessInput,
                                        boolean renewCache,
                                        long pageSize,
                                        long page,
                                 Consumer<GenericRecord> dataConsumer) {
-        Node rootNode;
-        try {
-            rootNode = JsonInstructionHelper.createNode(jsonInput);
-        }catch(Exception je){
-            throw new IllegalArgumentException(String.format("Not able to parse:%s", jsonInput));
-        }
-        String identifier = rootNode.getIdentifier();
+
+        String identifier = preprocessInput.node.getIdentifier();
+
         if (!renewCache){
             throw new IllegalStateException("Not yet implemented cache");
         }
-        return this.runQuery(rootNode, pageSize, page, dataConsumer);
+        return this.runQuery(preprocessInput.node, pageSize, page, dataConsumer);
     }
 
     private ReturnResult runQuery(Node rootNode, long pageSize, long page, Consumer<GenericRecord> dataConsumer){
@@ -97,6 +108,15 @@ public class TreeQueryBeamServiceHelper {
             log.error(te.getMessage());
             throw new IllegalStateException(String.format("Time out:%s", rootNode.toString()));
         }
+    }
+
+    @Builder
+    @Getter
+    public static class PreprocessInput{
+        @NonNull
+        private final Node node;
+        @NonNull
+        private final Schema outputSchema;
     }
 
     @Builder
