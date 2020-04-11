@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
@@ -42,7 +43,7 @@ class TreeQueryWebServerTest {
         String AvroTree = "SimpleJoin.json";
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         treeQueryBeamServiceHelper =  TreeQueryBeamServiceHelper.builder()
                                         .cacheTypeEnum(CacheTypeEnum.FILE)
                                         .avroSchemaHelper(avroSchemaHelper)
