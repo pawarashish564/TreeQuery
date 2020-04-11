@@ -26,6 +26,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     BeamCacheOutputInterface beamCacheOutputInterface;
     AvroSchemaHelper avroSchemaHelper;
 
+
     //Output is found in BeamCacheOutputInterface beamCacheOutputInterface
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
