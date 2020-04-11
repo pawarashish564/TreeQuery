@@ -12,7 +12,12 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
+
     compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"

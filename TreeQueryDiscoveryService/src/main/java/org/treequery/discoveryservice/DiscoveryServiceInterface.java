@@ -1,11 +1,13 @@
 package org.treequery.discoveryservice;
 
+import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.model.Location;
+import java.io.Serializable;
 
-public interface DiscoveryServiceInterface {
-    public void registerCacheResult(String hashId, String clusterName);
-    public String getCacheResultCluster(String hashId);
+public interface DiscoveryServiceInterface extends Serializable {
+    public void registerCacheResult(String hashId, Cluster clusterName);
+    public Cluster getCacheResultCluster(String hashId);
 
-    public void registerCluster(String clusterName, String address, int port);
-    public Location getClusterLocation(String clusterName);
+    public void registerCluster(Cluster cluster, String address, int port);
+    public Location getClusterLocation(Cluster cluster);
 }
