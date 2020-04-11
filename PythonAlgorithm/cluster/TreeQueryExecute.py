@@ -16,7 +16,7 @@ class NodePipeline(abc.ABC):
 #Decorator of normal Node
 class CacheNode(Node):
     def __init__(self, node:Node):
-        Node.__init__(self, node.description, node.action, node.cluster)
+        Node.__init__(self, node.description, node.action, node.cluster, node.jNode)
         self.originalNode = node
         self.value = None
 

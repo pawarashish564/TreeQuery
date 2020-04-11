@@ -18,12 +18,13 @@ class DataSource(abc.ABC):
 
 
 class Node:
-    def __init__(self, description, action, cluster, name=None):
+    def __init__(self, description, action, cluster, jNode,name=None):
         self.description = description
         self.action = action
         self.cluster = cluster
         self.name = name
         self.children = []
+        self.jNode = jNode
 
     def insertChildren(self, node):
         self.children.append(node)
@@ -52,6 +53,7 @@ class Node:
         self.action = jNode["action"]
         self.cluster = jNode["cluster"]
         self.name = jNode["name"] if "name" in jNode else None
+        self.jNode = jNode
 
     #for debug of bfs only
     def bfs(self):
@@ -73,8 +75,8 @@ class Node:
 
 
 class LoadLeafNode(DataSource, Node):
-    def __init__(self, description, action, cluster, source, avro_schema):
-        Node.__init__(self, description, action, cluster)
+    def __init__(self, description, action, cluster, source, avro_schema, jNode):
+        Node.__init__(self, description, action, cluster, jNode)
         self.source = source
         self.avro_schema = avro_schema
     def __init__ (self, jNode):
@@ -82,6 +84,7 @@ class LoadLeafNode(DataSource, Node):
         self.source = jNode["source"]
         self.avro_schema = jNode["avro_schema"]
         self.setBasicValue(jNode)
+
     def getSource(self) -> str:
         return self.source
     def getAvro_schema(self) -> str:
@@ -151,4 +154,4 @@ def nodeFactory(jNode):
     elif action == "INNER_JOIN":
         return JoinNode(jNode)
 
-    return Node(jNode["description"], jNode["action"], jNode["cluster"])
+    return Node(jNode["description"], jNode["action"], jNode["cluster"], jNode)
