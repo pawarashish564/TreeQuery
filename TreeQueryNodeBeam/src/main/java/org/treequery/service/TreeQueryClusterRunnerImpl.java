@@ -9,7 +9,7 @@ import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
 import org.treequery.execute.NodeTraverser;
 import org.treequery.execute.PipelineBuilderInterface;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import lombok.Builder;

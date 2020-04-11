@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'org.treequery'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
+    compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+    compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
+
+
+}

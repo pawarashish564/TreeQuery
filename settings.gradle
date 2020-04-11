@@ -3,4 +3,5 @@ include 'TreeQueryNodeBeam'
 include 'TreeQueryNodeGrpc'
 include 'TreeQueryNodeProto'
 include 'TreeQueryDiscoveryService'
+include 'TreeQueryStatic'
 

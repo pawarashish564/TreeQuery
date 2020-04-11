@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;

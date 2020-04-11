@@ -2,6 +2,7 @@ package org.treequery.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.treequery.utils.AvroSchemaHelper;
 
 import java.util.Optional;
 

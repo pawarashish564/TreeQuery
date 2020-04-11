@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.function.JoinFunction;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;

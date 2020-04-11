@@ -1,6 +1,5 @@
 package org.treequery.grpc.service;
 
-import com.google.common.collect.Lists;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -11,8 +10,8 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.cache.FileBeamCacheOutputImpl;
 import org.treequery.beam.cache.RedisCacheOutputImpl;
 import org.treequery.exception.TimeOutException;
-import org.treequery.model.AvroSchemaHelper;
-import org.treequery.model.BasicAvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
@@ -23,8 +22,6 @@ import org.treequery.service.TreeQueryClusterService;
 import org.treequery.utils.AsyncRunHelper;
 import org.treequery.utils.JsonInstructionHelper;
 
-import java.io.File;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
@@ -37,7 +34,7 @@ public class TreeQueryBeamServiceHelper {
 
     public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum){
         cacheTypeEnum = CacheTypeEnum.FILE;
-        avroSchemaHelper = new BasicAvroSchemaHelper();
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         beamCacheOutputInterface = getCacheOutputImpl(cacheTypeEnum);
         init();
     }

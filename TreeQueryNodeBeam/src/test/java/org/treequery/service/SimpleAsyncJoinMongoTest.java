@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.model.AvroSchemaHelper;
-import org.treequery.model.BasicAvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;
@@ -34,7 +34,7 @@ public class SimpleAsyncJoinMongoTest {
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        avroSchemaHelper = new BasicAvroSchemaHelper();
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
     }
 

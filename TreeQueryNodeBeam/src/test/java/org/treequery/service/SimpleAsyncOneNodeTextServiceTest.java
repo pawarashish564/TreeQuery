@@ -2,7 +2,7 @@ package org.treequery.service;
 
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;

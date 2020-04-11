@@ -1,7 +1,6 @@
 package org.treequery.beam;
 
 import com.google.common.collect.Maps;
-import org.apache.beam.sdk.coders.AvroCoder;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
@@ -11,7 +10,7 @@ import org.treequery.beam.transform.LoadLeafNodeHelper;
 import org.treequery.beam.transform.NodeBeamHelper;
 import org.treequery.beam.transform.QueryLeafNodeHelper;
 import org.treequery.execute.PipelineBuilderInterface;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.Node;
 import lombok.Builder;
 import org.apache.avro.Schema;
