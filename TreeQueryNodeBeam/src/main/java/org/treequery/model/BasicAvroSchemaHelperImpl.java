@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import org.apache.avro.Schema;
 import org.treequery.Transform.JoinNode;
-import org.treequery.Transform.function.JoinFunction;
+import org.treequery.utils.AvroSchemaHelper;
 
 import java.util.List;
 
-public class BasicAvroSchemaHelper implements AvroSchemaHelper {
+public class BasicAvroSchemaHelperImpl implements AvroSchemaHelper {
     @Override
     public Schema getAvroSchema(Node node) {
         Schema.Parser parser = new Schema.Parser();

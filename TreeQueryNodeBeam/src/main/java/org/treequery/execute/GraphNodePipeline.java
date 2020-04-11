@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.treequery.cluster.Cluster;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;

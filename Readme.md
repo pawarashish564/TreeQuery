@@ -14,3 +14,8 @@ create table DailyGovBondPrice(
     primary key(AsOfDate, Tenor)
 )
 ````
+
+###Upload to maven repository
+``````
+gradlew -Pnexus uploadArchives
+``````

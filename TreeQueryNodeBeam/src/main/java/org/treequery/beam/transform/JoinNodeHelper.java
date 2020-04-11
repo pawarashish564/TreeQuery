@@ -17,7 +17,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.function.JoinFunction;
 import org.treequery.Transform.function.NoJoinAbleFunction;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
 

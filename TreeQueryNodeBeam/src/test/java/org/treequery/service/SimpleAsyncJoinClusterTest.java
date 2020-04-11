@@ -2,19 +2,16 @@ package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
+import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.AvroIOHelper;
-import org.treequery.utils.GenericRecordSchemaHelper;
-import org.treequery.utils.JsonInstructionHelper;
-import org.treequery.utils.TestDataAgent;
+import org.treequery.utils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,11 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @Slf4j
-@Tag("integration")
-public class SimpleAsyncJoinMongoTest {
+public class SimpleAsyncJoinClusterTest {
     TreeQueryClusterService treeQueryClusterService = null;
 
     BeamCacheOutputInterface beamCacheOutputInterface = null;
@@ -34,17 +29,23 @@ public class SimpleAsyncJoinMongoTest {
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
 
+    final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static String HOSTNAME = "localhost";
+
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
-        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        Cluster clusterA = Cluster.builder().clusterName("A").build();
+        Cluster clusterB = Cluster.builder().clusterName("B").build();
+        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
     }
-
     @Test
     public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
-        String AvroTree = "SimpleJoinMongo.json";
+        String AvroTree = "SimpleJoin.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         assertThat(rootNode).isInstanceOf(JoinNode.class);
@@ -58,18 +59,18 @@ public class SimpleAsyncJoinMongoTest {
                             .build();
                 })
                 .build();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
-            synchronized (rootNode) {
-                rootNode.notify();
-            }
+            asyncRunHelper.continueRun(status);
 
             assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
             if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                 throw new IllegalStateException(status.toString());
         });
-        synchronized (rootNode){
-            rootNode.wait();
+        StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
+        if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+            throw new RuntimeException(statusTreeQueryCluster.getDescription());
         }
 
         //Check the avro file

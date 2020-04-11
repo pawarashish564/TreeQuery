@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;
@@ -29,13 +30,15 @@ public class SimpleAsyncOneNodeMongoService {
     AvroSchemaHelper avroSchemaHelper = null;
     CacheTypeEnum cacheTypeEnum;
     BeamCacheOutputInterface beamCacheOutputInterface = null;
+    DiscoveryServiceInterface discoveryServiceInterface = null;
+
 
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = mock(AvroSchemaHelper.class);
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
-
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
     }
 
     @Test
@@ -57,6 +60,7 @@ public class SimpleAsyncOneNodeMongoService {
                             .beamCacheOutputInterface(beamCacheOutputInterface)
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();

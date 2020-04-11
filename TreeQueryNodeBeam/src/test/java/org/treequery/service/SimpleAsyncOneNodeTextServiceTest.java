@@ -2,7 +2,8 @@ package org.treequery.service;
 
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.AvroIOHelper;
@@ -29,6 +30,7 @@ class SimpleAsyncOneNodeTextServiceTest {
     BeamCacheOutputInterface beamCacheOutputInterface = null;
     CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
+    DiscoveryServiceInterface discoveryServiceInterface = null;
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -36,6 +38,7 @@ class SimpleAsyncOneNodeTextServiceTest {
         Path path = Files.createTempDirectory("TreeQuery_");
         log.debug("Write temp result into "+path.toAbsolutePath().toString());
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
     }
 
     @Test
@@ -55,6 +58,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                             .beamCacheOutputInterface(beamCacheOutputInterface)
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
@@ -99,6 +103,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                             .beamCacheOutputInterface(beamCacheOutputInterface)
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();

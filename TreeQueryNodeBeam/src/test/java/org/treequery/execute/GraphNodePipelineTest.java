@@ -5,7 +5,7 @@ import org.treequery.Transform.TransformNodeFactory;
 import org.treequery.cluster.ClusterDependencyGraph;
 import org.treequery.cluster.NodeFactory;
 import org.treequery.cluster.NodeTreeFactory;
-import org.treequery.model.AvroSchemaHelper;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;

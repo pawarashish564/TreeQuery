@@ -18,7 +18,7 @@ uploadArchives {
             }
 
             pom.project {
-                name 'Example Application'
+                name 'Tree Query Application'
                 packaging 'jar'
                 // optionally artifactId can be defined here
                 description 'Tree query'
