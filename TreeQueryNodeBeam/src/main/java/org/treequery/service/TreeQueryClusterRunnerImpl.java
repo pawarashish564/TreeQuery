@@ -1,10 +1,12 @@
 package org.treequery.service;
 
 import com.google.common.collect.Lists;
+import lombok.NonNull;
 import org.treequery.beam.BeamPipelineBuilderImpl;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
 import org.treequery.execute.NodeTraverser;
@@ -23,9 +25,12 @@ import java.util.function.Consumer;
 @Builder
 public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheTypeEnum cacheTypeEnum;
+    @NonNull
     BeamCacheOutputInterface beamCacheOutputInterface;
+    @NonNull
     AvroSchemaHelper avroSchemaHelper;
-
+    @NonNull
+    DiscoveryServiceInterface discoveryServiceInterface;
 
     //Output is found in BeamCacheOutputInterface beamCacheOutputInterface
     @Override

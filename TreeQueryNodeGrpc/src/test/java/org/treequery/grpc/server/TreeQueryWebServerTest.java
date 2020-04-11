@@ -6,6 +6,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
@@ -13,8 +14,10 @@ import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
+import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
+import org.treequery.utils.AvroSchemaHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.GenericArrayType;
@@ -23,6 +26,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
 @Slf4j
 class TreeQueryWebServerTest {
     static WebServer webServer;
@@ -30,11 +35,19 @@ class TreeQueryWebServerTest {
     final static String HOSTNAME = "localhost";
     static String jsonString;
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    static DiscoveryServiceInterface discoveryServiceInterface;
+    static AvroSchemaHelper avroSchemaHelper;
     @BeforeAll
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        treeQueryBeamServiceHelper = new TreeQueryBeamServiceHelper(CacheTypeEnum.FILE);
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQueryBeamServiceHelper =  TreeQueryBeamServiceHelper.builder()
+                                        .cacheTypeEnum(CacheTypeEnum.FILE)
+                                        .avroSchemaHelper(avroSchemaHelper)
+                                        .discoveryServiceInterface(discoveryServiceInterface)
+                                        .build();
 
         BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
                 .treeQueryBeamServiceHelper(treeQueryBeamServiceHelper).build();

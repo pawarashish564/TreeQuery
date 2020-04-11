@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 @Slf4j
 @Tag("integration")
@@ -30,12 +32,14 @@ public class SimpleAsyncJoinMongoTest {
     BeamCacheOutputInterface beamCacheOutputInterface = null;
     CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
+    DiscoveryServiceInterface discoveryServiceInterface = null;
 
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
     }
 
     @Test
@@ -50,6 +54,7 @@ public class SimpleAsyncJoinMongoTest {
                             .beamCacheOutputInterface(beamCacheOutputInterface)
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();

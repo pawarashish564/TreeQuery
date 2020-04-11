@@ -6,26 +6,39 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.grpc.utils.TestDataAgent;
+import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.QueryTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
+import org.treequery.utils.AvroSchemaHelper;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
 @Slf4j
 class TreeQueryBeamServiceHelperTest {
     String jsonString;
     TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    DiscoveryServiceInterface discoveryServiceInterface;
+    AvroSchemaHelper avroSchemaHelper;
     @BeforeEach
     void init(){
         String AvroTree = "SimpleJoin.json";
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        treeQueryBeamServiceHelper = new TreeQueryBeamServiceHelper(CacheTypeEnum.FILE);
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
+                .cacheTypeEnum(CacheTypeEnum.FILE)
+                .avroSchemaHelper(avroSchemaHelper)
+                .discoveryServiceInterface(discoveryServiceInterface)
+                .build();
     }
     @Test
     void happyPathRunBeamJoinLocally() {
