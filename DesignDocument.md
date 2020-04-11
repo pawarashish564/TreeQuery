@@ -1,15 +1,15 @@
 # System Design Document - Tree Query
 
 ## Our business problem
-When working on open source project [AutoIbank](https://github.com/dexterchan/AutoIBank/blob/master/README.md),
-we faced the challenge of sourcing and joining investor/issuers data located in different region / technology stack.
+When working on Big Data analysis from data located in different locations/technology stacks, <br>
+we would like to view the data automatically in one stop.
 
 Concrete use cases <br>
-AutoIbank analyzes trade data from investors/issuers from different location.<br>
+Financial Institution analyzes trade data from different location.<br>
 Some regulatory jurisdiction has a strict Data Privacy/Residency barrier <br>
 For example, China Cybersecurity Law, Indonesian OJK onshore rule, <br>
 All trade activities can only stay onshore database. <br>
-The analysis should be able to source and join investors/issuers + market data + static data from different database globally.
+The analysis should be able to source and join trade data/static data from different database globally.
 
 Therefore, we are seeking an effective distributed batch query to solve this problem.
 
@@ -57,54 +57,96 @@ In the end, FLATTEN of 5Y and 10Y result running in cluster A
 ## Json file describing tree schema
 
 ```Json
-
 {
-  "description": "Flatten Query of both 5Y and 10Y bond trade result",
+  "name": "Flatten5Y10Ydata",
+  "description": "Flatten 5Y+10Y data",
   "action": "FLATTEN",
-  "cluster": "A",
+  "cluster": "C",
   "children": [
     {
-      "description": "Joinning bond trades and Bond security set with 5Y tenor",
+      "name": "Join5YData",
+      "description": "Join 5Y data",
       "action": "INNER_JOIN",
       "cluster": "A",
-       "children":[{
-            "description": "Load Bond Trades",
-            "action": "LOAD",
-            "cluster": "B",
-            "source" : "gs://dexbigdata-bondtrade/bondtrade1.avro",
-            "avro_schema": {"name":"BondTrade","type":"record","namespace":"io.exp.security.model.avro","fields":[{"name":"id","type":"string"},{"name":"cust","type":"string"},{"name":"tradeDate","type":"string"},{"name":"tradeType","type":"string"},{"name":"timestamp","type":"long","logicalType":"time-millis"},{"name":"asset","type":{"name":"Asset","type":"record","fields":[{"name":"securityId","type":"string"},{"name":"notional","type":"double"},{"name":"price","type":"double"},{"name":"currency","type":"string"},{"name":"bidask","type":{"name":"BidAsk","type":"enum","symbols":["BID","ASK"]}}]}}]}
-          },
-          {
-            "description": "Query Mongo Security",
-            "action": "QUERY",:
-            "cluster": "A",
-            "queryType" : "MONGO",
-            "source" : "localmongo",
-            "database" : "hkma",
-            "collection": "OutstandingGovBond",
-            "query" : "{}",
-            "avro_schema": {"name":"BondStatic","type":"record","namespace":"io.exp.security.model.avro","fields":[{"name":"expected_maturity_date","type":"string"},{"name":"original_maturity","type":"string"},{"name":"issue_number","type":"string"},{"name":"isin_code","type":"string"},{"name":"stock_code","type":"string"},{"name":"coupon","type":"double"},{"name":"outstanding_size","type":"double"},{"name":"institutional_retail","type":"string"},{"name":"fixfloat","type":{"name":"FixFloat","type":"enum","symbols":["FIX","FLOAT"]}}]}
-          }
+      "children":[{
+        "name": "Load5YBondTrade",
+        "description": "Load BondTrades 5Y",
+        "action": "LOAD",
+        "cluster": "A",
+        "source" : "gs://dexbigdata-bondtrade/bondtrade1.avro",
+        "avro_schema": "{\"name\":\"BondTrade\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"cust\",\"type\":\"string\"},{\"name\":\"tradeDate\",\"type\":\"string\"},{\"name\":\"tradeType\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\",\"logicalType\":\"time-millis\"},{\"name\":\"asset\",\"type\":{\"name\":\"Asset\",\"type\":\"record\",\"fields\":[{\"name\":\"securityId\",\"type\":\"string\"},{\"name\":\"notional\",\"type\":\"double\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"currency\",\"type\":\"string\"},{\"name\":\"bidask\",\"type\":{\"name\":\"BidAsk\",\"type\":\"enum\",\"symbols\":[\"BID\",\"ASK\"]}}]}}]}"
+      },
+        {
+          "name": "Load5YMongoStatic",
+          "description": "Query Mongo Static 5Y",
+          "action": "QUERY",
+          "cluster": "A",
+          "queryType" : "MONGO",
+          "source" : "localmongo",
+          "database" : "hkma",
+          "collection": "OutstandingGovBond",
+          "query" : "{}",
+          "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"stock_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"double\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"},{\"name\":\"fixfloat\",\"type\":{\"name\":\"FixFloat\",\"type\":\"enum\",\"symbols\":[\"FIX\",\"FLOAT\"]}}]}"
+        }
       ],
-      "keys": [{"0": "asset.securityId","1": "isin_code"}]
+      "keys": [ {"left":0, "right":1 ,"on":[{"left": "asset.securityId","right": "isin_code"}] ,
+                "labels":  {"left":"bondtrade", "right":"bondstatic"}} ]
+    },
+    {
+      "name": "Join10YData",
+      "description": "Join 10Y data",
+      "action": "INNER_JOIN",
+      "cluster": "B",
+      "children":[{
+        "name": "Load10YBondTrade",
+        "description": "Load BondTrades 10Y",
+        "action": "LOAD",
+        "cluster": "A",
+        "source" : "gs://dexbigdata-bondtrade/bondtrade1.avro",
+        "avro_schema": "{\"name\":\"BondTrade\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"cust\",\"type\":\"string\"},{\"name\":\"tradeDate\",\"type\":\"string\"},{\"name\":\"tradeType\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\",\"logicalType\":\"time-millis\"},{\"name\":\"asset\",\"type\":{\"name\":\"Asset\",\"type\":\"record\",\"fields\":[{\"name\":\"securityId\",\"type\":\"string\"},{\"name\":\"notional\",\"type\":\"double\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"currency\",\"type\":\"string\"},{\"name\":\"bidask\",\"type\":{\"name\":\"BidAsk\",\"type\":\"enum\",\"symbols\":[\"BID\",\"ASK\"]}}]}}]}"
+      },
+        {
+          "name": "Load10YMongoStatic",
+          "description": "Query Mongo Static 10Y",
+          "action": "QUERY",
+          "cluster": "B",
+          "queryType" : "MONGO",
+          "source" : "localmongo",
+          "database" : "hkma",
+          "collection": "OutstandingGovBond",
+          "query" : "{}",
+          "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"stock_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"double\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"},{\"name\":\"fixfloat\",\"type\":{\"name\":\"FixFloat\",\"type\":\"enum\",\"symbols\":[\"FIX\",\"FLOAT\"]}}]}"
+        }
+      ],
+      "keys": [ {"left":0, "right":1 ,"on":[{"left": "asset.securityId","right": "isin_code"}],
+                "labels":  {"left":"bondtrade", "right":"bondstatic"} } ]
     }
   ]
 }
 
 ```
-Here, entire tree run by three clusters: A, B, C
-A: INNER_JOIN 5Y, QUERY 5Y, LOAD 5Y, LOAD 10Y
-B: INNER_JOIN 10Y, QUERY 10Y
-C: FLATTEN
-INNER_JOIN 10Y in B has dependency of LOAD 10Y in A
-FLATTEN has dependency on both INNER_JOIN 5Y in A and INNER_JOIN 10Y in B
-Executor analyze the action plan of dependency.
-Such that, calculation without ANY dependency running first,
-LOAD 10Y , INNER_JOIN 5Y running first
-->
-INNER_JOIN 10Y
-->
+Here, entire tree run by three clusters: A, B, C <br>
+A: INNER_JOIN 5Y, QUERY 5Y, LOAD 5Y, LOAD 10Y <br>
+B: INNER_JOIN 10Y, QUERY 10Y <br>
+C: FLATTEN <br>
+INNER_JOIN 10Y in B has dependency of LOAD 10Y in A <br>
+FLATTEN has dependency on both INNER_JOIN 5Y in A and INNER_JOIN 10Y in B <br>
+Executor analyze the action plan of dependency. <br>
+Such that, calculation without ANY dependency running first, <br>
+LOAD 10Y , INNER_JOIN 5Y running first <br>
+-> <br>
+INNER_JOIN 10Y <br>
+-> <br>
 Finally, FLATTEN run last
+
+## Execution explanation
+Cluster A, B, C partially run the query in above JSON document. <br>
+In the end, we page the final result back to client.<br>
+![Execution](resource/TreeQueryExecution.png)
+
+## High level Architecture
+High Level architecture <br>
+![Highlevelarchitecture](resource/TreeQueryDistributed.png)
 
 ### Algorithm: Cluster dependency graph
 The cluster dependency graph detection added into Depth First Search.
@@ -158,10 +200,11 @@ Therefore, postorder traversal of the tree construct the pipeline beginning from
 ### Algorithm: Convert each cluster to workflow pipeline
 ####Definition: Pipeline 
 
+### Note on Join
+By now, we only support INNER Join of two data sources.
 
-## Performance optimization
-Caching the intermediate/hash result into flat file/Redis with a key hashed from the node
-To be further elaborated.
+
+
 
 ## Potential Usage
 Big Query application sourcing data from different sources in different locations

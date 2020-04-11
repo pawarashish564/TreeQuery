@@ -28,7 +28,7 @@ public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
     public FileBeamCacheOutputImpl(){
         try {
             this.path = Files.createTempDirectory("TreeQuery_");
-            log.debug("Write cache result into "+path.toAbsolutePath().toString());
+            log.info("Write cache result into "+path.toAbsolutePath().toString());
         }catch(IOException ioe){
             log.error(ioe.getMessage());
             throw new IllegalStateException(String.format("File Cache failed to allocate %s",ioe.getMessage()));
