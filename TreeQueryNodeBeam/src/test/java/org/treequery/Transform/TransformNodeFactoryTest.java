@@ -1,5 +1,6 @@
 package org.treequery.Transform;
 
+import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.NodeFactory;
 import org.treequery.cluster.NodeTreeFactory;
@@ -10,10 +11,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 class TransformNodeFactoryTest {
 
     String fileName = "TreeQueryInput3.json";
@@ -40,6 +44,7 @@ class TransformNodeFactoryTest {
         assertThat(node.getAction()).isEqualTo(ActionTypeEnum.FLATTEN);
         assertThat(node.getChildren()).hasSize(2);
         assertThat(node.getIdentifier()).isNotBlank();
+        assertThat(node.getJNode()).isNotNull();
     }
 
     @Test
@@ -49,9 +54,28 @@ class TransformNodeFactoryTest {
         assertThat(Join5Ydata.getChildren()).hasSize(2);
         assertEquals("Join 5Y data",Join5Ydata.getDescription());
         assertEquals(clusterA, Join5Ydata.getCluster());
+        assertThat(Join5Ydata.getJNode()).isNotNull();
         Node Join10Ydata = innerJoin.get(0);
         assertThat(Join10Ydata.getChildren()).hasSize(2);
         assertEquals("Join 10Y data",Join10Ydata.getDescription());
         assertEquals(clusterB, Join10Ydata.getCluster());
+        assertThat(Join10Ydata.getJNode()).isNotNull();
+    }
+
+    @Test
+    void checkEachNodeForJNode(){
+        AtomicInteger counter = new AtomicInteger(0);
+        __DFS_CheckNode(node, counter, (nodeChk)->{
+            assertThat(nodeChk.getJNode()).isNotNull();
+        });
+        assertEquals(7,counter.get());
+    }
+
+    void __DFS_CheckNode(Node node, AtomicInteger counter, Consumer<Node> checkFunc) {
+        checkFunc.accept(node);
+        counter.incrementAndGet();
+        for (Node childNode: node.getChildren()){
+            __DFS_CheckNode(childNode,counter, checkFunc);
+        }
     }
 }
