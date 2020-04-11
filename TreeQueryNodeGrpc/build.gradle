@@ -5,7 +5,7 @@ apply plugin: 'com.google.protobuf'
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
-
+archivesBaseName = "TreeQueryNodeGrpc"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 mainClassName = "org.treequery.grpc.server.Main"
@@ -25,7 +25,7 @@ buildscript {
     }
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+//apply plugin: 'com.github.johnrengelman.shadow'
 
 ext{
     grpcVersion = '1.21.0' // CURRENT_GRPC_VERSION
@@ -57,12 +57,12 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
-
+/*
 shadowJar {
     zip64 true
     mergeServiceFiles()
 
-}
+}*/
 
 startScripts.enabled = false
 
