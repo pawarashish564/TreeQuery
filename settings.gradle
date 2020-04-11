@@ -2,5 +2,5 @@ rootProject.name = 'TreeQuery'
 include 'TreeQueryNodeBeam'
 include 'TreeQueryNodeGrpc'
 include 'TreeQueryNodeProto'
-include 'TreeQueryDirectoryService'
+include 'TreeQueryDiscoveryService'
 
