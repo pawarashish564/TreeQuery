@@ -24,6 +24,7 @@ public  class CacheNode extends Node implements DataSource{
         this.description = node.getDescription();
         this.cluster = node.getCluster();
         this.action = node.getAction();
+        this.jNode = node.jNode;
     }
 
     @Override

@@ -25,6 +25,8 @@ public abstract class Node implements Serializable {
     protected ActionTypeEnum action;
     @NonNull
     protected Cluster cluster;
+    @NonNull
+    protected JsonNode jNode;
 
     @NonNull
     protected JoinAble joinFunction = new NoJoinAbleFunction();
@@ -62,6 +64,7 @@ public abstract class Node implements Serializable {
         this.setCluster(Cluster.builder()
                 .clusterName(jsonNode.get("cluster").asText())
                 .build());
+        this.jNode = jsonNode;
     }
 
     public String toString() {
