@@ -11,6 +11,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
 import org.treequery.service.*;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInteface;
 import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
@@ -34,15 +35,18 @@ public class TreeQueryBeamServiceHelper {
     DiscoveryServiceInterface discoveryServiceInterface;
     @NonNull
     TreeQuerySetting treeQuerySetting;
+    @NonNull
+    TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface;
 
     @Builder
-    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface,TreeQuerySetting treeQuerySetting){
+    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface,TreeQuerySetting treeQuerySetting,TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface){
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
                                     .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(treeQuerySetting).build();
+        this.treeQueryClusterRunnerProxyInteface = treeQueryClusterRunnerProxyInteface;
         this.treeQuerySetting = treeQuerySetting;
         init();
     }
@@ -58,6 +62,7 @@ public class TreeQueryBeamServiceHelper {
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInteface(treeQueryClusterRunnerProxyInteface)
                             .build())
                 .build();
     }
