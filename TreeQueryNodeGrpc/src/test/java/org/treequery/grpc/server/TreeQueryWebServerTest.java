@@ -17,13 +17,12 @@ import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
-import org.treequery.model.BasicAvroSchemaHelperImpl;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.GenericArrayType;
 import java.util.Arrays;
 import java.util.List;
 

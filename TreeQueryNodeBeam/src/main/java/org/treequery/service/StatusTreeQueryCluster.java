@@ -11,7 +11,7 @@ import lombok.ToString;
 public class StatusTreeQueryCluster {
     @RequiredArgsConstructor
     public enum QueryTypeEnum {
-        SUCCESS(0), FAIL(2), RUNNING(1);
+        SUCCESS(0), FAIL(2), RUNNING(1), SYSTEMERROR(500);
         @Getter
         private final int value;
     }

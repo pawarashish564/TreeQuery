@@ -10,10 +10,14 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.treequery.config.TreeQuerySetting;
+import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheTypeEnum;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -42,7 +46,7 @@ public class AvroIOHelper {
         }
     }
 
-    public static Schema getPageRecordFromAvroCache(CacheTypeEnum cacheTypeEnum, TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
+    public static Schema getPageRecordFromAvroCache(CacheTypeEnum cacheTypeEnum, TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException{
         try {
             if (cacheTypeEnum == CacheTypeEnum.FILE) {
                 String readFileName = String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
@@ -51,11 +55,14 @@ public class AvroIOHelper {
         }catch(IOException ioe){
             log.error(ioe.getMessage());
             throw new IllegalStateException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString()));
+        }catch(CacheNotFoundException ce){
+            log.error(ce.getMessage());
+            throw new CacheNotFoundException(String.format("Cache %s not found", identifier));
         }
         throw new NoSuchMethodError("Only File Cache implemented");
     }
 
-    public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException {
+    public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException, CacheNotFoundException {
         Schema schema;
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
         String readFileName = avroFileName;
@@ -66,6 +73,10 @@ public class AvroIOHelper {
             throw new IllegalArgumentException(String.format("pageSize should be> 1 but received %d", page));
         }
 
+        Path filepath = Paths.get(readFileName);
+        if (!(Files.exists(filepath) && Files.isReadable(filepath) )){
+            throw new CacheNotFoundException("Cache not found for avroFileName");
+        }
         DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
         schema = dataFileReader.getSchema();
         GenericRecord recordPt = null;
