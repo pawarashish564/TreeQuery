@@ -11,7 +11,7 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
-import org.treequery.model.BasicAvroSchemaHelperImpl;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
@@ -107,8 +107,6 @@ class TreeQueryBeamServiceHelperTest {
                     assertThat(cachedRecordConsumer.getGenericRecordSet()).contains(genericRecord);
                 }
         );
-
-
     }
 
     private static class DataConsumer2LinkedList implements Consumer<GenericRecord>{
