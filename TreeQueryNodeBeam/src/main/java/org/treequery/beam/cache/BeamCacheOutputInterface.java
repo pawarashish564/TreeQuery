@@ -9,6 +9,4 @@ import java.util.function.Consumer;
 
 public interface BeamCacheOutputInterface {
     public void writeGenericRecord(PCollection<GenericRecord> stream, Schema avroSchema, String outputLabel);
-
-    public Schema getPageRecord(long pageSize, long page, Consumer<GenericRecord> dataConsumer);
 }

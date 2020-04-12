@@ -9,6 +9,8 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
+import org.treequery.config.TreeQuerySetting;
+import org.treequery.model.CacheTypeEnum;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +40,19 @@ public class AvroIOHelper {
             record = dataFileReader.next(record);
             dataConsumer.accept(record);
         }
+    }
+
+    public static Schema getPageRecordFromAvroCache(CacheTypeEnum cacheTypeEnum, TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
+        try {
+            if (cacheTypeEnum == CacheTypeEnum.FILE) {
+                String readFileName = String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
+                return AvroIOHelper.getPageRecordFromAvroFile(readFileName, pageSize, page, dataConsumer);
+            }
+        }catch(IOException ioe){
+            log.error(ioe.getMessage());
+            throw new IllegalStateException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString()));
+        }
+        throw new NoSuchMethodError("Only File Cache implemented");
     }
 
     public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException {

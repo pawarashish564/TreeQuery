@@ -11,9 +11,7 @@ public class BeamCacheOutputBuilder {
 
         switch(cacheTypeEnum){
             case FILE:
-                beamCacheOutputInterface = (dataFolder == null || dataFolder.length()==0)?
-                        new FileBeamCacheOutputImpl():
-                        new FileBeamCacheOutputImpl(dataFolder);
+                beamCacheOutputInterface = new FileBeamCacheOutputImpl(dataFolder);
                 break;
             case REDIS:
                 beamCacheOutputInterface = new RedisCacheOutputImpl();

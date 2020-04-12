@@ -34,9 +34,4 @@ public class TestFileBeamCacheOutputImpl implements BeamCacheOutputInterface {
         File file = new File(fileName+".avro");
         return file;
     }
-
-    @Override
-    public Schema getPageRecord(long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
-        throw new NoSuchMethodError("Not yet implemented");
-    }
 }

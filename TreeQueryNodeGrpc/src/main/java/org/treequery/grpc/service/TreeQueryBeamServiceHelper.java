@@ -10,8 +10,10 @@ import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.cache.FileBeamCacheOutputImpl;
 import org.treequery.beam.cache.RedisCacheOutputImpl;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.TimeOutException;
+import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
@@ -37,13 +39,16 @@ public class TreeQueryBeamServiceHelper {
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
     DiscoveryServiceInterface discoveryServiceInterface;
+    @NonNull
+    TreeQuerySetting treeQuerySetting;
 
     @Builder
-    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface){
+    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface,TreeQuerySetting treeQuerySetting){
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
-        beamCacheOutputInterface = BeamCacheOutputBuilder.createBeamCacheOutputImpl(cacheTypeEnum, null);
+        beamCacheOutputInterface = BeamCacheOutputBuilder.createBeamCacheOutputImpl(cacheTypeEnum,treeQuerySetting.getCacheFilePath());
+        this.treeQuerySetting = treeQuerySetting;
         init();
     }
 
@@ -96,6 +101,7 @@ public class TreeQueryBeamServiceHelper {
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);
         });
+
         try {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
             if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
@@ -103,7 +109,10 @@ public class TreeQueryBeamServiceHelper {
                         .statusTreeQueryCluster(statusTreeQueryCluster)
                         .build();
             }else{
-                Schema schema = beamCacheOutputInterface.getPageRecord(pageSize, page, dataConsumer);
+                Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                        treeQuerySetting,
+                        rootNode.getIdentifier(),pageSize,page, dataConsumer);
+
                 return ReturnResult.builder()
                         .hashCode(hashCode)
                         .statusTreeQueryCluster(statusTreeQueryCluster)

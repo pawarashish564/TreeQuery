@@ -6,6 +6,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.client.HealthWebClient;
@@ -14,6 +15,7 @@ import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
+import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
@@ -38,9 +40,11 @@ class TreeQueryWebServerTest {
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
+    static TreeQuerySetting treeQuerySetting;
     @BeforeAll
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
+        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
@@ -48,6 +52,7 @@ class TreeQueryWebServerTest {
                                         .cacheTypeEnum(CacheTypeEnum.FILE)
                                         .avroSchemaHelper(avroSchemaHelper)
                                         .discoveryServiceInterface(discoveryServiceInterface)
+                                        .treeQuerySetting(treeQuerySetting)
                                         .build();
 
         BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
