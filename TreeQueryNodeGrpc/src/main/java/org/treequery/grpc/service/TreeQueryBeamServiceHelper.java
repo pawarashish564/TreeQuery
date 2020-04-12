@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.cache.FileBeamCacheOutputImpl;
 import org.treequery.beam.cache.RedisCacheOutputImpl;
@@ -42,7 +43,7 @@ public class TreeQueryBeamServiceHelper {
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
-        beamCacheOutputInterface = getCacheOutputImpl(cacheTypeEnum);
+        beamCacheOutputInterface = BeamCacheOutputBuilder.createBeamCacheOutputImpl(cacheTypeEnum, null);
         init();
     }
 
@@ -133,20 +134,4 @@ public class TreeQueryBeamServiceHelper {
         StatusTreeQueryCluster statusTreeQueryCluster;
         Schema dataSchema;
     }
-
-    static BeamCacheOutputInterface getCacheOutputImpl(CacheTypeEnum cacheTypeEnum){
-        BeamCacheOutputInterface beamCacheOutputInterface;
-        switch(cacheTypeEnum){
-            case FILE:
-                beamCacheOutputInterface =  new FileBeamCacheOutputImpl();
-                break;
-            case REDIS:
-                beamCacheOutputInterface = new RedisCacheOutputImpl();
-                break;
-            default:
-                throw new NoSuchElementException();
-        }
-        return beamCacheOutputInterface;
-    }
-
 }
