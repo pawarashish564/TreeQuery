@@ -76,7 +76,6 @@ public class AvroIOHelper {
             counter++;
 
             recordPt = dataFileReader.next(recordPt);
-            log.debug(recordPt.toString());
             if (counter > lessThan && counter <= GreaterThan) {
                 GenericData.Record data = (GenericData.Record) recordPt;
                 GenericRecordBuilder genericRecordBuilder = new GenericRecordBuilder(data);

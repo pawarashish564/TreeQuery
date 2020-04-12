@@ -33,7 +33,8 @@ import java.util.function.Consumer;
 public class TreeQueryBeamServiceHelper {
     TreeQueryClusterService treeQueryClusterService;
     @NonNull
-    BeamCacheOutputInterface beamCacheOutputInterface;
+    BeamCacheOutputBuilder beamCacheOutputBuilder;
+
     CacheTypeEnum cacheTypeEnum;
     @NonNull
     AvroSchemaHelper avroSchemaHelper;
@@ -47,7 +48,9 @@ public class TreeQueryBeamServiceHelper {
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
-        beamCacheOutputInterface = BeamCacheOutputBuilder.createBeamCacheOutputImpl(cacheTypeEnum,treeQuerySetting.getCacheFilePath());
+        beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(cacheTypeEnum)
+                                    .treeQuerySetting(treeQuerySetting).build();
         this.treeQuerySetting = treeQuerySetting;
         init();
     }
@@ -56,7 +59,10 @@ public class TreeQueryBeamServiceHelper {
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->
                         TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(this.cacheTypeEnum)
+                                    .treeQuerySetting(this.treeQuerySetting)
+                                    .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .discoveryServiceInterface(discoveryServiceInterface)

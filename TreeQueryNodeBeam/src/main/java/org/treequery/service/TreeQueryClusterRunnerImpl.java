@@ -3,6 +3,7 @@ package org.treequery.service;
 import com.google.common.collect.Lists;
 import lombok.NonNull;
 import org.treequery.beam.BeamPipelineBuilderImpl;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
@@ -26,13 +27,13 @@ import java.util.function.Consumer;
 public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheTypeEnum cacheTypeEnum;
     @NonNull
-    BeamCacheOutputInterface beamCacheOutputInterface;
-    @NonNull
+    BeamCacheOutputBuilder beamCacheOutputBuilder;
+
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
     DiscoveryServiceInterface discoveryServiceInterface;
 
-    //Output is found in BeamCacheOutputInterface beamCacheOutputInterface
+    //Output is found in AvroIOHelper.getPageRecordFromAvroCache
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
@@ -46,11 +47,11 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 Cluster nodeCluster = node.getCluster();
                 if (nodeCluster.equals(rootCluster)){
 
-                    this.executeBeamRun(node, beamCacheOutputInterface, statusCallback);
+                    this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
                     log.debug(String.format("Cluster %s %s", nodeCluster.toString(), node.getName()));
                 }else{
                     //It should be RPC call... do it later
-                    this.executeBeamRun(node, beamCacheOutputInterface, statusCallback);
+                    this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
                     log.debug(String.format("Cluster %s %s", nodeCluster.toString(), node.getName()));
                 }
             }

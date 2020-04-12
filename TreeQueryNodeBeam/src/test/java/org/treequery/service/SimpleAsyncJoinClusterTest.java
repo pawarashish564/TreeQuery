@@ -1,9 +1,11 @@
 package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.Schema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
@@ -25,12 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SimpleAsyncJoinClusterTest {
     TreeQueryClusterService treeQueryClusterService = null;
 
-    BeamCacheOutputInterface beamCacheOutputInterface = null;
     CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
 
-    TreeQuerySetting treeQuerySetting;
+    TreeQuerySetting treeQuerySetting = null;
+
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
 
@@ -41,7 +43,7 @@ public class SimpleAsyncJoinClusterTest {
         cacheTypeEnum = CacheTypeEnum.FILE;
         treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
+
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
@@ -58,7 +60,10 @@ public class SimpleAsyncJoinClusterTest {
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(cacheTypeEnum)
+                                    .treeQuerySetting(this.treeQuerySetting)
+                                    .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .discoveryServiceInterface(discoveryServiceInterface)
@@ -82,10 +87,13 @@ public class SimpleAsyncJoinClusterTest {
         }
 
         //Check the avro file
-        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
-        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        //Check the avro file
+        long pageSize = 10000;
+        long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                treeQuerySetting,
+                rootNode.getIdentifier(),pageSize,page,
                 (record)->{
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
