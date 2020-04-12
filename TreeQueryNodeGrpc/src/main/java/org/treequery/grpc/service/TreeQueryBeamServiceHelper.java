@@ -12,6 +12,7 @@ import org.treequery.beam.cache.FileBeamCacheOutputImpl;
 import org.treequery.beam.cache.RedisCacheOutputImpl;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
 import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
@@ -95,7 +96,23 @@ public class TreeQueryBeamServiceHelper {
         String identifier = preprocessInput.node.getIdentifier();
 
         if (!renewCache){
-            throw new IllegalStateException("Not yet implemented cache");
+            try{
+                Schema schema = AvroIOHelper.getPageRecordFromAvroCache( cacheTypeEnum,
+                        treeQuerySetting, identifier, pageSize, page,
+                         dataConsumer);
+                return ReturnResult.builder()
+                        .hashCode(identifier)
+                        .statusTreeQueryCluster(
+                                StatusTreeQueryCluster.builder()
+                                        .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
+                                        .description("Fresh from cache")
+                                        .build()
+                        )
+                        .dataSchema(schema)
+                        .build();
+            }catch(CacheNotFoundException che){
+                log.info(String.format("Cache %s not found, need to rerun", identifier));
+            }
         }
         return this.runQuery(preprocessInput.node, pageSize, page, dataConsumer);
     }
@@ -112,17 +129,31 @@ public class TreeQueryBeamServiceHelper {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
             if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
                 return ReturnResult.builder()
+                        .hashCode(hashCode)
                         .statusTreeQueryCluster(statusTreeQueryCluster)
                         .build();
             }else{
-                Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
-                        treeQuerySetting,
-                        rootNode.getIdentifier(),pageSize,page, dataConsumer);
-                return ReturnResult.builder()
-                        .hashCode(hashCode)
-                        .statusTreeQueryCluster(statusTreeQueryCluster)
-                        .dataSchema(schema)
-                        .build();
+                try {
+                    Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                            treeQuerySetting,
+                            rootNode.getIdentifier(), pageSize, page, dataConsumer);
+                    return ReturnResult.builder()
+                            .hashCode(hashCode)
+                            .statusTreeQueryCluster(statusTreeQueryCluster)
+                            .dataSchema(schema)
+                            .build();
+                }catch(CacheNotFoundException che){
+                    log.error(che.getMessage());
+                    return ReturnResult.builder()
+                            .hashCode(hashCode)
+                            .statusTreeQueryCluster(
+                                    StatusTreeQueryCluster.builder()
+                                    .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                                    .description(che.getMessage())
+                                    .build()
+                            )
+                            .build();
+                }
             }
         }catch(TimeOutException te){
             log.error(te.getMessage());
