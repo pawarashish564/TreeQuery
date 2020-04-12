@@ -32,6 +32,8 @@ public class SimpleAsyncJoinClusterTest {
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
 
+    Cluster myCluster;
+
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -42,6 +44,7 @@ public class SimpleAsyncJoinClusterTest {
         Cluster clusterB = Cluster.builder().clusterName("B").build();
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        myCluster = clusterA;
     }
     @Test
     public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
@@ -71,6 +74,8 @@ public class SimpleAsyncJoinClusterTest {
         StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
         if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
             throw new RuntimeException(statusTreeQueryCluster.getDescription());
+        }else{
+            discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), myCluster);
         }
 
         //Check the avro file

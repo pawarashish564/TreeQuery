@@ -46,9 +46,11 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 Cluster nodeCluster = node.getCluster();
                 if (nodeCluster.equals(rootCluster)){
                     this.executeBeamRun(node, beamCacheOutputInterface, statusCallback);
+                    log.debug(String.format("Cluster %s %s", nodeCluster.toString(), node.getName()));
                 }else{
                     //It should be RPC call... do it later
                     this.executeBeamRun(node, beamCacheOutputInterface, statusCallback);
+                    log.debug(String.format("Cluster %s %s", nodeCluster.toString(), node.getName()));
                 }
             }
         }

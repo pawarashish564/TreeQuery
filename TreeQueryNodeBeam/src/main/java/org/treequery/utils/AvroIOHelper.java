@@ -1,9 +1,12 @@
 package org.treequery.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
 
@@ -12,26 +15,62 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+@Slf4j
 public class AvroIOHelper {
 
-    public static void readAvroGenericRecordFile (File avroFile, Schema schema, Consumer<GenericRecord> dataConsumer) throws IOException{
+    public static void readAvroGenericRecordFile(File avroFile, Schema schema, Consumer<GenericRecord> dataConsumer) throws IOException {
         DatumReader<GenericRecord> datumReader = Optional.ofNullable(schema)
-                .map(s->new GenericDatumReader<GenericRecord>(s))
+                .map(s -> new GenericDatumReader<GenericRecord>(s))
                 .orElse(new GenericDatumReader<GenericRecord>());
         DataFileReader<GenericRecord> dataFileReader = new DataFileReader<GenericRecord>(avroFile, datumReader);
         GenericRecord record = null;
-        while (dataFileReader.hasNext()){
-            record = dataFileReader.next(record);
-            dataConsumer.accept(record);
-        }
-    }
-    public static <T> void readAvroSpecifClassFile(File avroFile, Class c,  Consumer< T > dataConsumer) throws IOException {
-        DatumReader<T> userDatumReader = new SpecificDatumReader<T>(c);
-        DataFileReader<T> dataFileReader = new DataFileReader<T>(avroFile, userDatumReader);
-        T record=null;
         while (dataFileReader.hasNext()) {
             record = dataFileReader.next(record);
             dataConsumer.accept(record);
         }
+    }
+
+    public static <T> void readAvroSpecifClassFile(File avroFile, Class c, Consumer<T> dataConsumer) throws IOException {
+        DatumReader<T> userDatumReader = new SpecificDatumReader<T>(c);
+        DataFileReader<T> dataFileReader = new DataFileReader<T>(avroFile, userDatumReader);
+        T record = null;
+        while (dataFileReader.hasNext()) {
+            record = dataFileReader.next(record);
+            dataConsumer.accept(record);
+        }
+    }
+
+    public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException {
+        Schema schema;
+        DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
+        String readFileName = avroFileName;
+        if (page < 1) {
+            throw new IllegalArgumentException(String.format("page should be> 1 but received %d", page));
+        }
+        if (pageSize < 1) {
+            throw new IllegalArgumentException(String.format("pageSize should be> 1 but received %d", page));
+        }
+
+        DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
+        schema = dataFileReader.getSchema();
+        GenericRecord recordPt = null;
+        long counter = 0;
+        long lessThan = (page - 1) * pageSize;
+        long GreaterThan = (page) * pageSize;
+        while (dataFileReader.hasNext()) {
+            counter++;
+
+            recordPt = dataFileReader.next(recordPt);
+            log.debug(recordPt.toString());
+            if (counter > lessThan && counter <= GreaterThan) {
+                GenericData.Record data = (GenericData.Record) recordPt;
+                GenericRecordBuilder genericRecordBuilder = new GenericRecordBuilder(data);
+                dataConsumer.accept(genericRecordBuilder.build());
+            }
+            if (counter >= GreaterThan) {
+                break;
+            }
+        }
+        return schema;
     }
 }
