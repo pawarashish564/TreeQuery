@@ -7,11 +7,11 @@ import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
 import org.treequery.execute.NodeTraverser;
 import org.treequery.execute.PipelineBuilderInterface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInteface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
@@ -28,10 +28,12 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheTypeEnum cacheTypeEnum;
     @NonNull
     BeamCacheOutputBuilder beamCacheOutputBuilder;
-
+    @NonNull
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
-    DiscoveryServiceInterface discoveryServiceInterface;
+    Cluster atCluster;
+    @NonNull
+    TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface;
 
     //Output is found in AvroIOHelper.getPageRecordFromAvroCache
     @Override
@@ -44,14 +46,14 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 break;
             }
             for (Node node: nodeList) {
-                Cluster nodeCluster = node.getCluster();
-                if (nodeCluster.equals(rootCluster)){
+
+                if (atCluster.equals(rootCluster)){
                     this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
-                    log.debug(String.format("Cluster %s %s", nodeCluster.toString(), node.getName()));
+                    log.debug(String.format("Cluster %s %s", node.toString(), node.getName()));
                 }else{
                     //It should be RPC call... do it later
-                    this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
-                    log.debug(String.format("Cluster %s %s", nodeCluster.toString(), node.getName()));
+                    this.treeQueryClusterRunnerProxyInteface.process(node, statusCallback);
+                    log.debug(String.format("Cluster %s %s", node.toString(), node.getName()));
                 }
             }
         }

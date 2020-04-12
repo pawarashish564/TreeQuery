@@ -57,7 +57,7 @@ public class TreeQueryBeamServiceHelper {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .discoveryServiceInterface(discoveryServiceInterface)
+                            .atCluster(treeQuerySetting.getCluster())
                             .build())
                 .build();
     }

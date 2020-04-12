@@ -1,6 +1,7 @@
 package org.treequery.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 
 import java.nio.file.Files;
@@ -12,6 +13,7 @@ public class SettingInitializer {
         TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
         treeQuerySettingBuilder.servicehostname("localhost");
         treeQuerySettingBuilder.servicePort(9002);
+        treeQuerySettingBuilder.cluster(Cluster.builder().clusterName("A").build());
         try {
             Path path = Files.createTempDirectory("TreeQuery_");
             log.info(String.format("Write cache File to path: %s", path.toAbsolutePath().toString()));

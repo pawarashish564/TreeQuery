@@ -10,6 +10,8 @@ import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInteface;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
@@ -33,7 +35,7 @@ public class SimpleAsyncJoinClusterTest {
 
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
-
+    TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface;
     Cluster myCluster;
 
     @BeforeEach
@@ -47,7 +49,12 @@ public class SimpleAsyncJoinClusterTest {
         Cluster clusterB = Cluster.builder().clusterName("B").build();
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
-        myCluster = Cluster.builder().clusterName(treeQuerySetting.getCluster()).build();
+        myCluster = treeQuerySetting.getCluster();
+        treeQueryClusterRunnerProxyInteface = LocalDummyTreeQueryClusterRunnerProxy.builder()
+                                                .treeQuerySetting(treeQuerySetting)
+                                                .cacheTypeEnum(cacheTypeEnum)
+                                                .avroSchemaHelper(avroSchemaHelper)
+                                                .build();
     }
     @Test
     public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
@@ -64,7 +71,8 @@ public class SimpleAsyncJoinClusterTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .discoveryServiceInterface(discoveryServiceInterface)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInteface(treeQueryClusterRunnerProxyInteface)
                             .build();
                 })
                 .build();
