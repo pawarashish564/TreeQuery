@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
@@ -29,6 +30,7 @@ public class SimpleAsyncJoinClusterTest {
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
 
+    TreeQuerySetting treeQuerySetting;
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
 
@@ -37,6 +39,7 @@ public class SimpleAsyncJoinClusterTest {
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
+        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
@@ -44,7 +47,7 @@ public class SimpleAsyncJoinClusterTest {
         Cluster clusterB = Cluster.builder().clusterName("B").build();
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
-        myCluster = clusterA;
+        myCluster = Cluster.builder().clusterName(treeQuerySetting.getCluster()).build();
     }
     @Test
     public void SimpleAsyncJoinTestWithSameCluster() throws Exception{

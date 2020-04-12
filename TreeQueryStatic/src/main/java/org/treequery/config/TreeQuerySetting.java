@@ -1,9 +1,10 @@
 package org.treequery.config;
 
 import lombok.Builder;
-import org.treequery.cluster.Cluster;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class TreeQuerySetting {
     String cluster;
     String servicehostname;
