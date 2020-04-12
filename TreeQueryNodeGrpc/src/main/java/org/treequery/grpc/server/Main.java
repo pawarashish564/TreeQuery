@@ -1,6 +1,7 @@
 package org.treequery.grpc.server;
 
 import io.grpc.BindableService;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
@@ -18,6 +19,7 @@ public class Main {
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
+    static TreeQuerySetting treeQuerySetting;
 
     public static void main(String [] args) throws IOException, InterruptedException {
 
@@ -27,14 +29,15 @@ public class Main {
                 .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
+                .treeQuerySetting(treeQuerySetting)
                 .build();
         BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
                 .treeQueryBeamServiceHelper(treeQueryBeamServiceHelper).build();
         BindableService[] bindableServices = {new SyncHealthCheckGrpcController(), syncTreeQueryGrpcController};
 
 
-        int PORT = 9001;
-        WebServer webServer = new WebServer(PORT, Arrays.asList(bindableServices));
+
+        WebServer webServer = new WebServer(treeQuerySetting.getServicePort(), Arrays.asList(bindableServices));
         webServer.start();
         webServer.blockUntilShutdown();
     }

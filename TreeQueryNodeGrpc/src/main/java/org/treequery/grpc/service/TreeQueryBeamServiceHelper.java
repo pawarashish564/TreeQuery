@@ -6,11 +6,15 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.cache.FileBeamCacheOutputImpl;
 import org.treequery.beam.cache.RedisCacheOutputImpl;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
+import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
@@ -30,19 +34,25 @@ import java.util.function.Consumer;
 public class TreeQueryBeamServiceHelper {
     TreeQueryClusterService treeQueryClusterService;
     @NonNull
-    BeamCacheOutputInterface beamCacheOutputInterface;
+    BeamCacheOutputBuilder beamCacheOutputBuilder;
+
     CacheTypeEnum cacheTypeEnum;
     @NonNull
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
     DiscoveryServiceInterface discoveryServiceInterface;
+    @NonNull
+    TreeQuerySetting treeQuerySetting;
 
     @Builder
-    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface){
+    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface,TreeQuerySetting treeQuerySetting){
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
-        beamCacheOutputInterface = getCacheOutputImpl(cacheTypeEnum);
+        beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(cacheTypeEnum)
+                                    .treeQuerySetting(treeQuerySetting).build();
+        this.treeQuerySetting = treeQuerySetting;
         init();
     }
 
@@ -50,7 +60,10 @@ public class TreeQueryBeamServiceHelper {
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->
                         TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(this.cacheTypeEnum)
+                                    .treeQuerySetting(this.treeQuerySetting)
+                                    .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .discoveryServiceInterface(discoveryServiceInterface)
@@ -83,7 +96,23 @@ public class TreeQueryBeamServiceHelper {
         String identifier = preprocessInput.node.getIdentifier();
 
         if (!renewCache){
-            throw new IllegalStateException("Not yet implemented cache");
+            try{
+                Schema schema = AvroIOHelper.getPageRecordFromAvroCache( cacheTypeEnum,
+                        treeQuerySetting, identifier, pageSize, page,
+                         dataConsumer);
+                return ReturnResult.builder()
+                        .hashCode(identifier)
+                        .statusTreeQueryCluster(
+                                StatusTreeQueryCluster.builder()
+                                        .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
+                                        .description("Fresh from cache")
+                                        .build()
+                        )
+                        .dataSchema(schema)
+                        .build();
+            }catch(CacheNotFoundException che){
+                log.info(String.format("Cache %s not found, need to rerun", identifier));
+            }
         }
         return this.runQuery(preprocessInput.node, pageSize, page, dataConsumer);
     }
@@ -95,19 +124,36 @@ public class TreeQueryBeamServiceHelper {
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);
         });
+
         try {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
             if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
                 return ReturnResult.builder()
+                        .hashCode(hashCode)
                         .statusTreeQueryCluster(statusTreeQueryCluster)
                         .build();
             }else{
-                Schema schema = beamCacheOutputInterface.getPageRecord(pageSize, page, dataConsumer);
-                return ReturnResult.builder()
-                        .hashCode(hashCode)
-                        .statusTreeQueryCluster(statusTreeQueryCluster)
-                        .dataSchema(schema)
-                        .build();
+                try {
+                    Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                            treeQuerySetting,
+                            rootNode.getIdentifier(), pageSize, page, dataConsumer);
+                    return ReturnResult.builder()
+                            .hashCode(hashCode)
+                            .statusTreeQueryCluster(statusTreeQueryCluster)
+                            .dataSchema(schema)
+                            .build();
+                }catch(CacheNotFoundException che){
+                    log.error(che.getMessage());
+                    return ReturnResult.builder()
+                            .hashCode(hashCode)
+                            .statusTreeQueryCluster(
+                                    StatusTreeQueryCluster.builder()
+                                    .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                                    .description(che.getMessage())
+                                    .build()
+                            )
+                            .build();
+                }
             }
         }catch(TimeOutException te){
             log.error(te.getMessage());
@@ -133,20 +179,4 @@ public class TreeQueryBeamServiceHelper {
         StatusTreeQueryCluster statusTreeQueryCluster;
         Schema dataSchema;
     }
-
-    static BeamCacheOutputInterface getCacheOutputImpl(CacheTypeEnum cacheTypeEnum){
-        BeamCacheOutputInterface beamCacheOutputInterface;
-        switch(cacheTypeEnum){
-            case FILE:
-                beamCacheOutputInterface =  new FileBeamCacheOutputImpl();
-                break;
-            case REDIS:
-                beamCacheOutputInterface = new RedisCacheOutputImpl();
-                break;
-            default:
-                throw new NoSuchElementException();
-        }
-        return beamCacheOutputInterface;
-    }
-
 }

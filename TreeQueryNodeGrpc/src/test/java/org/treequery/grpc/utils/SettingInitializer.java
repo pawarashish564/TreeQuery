@@ -1,4 +1,4 @@
-package org.treequery.utils;
+package org.treequery.grpc.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.config.TreeQuerySetting;
