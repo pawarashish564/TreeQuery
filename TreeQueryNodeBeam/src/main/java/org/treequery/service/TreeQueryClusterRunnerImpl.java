@@ -59,7 +59,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
         statusCallback.accept(StatusTreeQueryCluster.builder()
                                 .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
-                                .description("OK")
+                                .description("OK:"+rootNode.getName())
                                 .build());
     }
 
@@ -93,6 +93,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                             .description(ex.getMessage())
                             .build()
             );
+            throw new IllegalStateException("Failure run : "+ex.getMessage());
         }
     }
 }

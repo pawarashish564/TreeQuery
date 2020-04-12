@@ -118,7 +118,6 @@ public class TreeQueryBeamServiceHelper {
                 Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
                         treeQuerySetting,
                         rootNode.getIdentifier(),pageSize,page, dataConsumer);
-
                 return ReturnResult.builder()
                         .hashCode(hashCode)
                         .statusTreeQueryCluster(statusTreeQueryCluster)

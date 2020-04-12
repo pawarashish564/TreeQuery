@@ -75,20 +75,28 @@ public class SimpleAsyncJoinTest {
         }
 
         //Check the avro file
-        long pageSize = 10000;
+        long pageSize = 100;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
-                treeQuerySetting,
-                rootNode.getIdentifier(),pageSize,page,
-                (record)->{
-                    assertThat(record).isNotNull();
-                    counter.incrementAndGet();
-                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
-                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
-                    assertEquals(isinBondTrade, isinSecCode);
-                    assertThat(isinBondTrade.length()).isGreaterThan(5);
-                });
+        while (true){
+            int orgValue = counter.get();
+            Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                    treeQuerySetting,
+                    rootNode.getIdentifier(),pageSize,page,
+                    (record)->{
+                        assertThat(record).isNotNull();
+                        counter.incrementAndGet();
+                        String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
+                        String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                        assertEquals(isinBondTrade, isinSecCode);
+                        assertThat(isinBondTrade.length()).isGreaterThan(5);
+                    });
+            if (counter.get() - orgValue == 0){
+                break;
+            }
+            page++;
+        }
+
 
         assertEquals(1000, counter.get());
     }

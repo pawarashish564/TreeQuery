@@ -33,6 +33,15 @@ Each node output results into Avro Flat File/Redis for upper level of node calcu
 
 In the end, client receives result from root node after all node computation finish.
 
+## Execution explanation
+Cluster A, B, C partially run the query in above JSON document. <br>
+In the end, we page the final result back to client.<br>
+![Execution](resource/TreeQueryExecution.png)
+
+## High level Architecture
+High Level architecture <br>
+![Highlevelarchitecture](resource/TreeQueryDistributed.png)
+
 ## Algorithm
 Simple Depth First Search of the tree.
 Time Complexity : O(N)
@@ -41,9 +50,9 @@ Traverse each node for query and joining.
 Space Complexity: O(kN), where k is the level of tree
 Buffer storage of query result, intermediate join result.
 
-## High Level architecture design
+## High Level Tree design
 
-![High level architecture](resource/TreeQueryArchitectureCluster.png)
+![High level Tree design](resource/TreeQueryArchitectureCluster.png)
 
 Each node is stateless with identical code. <br>
 A json file describes the tree schema. <br>
@@ -139,14 +148,7 @@ INNER_JOIN 10Y <br>
 -> <br>
 Finally, FLATTEN run last
 
-## Execution explanation
-Cluster A, B, C partially run the query in above JSON document. <br>
-In the end, we page the final result back to client.<br>
-![Execution](resource/TreeQueryExecution.png)
 
-## High level Architecture
-High Level architecture <br>
-![Highlevelarchitecture](resource/TreeQueryDistributed.png)
 
 ### Algorithm: Cluster dependency graph
 The cluster dependency graph detection added into Depth First Search.
