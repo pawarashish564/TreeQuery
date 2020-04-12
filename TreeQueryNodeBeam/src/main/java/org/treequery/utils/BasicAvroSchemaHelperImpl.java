@@ -1,4 +1,4 @@
-package org.treequery.model;
+package org.treequery.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import org.apache.avro.Schema;
 import org.treequery.Transform.JoinNode;
+import org.treequery.model.DataSource;
+import org.treequery.model.JoinAble;
+import org.treequery.model.Node;
 import org.treequery.utils.AvroSchemaHelper;
 
 import java.util.List;
@@ -67,12 +70,12 @@ public class BasicAvroSchemaHelperImpl implements AvroSchemaHelper {
             joinFunction.getJoinKeys().forEach(
                     key->{
                         ObjectNode leftType = mapper.createObjectNode();
-                        leftType.put("name", key.leftLabel);
-                        leftType.set("type",schemaLst.get(key.leftInx));
+                        leftType.put("name", key.getLeftLabel());
+                        leftType.set("type",schemaLst.get(key.getLeftInx()));
                         fieldArrayNode.add(leftType);
                         ObjectNode rightType = mapper.createObjectNode();
-                        rightType.put("name", key.rightLabel);
-                        rightType.set("type", schemaLst.get(key.rightInx));
+                        rightType.put("name", key.getRightLabel());
+                        rightType.set("type", schemaLst.get(key.getRightInx()));
                         fieldArrayNode.add(rightType);
                     }
             );
