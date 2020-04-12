@@ -7,7 +7,7 @@ import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
-import org.treequery.model.BasicAvroSchemaHelperImpl;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.utils.AvroSchemaHelper;
 

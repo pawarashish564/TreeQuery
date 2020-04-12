@@ -7,16 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
-import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.beam.cache.FileBeamCacheOutputImpl;
-import org.treequery.beam.cache.RedisCacheOutputImpl;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
 import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
@@ -27,7 +23,7 @@ import org.treequery.service.TreeQueryClusterService;
 import org.treequery.utils.AsyncRunHelper;
 import org.treequery.utils.JsonInstructionHelper;
 
-import java.util.NoSuchElementException;
+import java.io.Serializable;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -163,7 +159,7 @@ public class TreeQueryBeamServiceHelper {
 
     @Builder
     @Getter
-    public static class PreprocessInput{
+    public static class PreprocessInput implements Serializable {
         @NonNull
         private final Node node;
         @NonNull
@@ -172,7 +168,7 @@ public class TreeQueryBeamServiceHelper {
 
     @Builder
     @Getter
-    public static class ReturnResult{
+    public static class ReturnResult implements Serializable{
         @NonNull
         String hashCode;
         @NonNull

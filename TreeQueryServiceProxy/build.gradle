@@ -12,6 +12,9 @@ repositories {
 }
 
 dependencies {
+    compile project(':TreeQueryDiscoveryService')
+    compile project(':TreeQueryNodeProto')
+    compile project(':TreeQueryNodeBeam')
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
@@ -26,6 +29,4 @@ dependencies {
     compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
-
-
 }
