@@ -11,6 +11,8 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
+import org.treequery.service.PreprocessInput;
+import org.treequery.service.ReturnResult;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
@@ -51,16 +53,16 @@ class TreeQueryBeamServiceHelperTest {
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
         int pageSize = 3;
         DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
-        TreeQueryBeamServiceHelper.PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
+        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
 
-        TreeQueryBeamServiceHelper.ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 true,
                 pageSize,
                 2,
                 genericRecordConsumer);
 
-        assertThat(returnResult.statusTreeQueryCluster.getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        assertThat(returnResult.getStatusTreeQueryCluster().getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
         assertThat(genericRecordConsumer.getGenericRecordList()).hasSize(pageSize);
         genericRecordConsumer.getGenericRecordList().forEach(
                 genericRecord -> {
@@ -75,16 +77,16 @@ class TreeQueryBeamServiceHelperTest {
     void CheckGetFromCacheRecord() {
         int pageSize = 100;
         DataConsumer2Set genericRecordConsumer = new DataConsumer2Set();
-        TreeQueryBeamServiceHelper.PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
+        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
 
-        TreeQueryBeamServiceHelper.ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 true,
                 pageSize,
                 2,
                 genericRecordConsumer);
 
-        assertThat(returnResult.statusTreeQueryCluster.getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        assertThat(returnResult.getStatusTreeQueryCluster().getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
         assertThat(genericRecordConsumer.getGenericRecordSet()).hasSize(pageSize);
         genericRecordConsumer.getGenericRecordSet().forEach(
                 genericRecord -> {
@@ -93,15 +95,15 @@ class TreeQueryBeamServiceHelperTest {
                 }
         );
         DataConsumer2Set cachedRecordConsumer = new DataConsumer2Set();
-        TreeQueryBeamServiceHelper.ReturnResult returnResult2 = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult2 = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 false,
                 pageSize,
                 2,
                 cachedRecordConsumer);
-        assertThat(returnResult2.statusTreeQueryCluster.getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        assertThat(returnResult2.getStatusTreeQueryCluster().getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
         assertThat(cachedRecordConsumer.getGenericRecordSet()).hasSize(pageSize);
-        assertThat(returnResult2.statusTreeQueryCluster.getDescription()).isEqualTo("Fresh from cache");
+        assertThat(returnResult2.getStatusTreeQueryCluster().getDescription()).isEqualTo("Fresh from cache");
         genericRecordConsumer.getGenericRecordSet().forEach(
                 genericRecord -> {
                     assertThat(cachedRecordConsumer.getGenericRecordSet()).contains(genericRecord);

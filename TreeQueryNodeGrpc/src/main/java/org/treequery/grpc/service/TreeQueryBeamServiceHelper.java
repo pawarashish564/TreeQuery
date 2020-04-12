@@ -1,7 +1,6 @@
 package org.treequery.grpc.service;
 
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -11,19 +10,15 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
+import org.treequery.service.*;
 import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
-import org.treequery.service.AsyncTreeQueryClusterService;
-import org.treequery.service.StatusTreeQueryCluster;
-import org.treequery.service.TreeQueryClusterRunnerImpl;
-import org.treequery.service.TreeQueryClusterService;
 import org.treequery.utils.AsyncRunHelper;
 import org.treequery.utils.JsonInstructionHelper;
 
-import java.io.Serializable;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -89,7 +84,7 @@ public class TreeQueryBeamServiceHelper {
                                        long page,
                                 Consumer<GenericRecord> dataConsumer) {
 
-        String identifier = preprocessInput.node.getIdentifier();
+        String identifier = preprocessInput.getNode().getIdentifier();
 
         if (!renewCache){
             try{
@@ -110,7 +105,7 @@ public class TreeQueryBeamServiceHelper {
                 log.info(String.format("Cache %s not found, need to rerun", identifier));
             }
         }
-        return this.runQuery(preprocessInput.node, pageSize, page, dataConsumer);
+        return this.runQuery(preprocessInput.getNode(), pageSize, page, dataConsumer);
     }
 
     private ReturnResult runQuery(Node rootNode, long pageSize, long page, Consumer<GenericRecord> dataConsumer){
@@ -155,24 +150,5 @@ public class TreeQueryBeamServiceHelper {
             log.error(te.getMessage());
             throw new IllegalStateException(String.format("Time out:%s", rootNode.toString()));
         }
-    }
-
-    @Builder
-    @Getter
-    public static class PreprocessInput implements Serializable {
-        @NonNull
-        private final Node node;
-        @NonNull
-        private final Schema outputSchema;
-    }
-
-    @Builder
-    @Getter
-    public static class ReturnResult implements Serializable{
-        @NonNull
-        String hashCode;
-        @NonNull
-        StatusTreeQueryCluster statusTreeQueryCluster;
-        Schema dataSchema;
     }
 }
