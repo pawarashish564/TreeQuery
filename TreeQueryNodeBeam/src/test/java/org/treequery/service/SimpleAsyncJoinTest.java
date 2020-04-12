@@ -1,10 +1,13 @@
 package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.Schema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
@@ -24,16 +27,17 @@ import static org.mockito.Mockito.mock;
 public class SimpleAsyncJoinTest {
     TreeQueryClusterService treeQueryClusterService = null;
 
-    BeamCacheOutputInterface beamCacheOutputInterface = null;
+
     CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
-
+    TreeQuerySetting treeQuerySetting = null;
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
+        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
+
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
     }
 
@@ -46,7 +50,10 @@ public class SimpleAsyncJoinTest {
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(cacheTypeEnum)
+                                    .treeQuerySetting(this.treeQuerySetting)
+                                    .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .discoveryServiceInterface(discoveryServiceInterface)
@@ -68,18 +75,28 @@ public class SimpleAsyncJoinTest {
         }
 
         //Check the avro file
-        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
-        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        long pageSize = 100;
+        long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
-                (record)->{
-                    assertThat(record).isNotNull();
-                    counter.incrementAndGet();
-                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
-                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
-                    assertEquals(isinBondTrade, isinSecCode);
-                    assertThat(isinBondTrade.length()).isGreaterThan(5);
-                });
+        while (true){
+            int orgValue = counter.get();
+            Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                    treeQuerySetting,
+                    rootNode.getIdentifier(),pageSize,page,
+                    (record)->{
+                        assertThat(record).isNotNull();
+                        counter.incrementAndGet();
+                        String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
+                        String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                        assertEquals(isinBondTrade, isinSecCode);
+                        assertThat(isinBondTrade.length()).isGreaterThan(5);
+                    });
+            if (counter.get() - orgValue == 0){
+                break;
+            }
+            page++;
+        }
+
 
         assertEquals(1000, counter.get());
     }
@@ -93,7 +110,10 @@ public class SimpleAsyncJoinTest {
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(cacheTypeEnum)
+                                    .treeQuerySetting(this.treeQuerySetting)
+                                    .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .discoveryServiceInterface(discoveryServiceInterface)

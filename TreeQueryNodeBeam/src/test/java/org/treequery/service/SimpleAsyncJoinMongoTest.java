@@ -1,20 +1,19 @@
 package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.Schema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.*;
 import org.treequery.model.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.AvroIOHelper;
-import org.treequery.utils.GenericRecordSchemaHelper;
-import org.treequery.utils.JsonInstructionHelper;
-import org.treequery.utils.TestDataAgent;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,17 +28,18 @@ import static org.mockito.Mockito.mock;
 public class SimpleAsyncJoinMongoTest {
     TreeQueryClusterService treeQueryClusterService = null;
 
-    BeamCacheOutputInterface beamCacheOutputInterface = null;
+
     CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
+    TreeQuerySetting treeQuerySetting = null;
 
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
     }
 
     @Test
@@ -51,7 +51,10 @@ public class SimpleAsyncJoinMongoTest {
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
-                            .beamCacheOutputInterface(beamCacheOutputInterface)
+                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                    .cacheTypeEnum(cacheTypeEnum)
+                                    .treeQuerySetting(this.treeQuerySetting)
+                                    .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .discoveryServiceInterface(discoveryServiceInterface)
@@ -73,10 +76,12 @@ public class SimpleAsyncJoinMongoTest {
         }
 
         //Check the avro file
-        TestFileBeamCacheOutputImpl testFileBeamCacheOutput = (TestFileBeamCacheOutputImpl) beamCacheOutputInterface;
-        File avroOutputFile = testFileBeamCacheOutput.getFile();
+        long pageSize = 10000;
+        long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        AvroIOHelper.readAvroGenericRecordFile(avroOutputFile,avroSchemaHelper.getAvroSchema(rootNode),
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                treeQuerySetting,
+                rootNode.getIdentifier(),pageSize,page,
                 (record)->{
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
