@@ -122,6 +122,7 @@ public class SimpleAsyncJoinClusterTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
@@ -147,7 +148,7 @@ public class SimpleAsyncJoinClusterTest {
 
         //Check the avro file
         String identifier = rootNode.getIdentifier();
-        log.debug("Look for data Identifier:"+identifier);
+        log.debug("Look for data Identifier:"+identifier+"from:"+discoveryServiceInterface.toString());
         Cluster getCluster = Optional.ofNullable(discoveryServiceInterface.getCacheResultCluster(identifier))
                             .orElseThrow(()->{
                                 return new RuntimeException("No cluster found for "+identifier+" map: "+discoveryServiceInterface.toString());

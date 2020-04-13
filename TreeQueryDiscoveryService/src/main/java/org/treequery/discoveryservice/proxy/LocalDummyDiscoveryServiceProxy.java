@@ -10,8 +10,8 @@ import java.util.Map;
 
 @ToString
 public class LocalDummyDiscoveryServiceProxy implements DiscoveryServiceInterface {
-    Map<String, Cluster> cacheResultMap = Maps.newConcurrentMap();
-    Map<Cluster, Location> clusterLocationMap = Maps.newConcurrentMap();
+    Map<String, Cluster> cacheResultMap = Maps.newHashMap();
+    Map<Cluster, Location> clusterLocationMap = Maps.newHashMap();
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
 
