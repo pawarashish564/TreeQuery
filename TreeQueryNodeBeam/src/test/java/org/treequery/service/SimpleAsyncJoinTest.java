@@ -8,7 +8,7 @@ import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInteface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
@@ -31,7 +31,7 @@ public class SimpleAsyncJoinTest {
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
-    TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -39,7 +39,7 @@ public class SimpleAsyncJoinTest {
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
-        treeQueryClusterRunnerProxyInteface = mock(TreeQueryClusterRunnerProxyInteface.class);
+        treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class SimpleAsyncJoinTest {
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
-                            .treeQueryClusterRunnerProxyInteface(treeQueryClusterRunnerProxyInteface)
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build();
                 })
                 .build();
@@ -119,7 +119,7 @@ public class SimpleAsyncJoinTest {
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
-                            .treeQueryClusterRunnerProxyInteface(treeQueryClusterRunnerProxyInteface)
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build();
                 })
                 .build();

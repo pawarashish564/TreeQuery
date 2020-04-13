@@ -11,7 +11,7 @@ import org.treequery.service.StatusTreeQueryCluster;
 
 import java.util.function.Consumer;
 
-public interface TreeQueryClusterRunnerProxyInteface {
+public interface TreeQueryClusterRunnerProxyInterface {
 
     public void process(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback);
 

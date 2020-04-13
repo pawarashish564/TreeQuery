@@ -11,7 +11,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
 import org.treequery.service.*;
-import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInteface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
@@ -36,17 +36,17 @@ public class TreeQueryBeamServiceHelper {
     @NonNull
     TreeQuerySetting treeQuerySetting;
     @NonNull
-    TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
     @Builder
-    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface,TreeQuerySetting treeQuerySetting,TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface){
+    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface, TreeQuerySetting treeQuerySetting, TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface){
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
                                     .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(treeQuerySetting).build();
-        this.treeQueryClusterRunnerProxyInteface = treeQueryClusterRunnerProxyInteface;
+        this.treeQueryClusterRunnerProxyInterface = treeQueryClusterRunnerProxyInterface;
         this.treeQuerySetting = treeQuerySetting;
         init();
     }
@@ -62,7 +62,7 @@ public class TreeQueryBeamServiceHelper {
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
-                            .treeQueryClusterRunnerProxyInteface(treeQueryClusterRunnerProxyInteface)
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build())
                 .build();
     }
@@ -102,6 +102,7 @@ public class TreeQueryBeamServiceHelper {
                                 StatusTreeQueryCluster.builder()
                                         .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                                         .description("Fresh from cache")
+                                        .cluster(preprocessInput.getNode().getCluster())
                                         .build()
                         )
                         .dataSchema(schema)
@@ -146,6 +147,7 @@ public class TreeQueryBeamServiceHelper {
                                     StatusTreeQueryCluster.builder()
                                     .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
                                     .description(che.getMessage())
+                                            .cluster(rootNode.getCluster())
                                     .build()
                             )
                             .build();

@@ -11,7 +11,7 @@ import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
 import org.treequery.execute.NodeTraverser;
 import org.treequery.execute.PipelineBuilderInterface;
-import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInteface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -32,14 +33,14 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
     Cluster atCluster;
-    @NonNull
-    TreeQueryClusterRunnerProxyInteface treeQueryClusterRunnerProxyInteface;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
     //Output is found in AvroIOHelper.getPageRecordFromAvroCache
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
         Cluster rootCluster = rootNode.getCluster();
+        assert(this.treeQueryClusterRunnerProxyInterface!=null);
         while (true){
             List<Node> nodeList = clusterDependencyGraph.popClusterWithoutDependency();
             if (nodeList.size()==0){
@@ -48,12 +49,15 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
             for (Node node: nodeList) {
 
                 if (atCluster.equals(rootCluster)){
+                    log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
                     this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
-                    log.debug(String.format("Cluster %s %s", node.toString(), node.getName()));
                 }else{
-                    //It should be RPC call... do it later
-                    this.treeQueryClusterRunnerProxyInteface.process(node, statusCallback);
-                    log.debug(String.format("Cluster %s %s", node.toString(), node.getName()));
+                    log.debug(String.format("RPC call: Cluster %s %s", node.toString(), node.getName()));
+                    //It should be RPC call...
+                    //the execution behavior depends on the injected TreeQueryClusterRunnerProxyInterface
+                    Optional.ofNullable(this.treeQueryClusterRunnerProxyInterface)
+                            .orElseThrow(()->new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call"))
+                            .process(node, statusCallback);
                 }
             }
         }
@@ -61,7 +65,13 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
         statusCallback.accept(StatusTreeQueryCluster.builder()
                                 .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                                 .description("OK:"+rootNode.getName())
+                                .cluster(rootNode.getCluster())
                                 .build());
+    }
+
+    @Override
+    public void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
+        this.treeQueryClusterRunnerProxyInterface = treeQueryClusterRunnerProxyInterface;
     }
 
     private void executeBeamRun(Node node, BeamCacheOutputInterface beamCacheOutputInterface, Consumer<StatusTreeQueryCluster> statusCallback){
@@ -92,6 +102,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                     StatusTreeQueryCluster.builder()
                             .status(StatusTreeQueryCluster.QueryTypeEnum.FAIL)
                             .description(ex.getMessage())
+                            .cluster(node.getCluster())
                             .build()
             );
             throw new IllegalStateException("Failure run : "+ex.getMessage());

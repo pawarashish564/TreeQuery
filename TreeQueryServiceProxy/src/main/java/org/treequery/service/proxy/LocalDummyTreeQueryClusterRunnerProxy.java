@@ -3,13 +3,10 @@ package org.treequery.service.proxy;
 import com.google.common.collect.Maps;
 import lombok.Builder;
 import lombok.NonNull;
-import org.apache.avro.generic.GenericRecord;
-import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.*;
 import org.treequery.utils.AvroSchemaHelper;
 
@@ -18,7 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 
-public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRunnerProxyInteface {
+public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRunnerProxyInterface {
 
     private final CacheTypeEnum cacheTypeEnum;
     Map<Cluster, TreeQueryClusterRunner> treeQueryClusterRunnerMap = Maps.newHashMap();
@@ -34,12 +31,20 @@ public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRu
         this.treeQuerySetting = treeQuerySetting;
         this.avroSchemaHelper = avroSchemaHelper;
         this.cacheTypeEnum = cacheTypeEnum;
+        this.createLocalTreeQueryClusterRunnerFunc = createLocalTreeQueryClusterRunnerFunc;
+
     }
 
     @Override
     public void process(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         final Cluster cluster = rootNode.getCluster();
-        treeQueryClusterRunnerMap.putIfAbsent(cluster, createLocalTreeQueryClusterRunnerFunc.apply(cluster));
+
+        if (treeQueryClusterRunnerMap.get(cluster) == null){
+            TreeQueryClusterRunner treeQueryClusterRunner = createLocalTreeQueryClusterRunnerFunc.apply(cluster);
+            treeQueryClusterRunner.setTreeQueryClusterRunnerProxyInterface(this);
+            treeQueryClusterRunnerMap.put(cluster, treeQueryClusterRunner);
+        }
+
         TreeQueryClusterRunner treeQueryClusterRunner = treeQueryClusterRunnerMap.get(cluster);
 
         treeQueryClusterRunner.runQueryTreeNetwork(rootNode, statusCallback);

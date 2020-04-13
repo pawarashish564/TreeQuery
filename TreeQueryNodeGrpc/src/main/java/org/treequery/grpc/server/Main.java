@@ -31,7 +31,7 @@ public class Main {
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
-                .treeQueryClusterRunnerProxyInteface(LocalDummyTreeQueryClusterRunnerProxy.builder()
+                .treeQueryClusterRunnerProxyInterface(LocalDummyTreeQueryClusterRunnerProxy.builder()
                         .treeQuerySetting(treeQuerySetting)
                         .cacheTypeEnum(cacheTypeEnum)
                         .avroSchemaHelper(avroSchemaHelper)
