@@ -115,16 +115,17 @@ public class TreeQueryBeamServiceHelper {
     }
 
     private ReturnResult runQuery(Node rootNode, long pageSize, long page, Consumer<GenericRecord> dataConsumer){
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
         final String hashCode = rootNode.getIdentifier();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
-            log.debug(status.toString());
             asyncRunHelper.continueRun(status);
+            log.debug(status.toString());
         });
 
         try {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
             if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+                log.error("Failure run with status code:"+statusTreeQueryCluster.getStatus());
                 return ReturnResult.builder()
                         .hashCode(hashCode)
                         .statusTreeQueryCluster(statusTreeQueryCluster)

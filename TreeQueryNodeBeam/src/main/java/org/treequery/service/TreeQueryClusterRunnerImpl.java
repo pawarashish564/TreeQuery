@@ -40,7 +40,16 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
         Cluster rootCluster = rootNode.getCluster();
-        assert(this.treeQueryClusterRunnerProxyInterface!=null);
+        Optional.ofNullable(this.treeQueryClusterRunnerProxyInterface).orElseThrow(()->{
+            statusCallback.accept(
+                    StatusTreeQueryCluster.builder()
+                            .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                            .description("Not found treeQueryClusterProxyInteface in remote call")
+                            .cluster(atCluster)
+                            .build());
+            return new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call");
+        });
+
         while (true){
             List<Node> nodeList = clusterDependencyGraph.popClusterWithoutDependency();
             if (nodeList.size()==0){
@@ -56,8 +65,18 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                     //It should be RPC call...
                     //the execution behavior depends on the injected TreeQueryClusterRunnerProxyInterface
                     Optional.ofNullable(this.treeQueryClusterRunnerProxyInterface)
-                            .orElseThrow(()->new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call"))
+                            .orElseThrow(()->{
+                                statusCallback.accept(
+                                        StatusTreeQueryCluster.builder()
+                                                .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                                                .description("Not found treeQueryClusterProxyInteface in remote call")
+                                                .cluster(atCluster)
+                                                .build()
+                                );
+                                return new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call");
+                            })
                             .process(node, statusCallback);
+
                 }
             }
         }

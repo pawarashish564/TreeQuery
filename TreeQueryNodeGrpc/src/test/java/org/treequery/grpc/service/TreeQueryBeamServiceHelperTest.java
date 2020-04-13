@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
@@ -48,6 +49,34 @@ class TreeQueryBeamServiceHelperTest {
                 .treeQuerySetting(treeQuerySetting)
                 .build();
     }
+
+    @Test
+    void throwIllegalArugmentExceptionIfBlankProxy(){
+        treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
+                .cacheTypeEnum(CacheTypeEnum.FILE)
+                .avroSchemaHelper(avroSchemaHelper)
+                .discoveryServiceInterface(discoveryServiceInterface)
+                .treeQuerySetting(treeQuerySetting)
+                .build();
+        int pageSize = 3;
+        DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
+        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
+
+       // assertThrows(IllegalStateException.class,
+                //()->{
+                    treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+                            preprocessInput,
+                            true,
+                            pageSize,
+                            2,
+                            genericRecordConsumer);
+                //}
+                //);
+
+    }
+
+
+
     @Test
     void happyPathRunBeamJoinLocally() {
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
