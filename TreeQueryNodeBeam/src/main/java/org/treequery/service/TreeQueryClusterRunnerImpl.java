@@ -57,7 +57,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
             }
             for (Node node: nodeList) {
 
-                if (atCluster.equals(rootCluster)){
+                if (atCluster.equals(node.getCluster())){
                     log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
                     this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
                 }else{

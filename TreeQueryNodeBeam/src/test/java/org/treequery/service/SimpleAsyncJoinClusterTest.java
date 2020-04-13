@@ -78,16 +78,22 @@ public class SimpleAsyncJoinClusterTest {
         String AvroTree = "SimpleJoin.json";
         this.runTest(AvroTree);
     }
-
     @RepeatedTest(1)
     public void SimpleAsyncJoinTestWithDiffCluster() throws Exception{
         String AvroTree = "SimpleJoinB.json";
         this.runTest(AvroTree);
     }
+    @Disabled
+    @Test
+    public void SimpleAsyncJoinTestWithMixedCluster() throws Exception{
+        String AvroTree = "SimpleJoinCluster.json";
+        this.runTest(AvroTree);
+    }
 
+    @Disabled
     @Test
     public void checkIdentifier() throws Exception{
-        String AvroTree = "SimpleJoin.json";
+        String AvroTree = "SimpleJoinC.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         String AvroTree2 = "SimpleJoinB.json";
