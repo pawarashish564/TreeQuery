@@ -7,6 +7,7 @@ import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
 import org.treequery.execute.NodeTraverser;
@@ -31,6 +32,8 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     BeamCacheOutputBuilder beamCacheOutputBuilder;
     @NonNull
     AvroSchemaHelper avroSchemaHelper;
+    @NonNull
+    DiscoveryServiceInterface discoveryServiceInterface;
     @NonNull
     Cluster atCluster;
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
@@ -116,6 +119,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
         PipelineBuilderInterface pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
                 .beamCacheOutputInterface(beamCacheOutputInterface)
                 .avroSchemaHelper(avroSchemaHelper)
+                .discoveryServiceInterface(discoveryServiceInterface)
                 .build();
 
         //Inject Apache Beam pipeline runner

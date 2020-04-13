@@ -44,6 +44,7 @@ public class WebServerFactory {
                                 .cacheTypeEnum(cacheTypeEnum)
                                 .avroSchemaHelper(avroSchemaHelper)
                                 .atCluster(_Cluster)
+                                .discoveryServiceInterface(discoveryServiceInterface)
                                 .build()
                 )
                 .build();

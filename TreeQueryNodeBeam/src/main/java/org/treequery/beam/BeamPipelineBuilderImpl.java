@@ -1,6 +1,7 @@
 package org.treequery.beam;
 
 import com.google.common.collect.Maps;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
@@ -10,7 +11,9 @@ import org.treequery.beam.transform.JoinNodeHelper;
 import org.treequery.beam.transform.LoadLeafNodeHelper;
 import org.treequery.beam.transform.NodeBeamHelper;
 import org.treequery.beam.transform.QueryLeafNodeHelper;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.PipelineBuilderInterface;
+import org.treequery.model.CacheNode;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.Node;
 import lombok.Builder;
@@ -31,14 +34,18 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
 
     private final Pipeline pipeline = Pipeline.create();
     private Map<Node, PCollection<GenericRecord>> nodePCollectionMap = Maps.newHashMap();
+    @NonNull
     private BeamCacheOutputInterface beamCacheOutputInterface;
+    @NonNull
     private AvroSchemaHelper avroSchemaHelper;
+    private DiscoveryServiceInterface discoveryServiceInterface;
     private Node __node = null;
 
     @Builder
-    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface, AvroSchemaHelper avroSchemaHelper){
+    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface){
         this.beamCacheOutputInterface = beamCacheOutputInterface;
         this.avroSchemaHelper = avroSchemaHelper;
+        this.discoveryServiceInterface = discoveryServiceInterface;
     }
 
     private NodeBeamHelper prepareNodeBeamHelper(Node node){
@@ -51,6 +58,9 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         }
         else if (node instanceof JoinNode){
             nodeBeamHelper = new JoinNodeHelper(avroSchemaHelper);
+        }
+        else if (node instanceof CacheNode){
+            throw new NoSuchMethodError("Not yet implemented CacheNode conversion");
         }
         else{
             log.error("Not support node transforming to Apache Beam:",node.toString());
