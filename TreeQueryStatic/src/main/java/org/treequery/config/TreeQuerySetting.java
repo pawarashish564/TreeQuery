@@ -9,9 +9,12 @@ import lombok.ToString;
 @ToString
 public class TreeQuerySetting {
     String cluster;
-    String servicehostname;
-    int servicePort;
-    String cacheFilePath;
+    @Builder.Default
+    String servicehostname = "localhost";
+    @Builder.Default
+    int servicePort = 9002;
+    @Builder.Default
+    String cacheFilePath = "./TreeQuery";
     String redisHostName;
     int redisPort;
 }

@@ -30,11 +30,12 @@ class TreeQueryBeamServiceHelperTest {
     TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     DiscoveryServiceInterface discoveryServiceInterface;
     AvroSchemaHelper avroSchemaHelper;
-    TreeQuerySetting treeQuerySetting;
+    TreeQuerySetting treeQuerySetting = TreeQuerySetting.builder().build();
     @BeforeEach
     void init(){
         String AvroTree = "SimpleJoin.json";
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+//        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+
 
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
