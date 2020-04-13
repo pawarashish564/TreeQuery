@@ -63,6 +63,7 @@ public class TreeQueryBeamServiceHelper {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build())
                 .build();
     }
@@ -82,12 +83,12 @@ public class TreeQueryBeamServiceHelper {
                 .build();
     }
 
-    public ReturnResult process(TreeQueryRequest.RunMode runMode,
-                                PreprocessInput preprocessInput,
-                                       boolean renewCache,
-                                       long pageSize,
-                                       long page,
-                                Consumer<GenericRecord> dataConsumer) {
+    public ReturnResult runAndPageResult(TreeQueryRequest.RunMode runMode,
+                                         PreprocessInput preprocessInput,
+                                         boolean renewCache,
+                                         long pageSize,
+                                         long page,
+                                         Consumer<GenericRecord> dataConsumer) {
 
         String identifier = preprocessInput.getNode().getIdentifier();
 
@@ -102,6 +103,7 @@ public class TreeQueryBeamServiceHelper {
                                 StatusTreeQueryCluster.builder()
                                         .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                                         .description("Fresh from cache")
+                                        .node(preprocessInput.getNode())
                                         .cluster(preprocessInput.getNode().getCluster())
                                         .build()
                         )
@@ -148,6 +150,7 @@ public class TreeQueryBeamServiceHelper {
                                     StatusTreeQueryCluster.builder()
                                     .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
                                     .description(che.getMessage())
+                                            .node(rootNode)
                                             .cluster(rootNode.getCluster())
                                     .build()
                             )

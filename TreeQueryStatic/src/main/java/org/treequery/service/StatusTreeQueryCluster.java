@@ -1,10 +1,8 @@
 package org.treequery.service;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.treequery.cluster.Cluster;
+import org.treequery.model.Node;
 
 @Getter
 @Builder
@@ -16,8 +14,12 @@ public class StatusTreeQueryCluster {
         @Getter
         private final int value;
     }
-
+    @NonNull
     QueryTypeEnum status;
+    @NonNull
     String description;
+    @NonNull
+    Node node;
+    @NonNull
     Cluster cluster;
 }

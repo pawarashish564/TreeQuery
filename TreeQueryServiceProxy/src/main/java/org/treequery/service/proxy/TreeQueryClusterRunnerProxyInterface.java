@@ -8,12 +8,9 @@ import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;
 import org.treequery.service.StatusTreeQueryCluster;
+import org.treequery.service.TreeQueryClusterRunner;
 
 import java.util.function.Consumer;
 
-public interface TreeQueryClusterRunnerProxyInterface {
-
-    public void process(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback);
-
-
+public interface TreeQueryClusterRunnerProxyInterface extends TreeQueryClusterRunner {
 }

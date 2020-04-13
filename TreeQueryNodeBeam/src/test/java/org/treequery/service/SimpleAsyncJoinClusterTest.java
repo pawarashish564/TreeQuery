@@ -69,6 +69,7 @@ public class SimpleAsyncJoinClusterTest {
                                                                 .cacheTypeEnum(cacheTypeEnum)
                                                                 .avroSchemaHelper(avroSchemaHelper)
                                                                 .atCluster(_Cluster)
+                                                                .discoveryServiceInterface(discoveryServiceInterface)
                                                                 .build()
                                                 )
                                                 .build();
@@ -78,16 +79,23 @@ public class SimpleAsyncJoinClusterTest {
         String AvroTree = "SimpleJoin.json";
         this.runTest(AvroTree);
     }
-
     @RepeatedTest(1)
     public void SimpleAsyncJoinTestWithDiffCluster() throws Exception{
         String AvroTree = "SimpleJoinB.json";
         this.runTest(AvroTree);
     }
 
+    @Disabled
+    @Test
+    public void SimpleAsyncJoinTestWithMixedCluster() throws Exception{
+        String AvroTree = "SimpleJoinCluster.json";
+        this.runTest(AvroTree);
+    }
+
+    @Disabled
     @Test
     public void checkIdentifier() throws Exception{
-        String AvroTree = "SimpleJoin.json";
+        String AvroTree = "SimpleJoinC.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         String AvroTree2 = "SimpleJoinB.json";
@@ -114,18 +122,23 @@ public class SimpleAsyncJoinClusterTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
         final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
-            asyncRunHelper.continueRun(status);
+
+            boolean IsIssue = status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
+
+            if (IsIssue || status.getNode().getIdentifier().equals(rootNode.getIdentifier()))
+                asyncRunHelper.continueRun(status);
+
+            if(IsIssue)
+                throw new IllegalStateException(status.toString());
             discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), status.getCluster());
             log.debug("Register "+rootNode.getIdentifier()+" into "+status.getCluster());
-            assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
-            if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
-                throw new IllegalStateException(status.toString());
         });
         StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
         if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
@@ -135,7 +148,7 @@ public class SimpleAsyncJoinClusterTest {
 
         //Check the avro file
         String identifier = rootNode.getIdentifier();
-        log.debug("Look for data Identifier:"+identifier);
+        log.debug("Look for data Identifier:"+identifier+"from:"+discoveryServiceInterface.toString());
         Cluster getCluster = Optional.ofNullable(discoveryServiceInterface.getCacheResultCluster(identifier))
                             .orElseThrow(()->{
                                 return new RuntimeException("No cluster found for "+identifier+" map: "+discoveryServiceInterface.toString());

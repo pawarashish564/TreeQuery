@@ -6,6 +6,7 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.ClusterDependencyGraph;
 import org.treequery.cluster.NodeFactory;
 import org.treequery.cluster.NodeTreeFactory;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodeTraverser;
 import org.treequery.utils.AvroSchemaHelper;
@@ -40,6 +41,7 @@ class BeamPipelineBuilderImplTest {
     NodeFactory nodeFactory;
     NodeTreeFactory nodeTreeFactory;
     AvroSchemaHelper avroSchemaHelper;
+    DiscoveryServiceInterface discoveryServiceInterface;
 
     @BeforeEach
     void init(){
@@ -49,6 +51,7 @@ class BeamPipelineBuilderImplTest {
         workDirectory = jsonFile.getParent();
 
         beamCacheOutputInterface = mock(BeamCacheOutputInterface.class);
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         avroSchemaHelper = mock(AvroSchemaHelper.class);
     }
 
@@ -75,6 +78,8 @@ class BeamPipelineBuilderImplTest {
         for (Node node: nodeList){
             BeamPipelineBuilderImpl pipelineBuilderInterface =  BeamPipelineBuilderImpl.builder()
                                             .beamCacheOutputInterface(beamCacheOutputInterface)
+                                            .discoveryServiceInterface(discoveryServiceInterface)
+                                            .avroSchemaHelper(avroSchemaHelper)
                                             .build();
 
             NodePipeline nodePipeline = GraphNodePipeline.builder()

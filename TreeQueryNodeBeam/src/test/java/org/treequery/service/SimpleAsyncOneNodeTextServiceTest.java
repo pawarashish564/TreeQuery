@@ -63,6 +63,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
@@ -114,6 +115,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();

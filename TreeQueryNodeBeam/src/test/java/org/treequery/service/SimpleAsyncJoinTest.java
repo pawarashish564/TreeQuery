@@ -59,6 +59,7 @@ public class SimpleAsyncJoinTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
@@ -120,6 +121,7 @@ public class SimpleAsyncJoinTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .atCluster(treeQuerySetting.getCluster())
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
