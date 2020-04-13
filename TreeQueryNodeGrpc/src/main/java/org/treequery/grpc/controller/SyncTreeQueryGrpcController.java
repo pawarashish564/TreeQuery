@@ -1,11 +1,9 @@
 package org.treequery.grpc.controller;
 
-import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -21,7 +19,6 @@ import org.treequery.service.StatusTreeQueryCluster;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -46,7 +43,7 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
         Schema outputSchema = preprocessInput.getOutputSchema();
         DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(outputSchema);
 
-        ReturnResult returnResult = treeQueryBeamServiceHelper.process(
+        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(
                 RUNMODE,
                 preprocessInput,
                 renewCache,

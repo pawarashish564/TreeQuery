@@ -82,12 +82,12 @@ public class TreeQueryBeamServiceHelper {
                 .build();
     }
 
-    public ReturnResult process(TreeQueryRequest.RunMode runMode,
-                                PreprocessInput preprocessInput,
-                                       boolean renewCache,
-                                       long pageSize,
-                                       long page,
-                                Consumer<GenericRecord> dataConsumer) {
+    public ReturnResult runAndPageResult(TreeQueryRequest.RunMode runMode,
+                                         PreprocessInput preprocessInput,
+                                         boolean renewCache,
+                                         long pageSize,
+                                         long page,
+                                         Consumer<GenericRecord> dataConsumer) {
 
         String identifier = preprocessInput.getNode().getIdentifier();
 

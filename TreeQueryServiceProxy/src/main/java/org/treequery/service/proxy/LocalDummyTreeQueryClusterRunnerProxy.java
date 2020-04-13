@@ -36,7 +36,7 @@ public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRu
     }
 
     @Override
-    public void process(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
+    public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         final Cluster cluster = rootNode.getCluster();
 
         if (treeQueryClusterRunnerMap.get(cluster) == null){
@@ -50,20 +50,8 @@ public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRu
         treeQueryClusterRunner.runQueryTreeNetwork(rootNode, statusCallback);
     }
 
-    /*
-    TreeQueryClusterRunner createNewDummyLocalRunner(Cluster cluster){
-
-        TreeQueryClusterRunner treeQueryClusterRunner = TreeQueryClusterRunnerImpl.builder()
-                                .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                        .cacheTypeEnum(cacheTypeEnum)
-                                        .treeQuerySetting(treeQuerySetting)
-                                        .build())
-                                .cacheTypeEnum(cacheTypeEnum)
-                                .avroSchemaHelper(avroSchemaHelper)
-                                .atCluster(cluster)
-                                .treeQueryClusterRunnerProxyInteface(this)
-                                .build();
-        return treeQueryClusterRunner;
+    @Override
+    public void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
+        throw new NoSuchMethodError("A proxy not need a proxy interface");
     }
-     */
 }

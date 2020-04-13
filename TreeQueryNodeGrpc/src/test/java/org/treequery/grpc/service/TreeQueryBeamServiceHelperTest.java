@@ -87,7 +87,7 @@ class TreeQueryBeamServiceHelperTest {
 
        // assertThrows(IllegalStateException.class,
                 //()->{
-        ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
                             preprocessInput,
                             true,
                             pageSize,
@@ -108,7 +108,7 @@ class TreeQueryBeamServiceHelperTest {
         DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
         PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
 
-        ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 true,
                 pageSize,
@@ -132,7 +132,7 @@ class TreeQueryBeamServiceHelperTest {
         DataConsumer2Set genericRecordConsumer = new DataConsumer2Set();
         PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
 
-        ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 true,
                 pageSize,
@@ -148,7 +148,7 @@ class TreeQueryBeamServiceHelperTest {
                 }
         );
         DataConsumer2Set cachedRecordConsumer = new DataConsumer2Set();
-        ReturnResult returnResult2 = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult2 = treeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 false,
                 pageSize,

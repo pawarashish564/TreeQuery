@@ -75,7 +75,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                 );
                                 return new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call");
                             })
-                            .process(node, statusCallback);
+                            .runQueryTreeNetwork(node, statusCallback);
 
                 }
             }
