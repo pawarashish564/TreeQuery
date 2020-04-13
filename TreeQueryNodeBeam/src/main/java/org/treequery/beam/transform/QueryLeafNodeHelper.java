@@ -94,7 +94,7 @@ public class QueryLeafNodeHelper implements NodeBeamHelper {
                 JsonDecoder jsonDecoder = DecoderFactory.get().jsonDecoder(schema, jsonString);
                 try {
                     genericRecord = datumReader.read(null, jsonDecoder);
-                }catch(Exception ex){
+                }catch(Throwable ex){
                     log.error(ex.getMessage());
                     log.error(jsonString);
                     throw new IllegalArgumentException(String.format("Failed to parse:%s", jsonString));

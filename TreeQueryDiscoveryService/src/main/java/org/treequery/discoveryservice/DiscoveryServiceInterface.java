@@ -4,7 +4,7 @@ import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.model.Location;
 import java.io.Serializable;
 
-public interface DiscoveryServiceInterface extends Serializable {
+public interface DiscoveryServiceInterface  {
     public void registerCacheResult(String identifier, Cluster clusterName);
     public Cluster getCacheResultCluster(String identifier);
 

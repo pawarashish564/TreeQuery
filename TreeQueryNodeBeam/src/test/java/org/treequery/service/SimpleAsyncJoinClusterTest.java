@@ -83,6 +83,7 @@ public class SimpleAsyncJoinClusterTest {
         String AvroTree = "SimpleJoinB.json";
         this.runTest(AvroTree);
     }
+
     @Disabled
     @Test
     public void SimpleAsyncJoinTestWithMixedCluster() throws Exception{
@@ -126,12 +127,16 @@ public class SimpleAsyncJoinClusterTest {
         final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
-            asyncRunHelper.continueRun(status);
+
+            boolean IsIssue = status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
+
+            if (IsIssue || status.getNode().getIdentifier().equals(rootNode.getIdentifier()))
+                asyncRunHelper.continueRun(status);
+
+            if(IsIssue)
+                throw new IllegalStateException(status.toString());
             discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), status.getCluster());
             log.debug("Register "+rootNode.getIdentifier()+" into "+status.getCluster());
-            assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
-            if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
-                throw new IllegalStateException(status.toString());
         });
         StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
         if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){

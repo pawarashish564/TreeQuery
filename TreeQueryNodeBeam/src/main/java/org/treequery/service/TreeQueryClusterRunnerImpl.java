@@ -45,6 +45,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                     StatusTreeQueryCluster.builder()
                             .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
                             .description("Not found treeQueryClusterProxyInteface in remote call")
+                            .node(rootNode)
                             .cluster(atCluster)
                             .build());
             return new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call");
@@ -59,7 +60,22 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
                 if (atCluster.equals(node.getCluster())){
                     log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
-                    this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
+                    try {
+                        this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
+                    }catch(IllegalStateException ie){
+                        log.error(ie.getMessage());
+                    }
+                    catch(Throwable ex){
+                        log.error(ex.getMessage());
+                        statusCallback.accept(
+                                StatusTreeQueryCluster.builder()
+                                        .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                                        .description(ex.getMessage())
+                                        .node(node)
+                                        .cluster(atCluster)
+                                        .build()
+                        );
+                    }
                 }else{
                     log.debug(String.format("RPC call: Cluster %s %s", node.toString(), node.getName()));
                     //It should be RPC call...
@@ -70,6 +86,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                         StatusTreeQueryCluster.builder()
                                                 .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
                                                 .description("Not found treeQueryClusterProxyInteface in remote call")
+                                                .node(node)
                                                 .cluster(atCluster)
                                                 .build()
                                 );
@@ -84,6 +101,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
         statusCallback.accept(StatusTreeQueryCluster.builder()
                                 .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                                 .description("OK:"+rootNode.getName())
+                                .node(rootNode)
                                 .cluster(rootNode.getCluster())
                                 .build());
     }
@@ -114,7 +132,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
         //Execeute the Pipeline runner
         try {
             pipelineBuilderInterface.executePipeline();
-        }catch(Exception ex){
+        }catch(Throwable ex){
             log.error(ex.getMessage());
 
             statusCallback.accept(

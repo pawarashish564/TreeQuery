@@ -1,6 +1,7 @@
 package org.treequery.beam;
 
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
@@ -25,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
 
     private final Pipeline pipeline = Pipeline.create();
@@ -50,6 +51,10 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         }
         else if (node instanceof JoinNode){
             nodeBeamHelper = new JoinNodeHelper(avroSchemaHelper);
+        }
+        else{
+            log.error("Not support node transforming to Apache Beam:",node.toString());
+            throw new NoSuchMethodError(String.format("Not support node transforming to Apache Beam:%s",node.toString()));
         }
         return nodeBeamHelper;
     }
