@@ -19,6 +19,7 @@ import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
+import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
@@ -49,43 +50,11 @@ class TreeQueryWebServerTest {
 
     @BeforeAll
     static void init() throws Exception{
-        CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        webServer = WebServerFactory.createLocalDummyWebServer(treeQuerySetting);
 
-        treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
-                .treeQuerySetting(treeQuerySetting)
-                .cacheTypeEnum(cacheTypeEnum)
-                .avroSchemaHelper(avroSchemaHelper)
-                .createLocalTreeQueryClusterRunnerFunc(
-                        (_Cluster)->TreeQueryClusterRunnerImpl.builder()
-                                .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                        .cacheTypeEnum(cacheTypeEnum)
-                                        .treeQuerySetting(treeQuerySetting)
-                                        .build())
-                                .cacheTypeEnum(cacheTypeEnum)
-                                .avroSchemaHelper(avroSchemaHelper)
-                                .atCluster(_Cluster)
-                                .build()
-                )
-                .build();
-        treeQueryBeamServiceHelper =  TreeQueryBeamServiceHelper.builder()
-                                        .cacheTypeEnum(CacheTypeEnum.FILE)
-                                        .avroSchemaHelper(avroSchemaHelper)
-                                        .discoveryServiceInterface(discoveryServiceInterface)
-                                        .treeQuerySetting(treeQuerySetting)
-                                        .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                                        .build();
-
-        BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
-                .treeQueryBeamServiceHelper(treeQueryBeamServiceHelper).build();
-
-        BindableService[] bindableServices = {new SyncHealthCheckGrpcController(), syncTreeQueryGrpcController};
-
-        webServer = new WebServer(PORT, Arrays.asList(bindableServices));
         webServer.start();
         //webServer.blockUntilShutdown();
     }
