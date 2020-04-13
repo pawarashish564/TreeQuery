@@ -7,12 +7,16 @@ import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;
+import org.treequery.service.TreeQueryClusterRunnerImpl;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
@@ -24,6 +28,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -34,19 +39,37 @@ class TreeQueryBeamServiceHelperTest {
     DiscoveryServiceInterface discoveryServiceInterface;
     AvroSchemaHelper avroSchemaHelper;
     TreeQuerySetting treeQuerySetting;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     @BeforeEach
     void init(){
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = SettingInitializer.createTreeQuerySetting();
-
+        CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
+                .treeQuerySetting(treeQuerySetting)
+                .cacheTypeEnum(cacheTypeEnum)
+                .avroSchemaHelper(avroSchemaHelper)
+                .createLocalTreeQueryClusterRunnerFunc(
+                        (_Cluster)-> TreeQueryClusterRunnerImpl.builder()
+                                .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                        .cacheTypeEnum(cacheTypeEnum)
+                                        .treeQuerySetting(treeQuerySetting)
+                                        .build())
+                                .cacheTypeEnum(cacheTypeEnum)
+                                .avroSchemaHelper(avroSchemaHelper)
+                                .atCluster(_Cluster)
+                                .build()
+                )
+                .build();
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(CacheTypeEnum.FILE)
+                .cacheTypeEnum(cacheTypeEnum)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
+                .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                 .build();
     }
 
@@ -64,7 +87,7 @@ class TreeQueryBeamServiceHelperTest {
 
        // assertThrows(IllegalStateException.class,
                 //()->{
-                    treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = treeQueryBeamServiceHelper.process(TreeQueryRequest.RunMode.DIRECT,
                             preprocessInput,
                             true,
                             pageSize,
@@ -72,6 +95,7 @@ class TreeQueryBeamServiceHelperTest {
                             genericRecordConsumer);
                 //}
                 //);
+        assertEquals(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR,returnResult.getStatusTreeQueryCluster().getStatus());
 
     }
 
