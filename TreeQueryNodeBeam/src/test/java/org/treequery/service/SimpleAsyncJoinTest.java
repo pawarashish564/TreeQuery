@@ -33,7 +33,7 @@ public class SimpleAsyncJoinTest {
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);

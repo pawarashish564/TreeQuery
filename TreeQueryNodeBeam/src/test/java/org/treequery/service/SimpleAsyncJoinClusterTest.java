@@ -10,7 +10,6 @@ import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.*;
@@ -39,7 +38,7 @@ public class SimpleAsyncJoinClusterTest {
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
 
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();

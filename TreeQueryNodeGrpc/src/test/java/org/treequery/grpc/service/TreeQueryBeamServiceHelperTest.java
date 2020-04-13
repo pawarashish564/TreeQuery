@@ -9,13 +9,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.util.List;
 import java.util.Set;
@@ -30,12 +30,11 @@ class TreeQueryBeamServiceHelperTest {
     TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     DiscoveryServiceInterface discoveryServiceInterface;
     AvroSchemaHelper avroSchemaHelper;
-    TreeQuerySetting treeQuerySetting = TreeQuerySetting.builder().build();
+    TreeQuerySetting treeQuerySetting;
     @BeforeEach
     void init(){
         String AvroTree = "SimpleJoin.json";
-//        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
-
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
 
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();

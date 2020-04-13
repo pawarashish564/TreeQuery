@@ -1,20 +1,22 @@
 package org.treequery.config;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public class TreeQuerySetting {
     String cluster;
-    @Builder.Default
-    String servicehostname = "localhost";
-    @Builder.Default
-    int servicePort = 9002;
-    @Builder.Default
-    String cacheFilePath = "./TreeQuery";
+    String servicehostname;
+    int servicePort;
+    String cacheFilePath;
     String redisHostName;
     int redisPort;
 }

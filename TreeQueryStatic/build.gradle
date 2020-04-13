@@ -21,9 +21,11 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
 
-    compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
+//    compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
 

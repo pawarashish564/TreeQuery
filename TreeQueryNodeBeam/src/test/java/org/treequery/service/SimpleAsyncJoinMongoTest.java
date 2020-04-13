@@ -37,7 +37,7 @@ public class SimpleAsyncJoinMongoTest {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
     }
 
     @Test

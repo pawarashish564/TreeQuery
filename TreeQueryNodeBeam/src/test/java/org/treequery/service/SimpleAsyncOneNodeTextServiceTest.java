@@ -35,7 +35,7 @@ class SimpleAsyncOneNodeTextServiceTest {
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = mock(AvroSchemaHelper.class);
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
