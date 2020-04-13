@@ -3,9 +3,9 @@ package org.treequery.service;
 import org.apache.avro.Schema;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
-import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
@@ -13,10 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +29,8 @@ class SimpleAsyncOneNodeTextServiceTest {
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
+
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -39,6 +38,7 @@ class SimpleAsyncOneNodeTextServiceTest {
         avroSchemaHelper = mock(AvroSchemaHelper.class);
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
     }
 
     @Test
@@ -61,7 +61,8 @@ class SimpleAsyncOneNodeTextServiceTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .discoveryServiceInterface(discoveryServiceInterface)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build();
                 })
                 .build();
@@ -111,7 +112,8 @@ class SimpleAsyncOneNodeTextServiceTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .discoveryServiceInterface(discoveryServiceInterface)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build();
                 })
                 .build();

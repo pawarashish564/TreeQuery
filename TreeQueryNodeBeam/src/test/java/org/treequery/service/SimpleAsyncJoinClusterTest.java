@@ -2,24 +2,27 @@ package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.*;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @Slf4j
 public class SimpleAsyncJoinClusterTest {
@@ -27,14 +30,19 @@ public class SimpleAsyncJoinClusterTest {
 
     CacheTypeEnum cacheTypeEnum;
     AvroSchemaHelper avroSchemaHelper = null;
-    DiscoveryServiceInterface discoveryServiceInterface = null;
+    static DiscoveryServiceInterface discoveryServiceInterface = null;
 
     TreeQuerySetting treeQuerySetting = null;
 
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
-    Cluster myCluster;
+
+    @BeforeAll
+    public static void staticinit(){
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+    }
 
     @BeforeEach
     public void init() throws IOException {
@@ -42,19 +50,59 @@ public class SimpleAsyncJoinClusterTest {
         treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
 
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
-        myCluster = Cluster.builder().clusterName(treeQuerySetting.getCluster()).build();
+
+        treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
+                                                .treeQuerySetting(treeQuerySetting)
+                                                .cacheTypeEnum(cacheTypeEnum)
+                                                .avroSchemaHelper(avroSchemaHelper)
+                                                .createLocalTreeQueryClusterRunnerFunc(
+                                                        (_Cluster)->TreeQueryClusterRunnerImpl.builder()
+                                                                .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                                                        .cacheTypeEnum(cacheTypeEnum)
+                                                                        .treeQuerySetting(treeQuerySetting)
+                                                                        .build())
+                                                                .cacheTypeEnum(cacheTypeEnum)
+                                                                .avroSchemaHelper(avroSchemaHelper)
+                                                                .atCluster(_Cluster)
+                                                                .build()
+                                                )
+                                                .build();
     }
-    @Test
+    @RepeatedTest(1)
     public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
+        String AvroTree = "SimpleJoin.json";
+        this.runTest(AvroTree);
+    }
+
+    @RepeatedTest(1)
+    public void SimpleAsyncJoinTestWithDiffCluster() throws Exception{
+        String AvroTree = "SimpleJoinB.json";
+        this.runTest(AvroTree);
+    }
+
+    @Test
+    public void checkIdentifier() throws Exception{
         String AvroTree = "SimpleJoin.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
+        String AvroTree2 = "SimpleJoinB.json";
+        String jsonString2 = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree2);
+        Node rootNode2 = JsonInstructionHelper.createNode(jsonString2);
+        assertNotEquals(jsonString, jsonString2);
+        assertNotEquals(rootNode.getIdentifier(), rootNode2.getIdentifier());
+    }
+
+
+    private void runTest(String AvroTree) throws Exception{
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        Node rootNode = JsonInstructionHelper.createNode(jsonString);
         assertThat(rootNode).isInstanceOf(JoinNode.class);
+        log.debug("Run for data Identifier:"+ rootNode.getIdentifier());
         treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
@@ -64,15 +112,17 @@ public class SimpleAsyncJoinClusterTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .discoveryServiceInterface(discoveryServiceInterface)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);
-
+            discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), status.getCluster());
+            log.debug("Register "+rootNode.getIdentifier()+" into "+status.getCluster());
             assertThat(status.status).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
             if(status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
                 throw new IllegalStateException(status.toString());
@@ -80,12 +130,21 @@ public class SimpleAsyncJoinClusterTest {
         StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
         if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
             throw new RuntimeException(statusTreeQueryCluster.getDescription());
-        }else{
-            discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), myCluster);
         }
 
+
         //Check the avro file
-        //Check the avro file
+        String identifier = rootNode.getIdentifier();
+        log.debug("Look for data Identifier:"+identifier);
+        Cluster getCluster = Optional.ofNullable(discoveryServiceInterface.getCacheResultCluster(identifier))
+                            .orElseThrow(()->{
+                                return new RuntimeException("No cluster found for "+identifier+" map: "+discoveryServiceInterface.toString());
+                            });
+
+        assertThat(getCluster)
+                .isEqualTo(rootNode.getCluster());
+
+
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();

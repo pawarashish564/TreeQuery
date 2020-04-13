@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.treequery.cluster.Cluster;
 
 @Getter
 @Builder
@@ -18,4 +19,5 @@ public class StatusTreeQueryCluster {
 
     QueryTypeEnum status;
     String description;
+    Cluster cluster;
 }

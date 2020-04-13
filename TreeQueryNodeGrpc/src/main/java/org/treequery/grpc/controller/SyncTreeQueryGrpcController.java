@@ -15,6 +15,8 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.proto.*;
+import org.treequery.service.PreprocessInput;
+import org.treequery.service.ReturnResult;
 import org.treequery.service.StatusTreeQueryCluster;
 
 import java.io.ByteArrayOutputStream;
@@ -40,11 +42,11 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
         long pageSize = request.getPageSize();
         long page = request.getPage();
 
-        TreeQueryBeamServiceHelper.PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonRequest);
+        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonRequest);
         Schema outputSchema = preprocessInput.getOutputSchema();
         DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(outputSchema);
 
-        TreeQueryBeamServiceHelper.ReturnResult returnResult = treeQueryBeamServiceHelper.process(
+        ReturnResult returnResult = treeQueryBeamServiceHelper.process(
                 RUNMODE,
                 preprocessInput,
                 renewCache,

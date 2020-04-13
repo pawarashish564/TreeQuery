@@ -10,11 +10,11 @@ import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,6 +32,7 @@ public class SimpleAsyncOneNodeMongoService {
     BeamCacheOutputInterface beamCacheOutputInterface = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
     @BeforeEach
     void init() throws IOException {
@@ -40,6 +41,7 @@ public class SimpleAsyncOneNodeMongoService {
         avroSchemaHelper = mock(AvroSchemaHelper.class);
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
     }
 
     @Test
@@ -64,7 +66,8 @@ public class SimpleAsyncOneNodeMongoService {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .discoveryServiceInterface(discoveryServiceInterface)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .build();
                 })
                 .build();
