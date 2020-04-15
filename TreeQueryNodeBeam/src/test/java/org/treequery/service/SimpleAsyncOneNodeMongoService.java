@@ -37,7 +37,7 @@ public class SimpleAsyncOneNodeMongoService {
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = mock(AvroSchemaHelper.class);
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);

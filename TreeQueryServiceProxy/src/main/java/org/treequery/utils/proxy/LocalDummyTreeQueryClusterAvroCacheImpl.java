@@ -1,5 +1,6 @@
 package org.treequery.utils.proxy;
 
+import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -22,9 +23,9 @@ public class LocalDummyTreeQueryClusterAvroCacheImpl implements TreeQueryCluster
     private final DiscoveryServiceInterface discoveryServiceInterface;
 
     @Override
-    public Schema getPageRecordFromAvroCache(Cluster cluster, CacheTypeEnum cacheTypeEnum,  String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException {
+    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException {
         Cluster clusterStore = Optional.ofNullable(cluster).orElse(discoveryServiceInterface.getCacheResultCluster(identifier));
         log.debug("Retrieve record from cluster:", clusterStore.toString());
-        return AvroIOHelper.getPageRecordFromAvroCache(cacheTypeEnum, treeQuerySetting, identifier, page, page, dataConsumer);
+        return AvroIOHelper.getPageRecordFromAvroCache(cacheTypeEnum, treeQuerySetting, identifier, pageSize, page, dataConsumer);
     }
 }
