@@ -1,7 +1,11 @@
 package org.treequery.service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.treequery.beam.BeamPipelineBuilderImpl;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
@@ -21,7 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -42,7 +48,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
-        Cluster rootCluster = rootNode.getCluster();
+
         Optional.ofNullable(this.treeQueryClusterRunnerProxyInterface).orElseThrow(()->{
             statusCallback.accept(
                     StatusTreeQueryCluster.builder()
@@ -54,8 +60,35 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
             return new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call");
         });
 
+        BeamProcessSynchronizer beamProcessSynchronizer = new BeamProcessSynchronizer();
+
         while (true){
+            //Wait for BeamProcessQueueSynchronizer to be cleared
+            BeamProcessSynchronizer.SyncStatus syncStatus;
+            do {
+                syncStatus = beamProcessSynchronizer.canSubmitJob();
+            }while (syncStatus == BeamProcessSynchronizer.SyncStatus.WAIT);
+            if (syncStatus != BeamProcessSynchronizer.SyncStatus.GO){
+                StatusTreeQueryCluster.QueryTypeEnum queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.FAIL;
+                switch (syncStatus){
+                    case SYSTEM_ERROR:
+                        queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR;
+                        break;
+                    case FAIL:
+                        queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.FAIL;
+                        break;
+                }
+                statusCallback.accept(StatusTreeQueryCluster.builder()
+                        .status(queryTypeEnum)
+                        .description("Exception:"+rootNode.getName())
+                        .node(rootNode)
+                        .cluster(rootNode.getCluster())
+                        .build());
+                break;
+            }
+
             List<Node> nodeList = clusterDependencyGraph.popClusterWithoutDependency();
+
             if (nodeList.size()==0){
                 break;
             }
@@ -64,7 +97,11 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 if (atCluster.equals(node.getCluster())){
                     log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
                     try {
-                        this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(), statusCallback);
+                        RunJob runJob = RunJob.createRunJob(node);
+                        this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(),
+                                (statusTreeQueryCluster)->{
+                                    beamProcessSynchronizer.removeWaitItem(runJob.getUuid());
+                                });
                     }catch(IllegalStateException ie){
                         log.error(ie.getMessage());
                     }
@@ -78,6 +115,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                         .cluster(atCluster)
                                         .build()
                         );
+                        throw new IllegalStateException(ex.getMessage());
                     }
                 }else{
                     log.debug(String.format("RPC call: Cluster %s %s", node.toString(), node.getName()));
@@ -108,6 +146,65 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                 .cluster(rootNode.getCluster())
                                 .build());
     }
+
+
+
+    @RequiredArgsConstructor
+    @Getter
+    static class RunJob{
+        private final String uuid;
+        private final Node node;
+        static RunJob createRunJob(Node node){
+            String uuid = UUID.randomUUID().toString();
+            return new RunJob(uuid, node);
+        }
+    }
+
+    private static class BeamProcessSynchronizer{
+        private Map<String, RunJob> waitingJobMap = Maps.newConcurrentMap();
+        List<St>
+        enum SyncStatus{
+            GO,WAIT,FAIL, SYSTEM_ERROR
+        }
+        boolean FAILURE = false;
+        Object waitObj = new Object();
+
+        SyncStatus canSubmitJob(){
+            synchronized (waitingJobMap) {
+                if (FAILURE){
+                    return SyncStatus.FAIL;
+                }
+                if (waitingJobMap.size() == 0) {
+                    return SyncStatus.GO;
+                }else{
+                    synchronized (waitObj){
+                        try {
+                            waitObj.wait();
+                        }catch (InterruptedException ie){
+                            log.error(ie.getMessage());
+                        }
+                    }
+                    return SyncStatus.WAIT;
+                }
+            }
+        }
+        void pushWaitItem(Node node){
+            RunJob runJob = RunJob.createRunJob(node);
+            synchronized (waitingJobMap) {
+                this.waitingJobMap.put(runJob.getUuid(), runJob);
+            }
+        }
+        RunJob removeWaitItem(String uuid, StatusTreeQueryCluster statusTreeQueryCluster){
+            synchronized (waitingJobMap) {
+                RunJob runJob =  this.waitingJobMap.remove(uuid);
+                synchronized (waitObj) {
+                    waitObj.notifyAll();
+                }
+                return runJob;
+            }
+        }
+    }
+
 
     @Override
     public void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
