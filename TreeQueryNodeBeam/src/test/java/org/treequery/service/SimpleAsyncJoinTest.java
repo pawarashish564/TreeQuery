@@ -8,6 +8,7 @@ import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
@@ -30,13 +31,15 @@ public class SimpleAsyncJoinTest {
     AvroSchemaHelper avroSchemaHelper = null;
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
+        treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
     }
 
     @Test
@@ -54,11 +57,13 @@ public class SimpleAsyncJoinTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);
@@ -114,11 +119,13 @@ public class SimpleAsyncJoinTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
+                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of(rootNode);
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);

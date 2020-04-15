@@ -18,9 +18,13 @@ public class AsyncRunHelper {
         count = new AtomicInteger(0);
     }
 
+    public static AsyncRunHelper of(){
+        return new AsyncRunHelper(new Object());
+    }
+    /*
     public static AsyncRunHelper of (Object object){
         return new AsyncRunHelper(object);
-    }
+    }*/
 
     public  void continueRun(StatusTreeQueryCluster __status){
         synchronized (__object){

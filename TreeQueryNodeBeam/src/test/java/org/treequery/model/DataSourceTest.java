@@ -90,7 +90,7 @@ class DataSourceTest {
             assertEquals(Schema.Type.ENUM,GenericRecordSchemaHelper.getSchemaType(trade.getSchema(),"asset.bidask"));
             GenericRecordSchemaHelper.getValue(trade, "asset.bidask", (obj)->{
                 GenericData.EnumSymbol e = (GenericData.EnumSymbol) obj;
-                log.debug(e.toString());
+                //log.debug(e.toString());
             });
         }
     }

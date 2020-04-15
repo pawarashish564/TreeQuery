@@ -71,9 +71,13 @@ public abstract class Node implements Serializable {
         if (SIMPLE_TOSTRING){
             return String.format("%s%s",this.name, this.getDescription());
         }else {
-            Gson gson = new Gson();
-            return gson.toJson(this);
+            return this.toJson();
         }
+    }
+
+    private String toJson(){
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 
     public String getIdentifier(){
@@ -81,7 +85,7 @@ public abstract class Node implements Serializable {
     }
     private String getSHA256(){
         String sha256hex = Hashing.sha256()
-                .hashString(this.toString(), StandardCharsets.UTF_8)
+                .hashString(this.toJson(), StandardCharsets.UTF_8)
                 .toString();
         return sha256hex;
     }

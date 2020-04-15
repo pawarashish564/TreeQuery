@@ -1,11 +1,9 @@
 package org.treequery.grpc.controller;
 
-import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -15,11 +13,12 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.proto.*;
+import org.treequery.service.PreprocessInput;
+import org.treequery.service.ReturnResult;
 import org.treequery.service.StatusTreeQueryCluster;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -40,11 +39,11 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
         long pageSize = request.getPageSize();
         long page = request.getPage();
 
-        TreeQueryBeamServiceHelper.PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonRequest);
+        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonRequest);
         Schema outputSchema = preprocessInput.getOutputSchema();
         DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(outputSchema);
 
-        TreeQueryBeamServiceHelper.ReturnResult returnResult = treeQueryBeamServiceHelper.process(
+        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(
                 RUNMODE,
                 preprocessInput,
                 renewCache,

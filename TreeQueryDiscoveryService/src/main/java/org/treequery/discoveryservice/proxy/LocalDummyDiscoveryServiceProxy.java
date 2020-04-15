@@ -1,23 +1,30 @@
 package org.treequery.discoveryservice.proxy;
 
 import com.google.common.collect.Maps;
+import lombok.ToString;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.model.Location;
 
 import java.util.Map;
 
+@ToString
 public class LocalDummyDiscoveryServiceProxy implements DiscoveryServiceInterface {
-    Map<String, Cluster> cacheResultMap = Maps.newConcurrentMap();
-    Map<Cluster, Location> clusterLocationMap = Maps.newConcurrentMap();
+    Map<String, Cluster> cacheResultMap = Maps.newHashMap();
+    Map<Cluster, Location> clusterLocationMap = Maps.newHashMap();
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
-        cacheResultMap.put(hashId, cluster);
+
+        synchronized (cacheResultMap) {
+            cacheResultMap.put(hashId, cluster);
+        }
     }
 
     @Override
     public Cluster getCacheResultCluster(String hashId) {
-        return cacheResultMap.get(hashId);
+        synchronized (cacheResultMap) {
+            return cacheResultMap.get(hashId);
+        }
     }
 
     @Override
