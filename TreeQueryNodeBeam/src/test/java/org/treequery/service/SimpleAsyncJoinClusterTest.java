@@ -149,7 +149,7 @@ public class SimpleAsyncJoinClusterTest {
             throw new RuntimeException(statusTreeQueryCluster.getDescription());
         }
 
-
+        log.debug("Retrieve result now");
         //Check the avro file
         String identifier = rootNode.getIdentifier();
         log.debug("Look for data Identifier:"+identifier+"from:"+discoveryServiceInterface.toString());

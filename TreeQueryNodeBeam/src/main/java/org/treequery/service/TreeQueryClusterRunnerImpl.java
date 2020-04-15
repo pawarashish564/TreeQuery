@@ -258,12 +258,25 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
         //Execeute the Pipeline runner
         try {
+            log.debug("Run the pipeline");
             pipelineBuilderInterface.executePipeline();
+            log.debug("Finished the pipeline");
+
+            statusCallback.accept(
+                    StatusTreeQueryCluster.builder()
+                            .node(node)
+                            .status(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS)
+                            .description("Finished:"+node.getName())
+                            .cluster(node.getCluster())
+                            .build()
+            );
+
         }catch(Throwable ex){
             log.error(ex.getMessage());
 
             statusCallback.accept(
                     StatusTreeQueryCluster.builder()
+                            .node(node)
                             .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
                             .description(ex.getMessage())
                             .cluster(node.getCluster())
