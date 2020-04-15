@@ -35,7 +35,7 @@ public class Main {
         TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
         treeQuerySettingBuilder.servicehostname("localhost");
         treeQuerySettingBuilder.servicePort(9002);
-        treeQuerySettingBuilder.cluster(Cluster.builder().clusterName("A").build());
+        treeQuerySettingBuilder.cluster("A");
         try {
             Path path = Files.createTempDirectory("TreeQuery_");
             log.info(String.format("Write cache File to path: %s", path.toAbsolutePath().toString()));

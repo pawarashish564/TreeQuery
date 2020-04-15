@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.grpc.utils.SettingInitializer;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;
@@ -22,6 +21,7 @@ import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.util.List;
 import java.util.Set;
@@ -43,8 +43,8 @@ class TreeQueryBeamServiceHelperTest {
     @BeforeEach
     void init(){
         String AvroTree = "SimpleJoin.json";
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);

@@ -38,8 +38,8 @@ public class SimpleAsyncJoinMongoTest {
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
-        treeQuerySetting = SettingInitializer.createTreeQuerySetting();
         treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
+        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
     }
 
     @Test
