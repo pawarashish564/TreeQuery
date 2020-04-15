@@ -14,6 +14,7 @@ import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,22 +26,9 @@ public class Main {
 
 
     public static void main(String [] args) throws IOException, InterruptedException {
-        WebServer webServer = WebServerFactory.createLocalDummyWebServer(createTreeQuerySetting());
+        WebServer webServer = WebServerFactory.createLocalDummyWebServer(TreeQuerySettingHelper.createFromYaml());
         webServer.start();
         webServer.blockUntilShutdown();
     }
 
-
-    public static TreeQuerySetting createTreeQuerySetting(){
-        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
-        treeQuerySettingBuilder.servicehostname("localhost");
-        treeQuerySettingBuilder.servicePort(9002);
-        treeQuerySettingBuilder.cluster("A");
-        try {
-            Path path = Files.createTempDirectory("TreeQuery_");
-            log.info(String.format("Write cache File to path: %s", path.toAbsolutePath().toString()));
-            treeQuerySettingBuilder.cacheFilePath(path.toAbsolutePath().toString());
-        }catch(Exception ex){}
-        return treeQuerySettingBuilder.build();
-    }
 }
