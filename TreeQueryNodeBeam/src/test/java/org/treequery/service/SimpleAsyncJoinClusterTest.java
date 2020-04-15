@@ -132,13 +132,17 @@ public class SimpleAsyncJoinClusterTest {
 
             boolean IsIssue = status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
 
+            if (!IsIssue){
+                discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), status.getCluster());
+                log.debug("Register "+rootNode.getIdentifier()+" into "+status.getCluster());
+            }
+
             if (IsIssue || status.getNode().getIdentifier().equals(rootNode.getIdentifier()))
                 asyncRunHelper.continueRun(status);
 
             if(IsIssue)
                 throw new IllegalStateException(status.toString());
-            discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), status.getCluster());
-            log.debug("Register "+rootNode.getIdentifier()+" into "+status.getCluster());
+
         });
         StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
         if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
