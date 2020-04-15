@@ -96,17 +96,15 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
                 if (atCluster.equals(node.getCluster())){
                     log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
+                    final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
                     try {
-                        RunJob runJob = RunJob.createRunJob(node);
                         this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(),
                                 (statusTreeQueryCluster)->{
-                                    beamProcessSynchronizer.removeWaitItem(runJob.getUuid());
+                                    beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster);
                                 });
-                    }catch(IllegalStateException ie){
-                        log.error(ie.getMessage());
-                    }
-                    catch(Throwable ex){
+                    } catch(Throwable ex){
                         log.error(ex.getMessage());
+                        beamProcessSynchronizer.reportError(runJob.getUuid(), ex);
                         statusCallback.accept(
                                 StatusTreeQueryCluster.builder()
                                         .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
@@ -115,26 +113,30 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                         .cluster(atCluster)
                                         .build()
                         );
-                        throw new IllegalStateException(ex.getMessage());
+                        return;
                     }
                 }else{
                     log.debug(String.format("RPC call: Cluster %s %s", node.toString(), node.getName()));
                     //It should be RPC call...
                     //the execution behavior depends on the injected TreeQueryClusterRunnerProxyInterface
-                    Optional.ofNullable(this.treeQueryClusterRunnerProxyInterface)
-                            .orElseThrow(()->{
-                                statusCallback.accept(
-                                        StatusTreeQueryCluster.builder()
-                                                .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
-                                                .description("Not found treeQueryClusterProxyInteface in remote call")
-                                                .node(node)
-                                                .cluster(atCluster)
-                                                .build()
-                                );
-                                return new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call");
-                            })
-                            .runQueryTreeNetwork(node, statusCallback);
+                    final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
 
+                    if(this.treeQueryClusterRunnerProxyInterface!=null){
+                        this.treeQueryClusterRunnerProxyInterface.runQueryTreeNetwork(node, (statusTreeQueryCluster)->{
+                            beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster);
+                        });
+                    }else{
+                        beamProcessSynchronizer.reportError(runJob.getUuid(), new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call"));
+                        statusCallback.accept(
+                                StatusTreeQueryCluster.builder()
+                                        .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                                        .description("Not found treeQueryClusterProxyInteface in remote call")
+                                        .node(node)
+                                        .cluster(atCluster)
+                                        .build()
+                        );
+                        return;
+                    }
                 }
             }
         }
@@ -162,7 +164,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
     private static class BeamProcessSynchronizer{
         private Map<String, RunJob> waitingJobMap = Maps.newConcurrentMap();
-        List<St>
+        List<StatusTreeQueryCluster> statusLogList = Lists.newLinkedList();
         enum SyncStatus{
             GO,WAIT,FAIL, SYSTEM_ERROR
         }
@@ -188,15 +190,39 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 }
             }
         }
-        void pushWaitItem(Node node){
+        RunJob pushWaitItem(Node node){
             RunJob runJob = RunJob.createRunJob(node);
             synchronized (waitingJobMap) {
                 this.waitingJobMap.put(runJob.getUuid(), runJob);
             }
+            return runJob;
         }
         RunJob removeWaitItem(String uuid, StatusTreeQueryCluster statusTreeQueryCluster){
             synchronized (waitingJobMap) {
                 RunJob runJob =  this.waitingJobMap.remove(uuid);
+                if (statusTreeQueryCluster.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+                    this.FAILURE = true;
+                }
+                statusLogList.add(statusTreeQueryCluster);
+                synchronized (waitObj) {
+                    waitObj.notifyAll();
+                }
+                return runJob;
+            }
+        }
+        RunJob reportError(String uuid, Throwable ex){
+            synchronized (waitingJobMap) {
+                this.FAILURE = true;
+                RunJob runJob =  this.waitingJobMap.remove(uuid);
+                statusLogList.add(
+                        StatusTreeQueryCluster.builder()
+                            .node(Optional.ofNullable(runJob).orElse(null).getNode())
+                                .cluster(Optional.ofNullable(runJob).orElse(null).getNode().getCluster())
+                                .description(ex.getMessage())
+                                .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
+                            .build()
+
+                );
                 synchronized (waitObj) {
                     waitObj.notifyAll();
                 }
@@ -238,12 +264,11 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
             statusCallback.accept(
                     StatusTreeQueryCluster.builder()
-                            .status(StatusTreeQueryCluster.QueryTypeEnum.FAIL)
+                            .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
                             .description(ex.getMessage())
                             .cluster(node.getCluster())
                             .build()
             );
-            throw new IllegalStateException("Failure run : "+ex.getMessage());
         }
     }
 }
