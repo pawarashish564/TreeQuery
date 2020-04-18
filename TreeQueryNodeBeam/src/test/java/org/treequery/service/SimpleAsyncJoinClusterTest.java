@@ -65,7 +65,7 @@ public class SimpleAsyncJoinClusterTest {
                                                         (_Cluster)-> {
 
                                                             TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
-                                                                    _Cluster.toString(),
+                                                                    _Cluster.getClusterName(),
                                                                     treeQuerySetting.getServicehostname(),
                                                                     treeQuerySetting.getServicePort(),
                                                                     treeQuerySetting.getCacheFilePath(),
