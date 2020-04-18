@@ -13,6 +13,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.bson.Document;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheNode;
@@ -23,6 +24,7 @@ import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,11 +32,13 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CacheBeamHelper implements NodeBeamHelper {
     private final DiscoveryServiceInterface discoveryServiceInterface;
     private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    private final TreeQuerySetting treeQuerySetting;
     @Builder
-    CacheBeamHelper(DiscoveryServiceInterface discoveryServiceInterface){
+    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
+        this.treeQuerySetting = treeQuerySetting;
         treeQueryClusterAvroCacheInterface = TreeQueryClusterAvroCacheProxyFactory
-                                                .getDefaultCacheInterface(this.discoveryServiceInterface);
+                                                .getDefaultCacheInterface(treeQuerySetting, this.discoveryServiceInterface);
     }
 
     @Override
@@ -45,6 +49,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
         String identifier = node.getIdentifier();
         Schema schema ;
         try {
+            log.debug(String.format("Get cache Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
             //Get the Schema first
             schema = treeQueryClusterAvroCacheInterface
                     .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {
@@ -67,6 +72,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
         @Override
         public PCollection<GenericRecord> expand(PCollection<String> input) {
             AvroCoder coder = AvroCoder.of(GenericRecord.class, schema);
+            Optional.ofNullable(treeQueryClusterAvroCacheInterface).orElseThrow(()->new IllegalStateException("Cache interface is null"));
             PCollection<GenericRecord> recordPCollection = input.apply(
                     ParDo.of(new ReadFunction(treeQueryClusterAvroCacheInterface))
             ).setCoder(coder);
@@ -74,7 +80,12 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+            private static TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+
+            ReadFunction(TreeQueryClusterAvroCacheInterface _treeQueryClusterAvroCacheInterface){
+                treeQueryClusterAvroCacheInterface = _treeQueryClusterAvroCacheInterface;
+            }
+
             @ProcessElement
             public void processElement(@Element String identifier, OutputReceiver<GenericRecord > out) throws CacheNotFoundException {
                 AtomicLong counter = new AtomicLong(0);
@@ -89,6 +100,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                         counter.incrementAndGet();
                         out.output(record);
                     });
+                    page++;
                     if (counter.get() == lastCount){
                         break;
                     }
