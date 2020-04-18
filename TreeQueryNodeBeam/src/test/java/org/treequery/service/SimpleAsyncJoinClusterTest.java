@@ -98,7 +98,6 @@ public class SimpleAsyncJoinClusterTest {
         this.runTest(AvroTree);
     }
 
-    @Disabled
     @Test
     public void SimpleAsyncJoinTestWithMixedCluster() throws Exception{
         String AvroTree = "SimpleJoinCluster.json";

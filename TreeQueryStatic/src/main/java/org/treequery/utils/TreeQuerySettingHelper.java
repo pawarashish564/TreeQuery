@@ -8,10 +8,14 @@ import org.treequery.config.TreeQuerySetting;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class TreeQuerySettingHelper {
+    static AtomicInteger atomicCounter = new AtomicInteger(0);
+
     public static TreeQuerySetting createFromYaml() {
+        atomicCounter.incrementAndGet();
         TreeQuerySetting setting;
         TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
 

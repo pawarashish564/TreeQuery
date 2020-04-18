@@ -24,6 +24,7 @@ import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -71,6 +72,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
         @Override
         public PCollection<GenericRecord> expand(PCollection<String> input) {
             AvroCoder coder = AvroCoder.of(GenericRecord.class, schema);
+            Optional.ofNullable(treeQueryClusterAvroCacheInterface).orElseThrow(()->new IllegalStateException("Cache interface is null"));
             PCollection<GenericRecord> recordPCollection = input.apply(
                     ParDo.of(new ReadFunction(treeQueryClusterAvroCacheInterface))
             ).setCoder(coder);
@@ -78,7 +80,12 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+            private static TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+
+            ReadFunction(TreeQueryClusterAvroCacheInterface _treeQueryClusterAvroCacheInterface){
+                treeQueryClusterAvroCacheInterface = _treeQueryClusterAvroCacheInterface;
+            }
+
             @ProcessElement
             public void processElement(@Element String identifier, OutputReceiver<GenericRecord > out) throws CacheNotFoundException {
                 AtomicLong counter = new AtomicLong(0);
@@ -93,6 +100,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                         counter.incrementAndGet();
                         out.output(record);
                     });
+                    page++;
                     if (counter.get() == lastCount){
                         break;
                     }
