@@ -5,8 +5,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 public class TreeQueryClusterAvroCacheProxyFactory {
-    public static TreeQueryClusterAvroCacheInterface getDefaultCacheInterface(DiscoveryServiceInterface discoveryServiceInterface){
-        TreeQuerySetting treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+    public static TreeQueryClusterAvroCacheInterface getDefaultCacheInterface(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface){
         return LocalDummyTreeQueryClusterAvroCacheImpl.builder()
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
