@@ -12,7 +12,6 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.bson.Document;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
@@ -20,12 +19,10 @@ import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
+import org.treequery.utils.proxy.LocalTreeQueryClusterAvroCacheProxyFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -33,12 +30,12 @@ public class CacheBeamHelper implements NodeBeamHelper {
     private final DiscoveryServiceInterface discoveryServiceInterface;
     private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
     private final TreeQuerySetting treeQuerySetting;
+
     @Builder
-    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface){
+    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface,TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
         this.treeQuerySetting = treeQuerySetting;
-        treeQueryClusterAvroCacheInterface = TreeQueryClusterAvroCacheProxyFactory
-                                                .getDefaultCacheInterface(treeQuerySetting, this.discoveryServiceInterface);
+        this.treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheInterface;
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.*;
+import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +33,7 @@ public class SimpleAsyncJoinTest {
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
+    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -40,6 +42,7 @@ public class SimpleAsyncJoinTest {
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
+        treeQueryClusterAvroCacheInterface = mock(TreeQueryClusterAvroCacheInterface.class);
     }
 
     @Test
@@ -59,6 +62,7 @@ public class SimpleAsyncJoinTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
@@ -121,6 +125,7 @@ public class SimpleAsyncJoinTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })

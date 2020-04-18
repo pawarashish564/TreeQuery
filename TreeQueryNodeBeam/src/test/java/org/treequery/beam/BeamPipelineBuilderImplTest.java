@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.execute.NodePipeline;
 import org.treequery.utils.TreeQuerySettingHelper;
+import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
 
 import java.io.File;
 import java.util.List;
@@ -45,6 +46,7 @@ class BeamPipelineBuilderImplTest {
     AvroSchemaHelper avroSchemaHelper;
     DiscoveryServiceInterface discoveryServiceInterface;
     TreeQuerySetting treeQuerySetting;
+    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
 
     @BeforeEach
     void init(){
@@ -57,6 +59,7 @@ class BeamPipelineBuilderImplTest {
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         avroSchemaHelper = mock(AvroSchemaHelper.class);
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        treeQueryClusterAvroCacheInterface = mock (TreeQueryClusterAvroCacheInterface.class);
     }
 
     @Test
@@ -85,6 +88,7 @@ class BeamPipelineBuilderImplTest {
                                             .discoveryServiceInterface(discoveryServiceInterface)
                                             .avroSchemaHelper(avroSchemaHelper)
                                             .treeQuerySetting(treeQuerySetting)
+                                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                                             .build();
 
             NodePipeline nodePipeline = GraphNodePipeline.builder()

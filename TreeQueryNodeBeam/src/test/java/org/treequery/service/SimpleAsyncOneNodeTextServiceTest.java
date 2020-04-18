@@ -12,6 +12,7 @@ import org.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,7 +31,7 @@ class SimpleAsyncOneNodeTextServiceTest {
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-
+    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -39,6 +40,7 @@ class SimpleAsyncOneNodeTextServiceTest {
 
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
+        treeQueryClusterAvroCacheInterface = mock(TreeQueryClusterAvroCacheInterface.class);
     }
 
     @Test
@@ -64,6 +66,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
+                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                             .build();
                 })
                 .build();
@@ -116,6 +119,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
+                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                             .build();
                 })
                 .build();

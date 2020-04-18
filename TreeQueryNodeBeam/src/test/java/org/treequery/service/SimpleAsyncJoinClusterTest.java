@@ -17,6 +17,9 @@ import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.*;
+import org.treequery.utils.proxy.LocalTreeQueryClusterAvroCacheProxyFactory;
+import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
+import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -40,7 +43,7 @@ public class SimpleAsyncJoinClusterTest {
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-
+    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
 
     @BeforeAll
     public static void staticinit(){
@@ -59,6 +62,9 @@ public class SimpleAsyncJoinClusterTest {
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
 
+        TreeQueryClusterAvroCacheProxyFactory treeQueryClusterAvroCacheProxyFactory = new LocalTreeQueryClusterAvroCacheProxyFactory();
+
+        treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                                                 .treeQuerySetting(treeQuerySetting)
@@ -76,6 +82,9 @@ public class SimpleAsyncJoinClusterTest {
                                                                     treeQuerySetting.getRedisPort()
                                                             );
 
+                                                            TreeQueryClusterAvroCacheInterface _treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheProxyFactory.getDefaultCacheInterface(remoteDummyTreeQuerySetting, discoveryServiceInterface);
+
+
                                                             return TreeQueryClusterRunnerImpl.builder()
                                                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
                                                                             .cacheTypeEnum(cacheTypeEnum)
@@ -85,6 +94,7 @@ public class SimpleAsyncJoinClusterTest {
                                                                     .avroSchemaHelper(avroSchemaHelper)
                                                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                                                     .discoveryServiceInterface(discoveryServiceInterface)
+                                                                    .treeQueryClusterAvroCacheInterface(_treeQueryClusterAvroCacheInterface)
                                                                     .build();
                                                         }
                                                 )
@@ -137,6 +147,7 @@ public class SimpleAsyncJoinClusterTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })

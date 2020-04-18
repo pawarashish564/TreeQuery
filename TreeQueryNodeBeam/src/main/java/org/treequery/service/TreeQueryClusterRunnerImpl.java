@@ -23,6 +23,7 @@ import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
 
 
 import java.util.List;
@@ -43,6 +44,8 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     DiscoveryServiceInterface discoveryServiceInterface;
     @NonNull
     TreeQuerySetting treeQuerySetting;
+    @NonNull
+    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
 
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
@@ -259,6 +262,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 .beamCacheOutputInterface(beamCacheOutputInterface)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
+                .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .build();
 
