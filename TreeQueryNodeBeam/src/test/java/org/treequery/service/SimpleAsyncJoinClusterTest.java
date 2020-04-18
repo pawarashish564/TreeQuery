@@ -2,6 +2,8 @@ package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
@@ -18,6 +20,7 @@ import org.treequery.utils.*;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -172,6 +175,7 @@ public class SimpleAsyncJoinClusterTest {
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
         Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
                 treeQuerySetting,
                 rootNode.getIdentifier(),pageSize,page,
@@ -180,8 +184,10 @@ public class SimpleAsyncJoinClusterTest {
                     counter.incrementAndGet();
                     String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
                     String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                    assertThat(genericRecordSet).doesNotContain(record);
                     assertEquals(isinBondTrade, isinSecCode);
                     assertThat(isinBondTrade.length()).isGreaterThan(5);
+                    genericRecordSet.add(record);
                 });
 
         assertEquals(1000, counter.get());
