@@ -8,6 +8,7 @@ import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.transform.*;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.PipelineBuilderInterface;
 import org.treequery.model.CacheNode;
@@ -35,14 +36,21 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
     private BeamCacheOutputInterface beamCacheOutputInterface;
     @NonNull
     private AvroSchemaHelper avroSchemaHelper;
+    @NonNull
+    private final TreeQuerySetting treeQuerySetting;
+
     private DiscoveryServiceInterface discoveryServiceInterface;
     private Node __node = null;
 
     @Builder
-    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface, AvroSchemaHelper avroSchemaHelper, DiscoveryServiceInterface discoveryServiceInterface){
+    public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface,
+                                   AvroSchemaHelper avroSchemaHelper,
+                                   DiscoveryServiceInterface discoveryServiceInterface,
+                                   TreeQuerySetting treeQuerySetting){
         this.beamCacheOutputInterface = beamCacheOutputInterface;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
+        this.treeQuerySetting = treeQuerySetting;
     }
 
     private NodeBeamHelper prepareNodeBeamHelper(Node node){
@@ -57,7 +65,9 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
             nodeBeamHelper = new JoinNodeHelper(avroSchemaHelper);
         }
         else if (node instanceof CacheNode){
-            nodeBeamHelper =  CacheBeamHelper.builder().discoveryServiceInterface(discoveryServiceInterface).build();
+            nodeBeamHelper =  CacheBeamHelper.builder()
+                    .treeQuerySetting(this.treeQuerySetting)
+                    .discoveryServiceInterface(discoveryServiceInterface).build();
         }
         else{
             log.error("Not support node transforming to Apache Beam:",node.toString());

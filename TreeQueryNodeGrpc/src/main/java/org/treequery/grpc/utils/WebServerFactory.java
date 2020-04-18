@@ -43,7 +43,7 @@ public class WebServerFactory {
                                         .build())
                                 .cacheTypeEnum(cacheTypeEnum)
                                 .avroSchemaHelper(avroSchemaHelper)
-                                .atCluster(_Cluster)
+                                .treeQuerySetting(treeQuerySetting)
                                 .discoveryServiceInterface(discoveryServiceInterface)
                                 .build()
                 )

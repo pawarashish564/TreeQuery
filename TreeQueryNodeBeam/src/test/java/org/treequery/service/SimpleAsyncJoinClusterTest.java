@@ -56,21 +56,34 @@ public class SimpleAsyncJoinClusterTest {
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
 
+
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                                                 .treeQuerySetting(treeQuerySetting)
                                                 .cacheTypeEnum(cacheTypeEnum)
                                                 .avroSchemaHelper(avroSchemaHelper)
                                                 .createLocalTreeQueryClusterRunnerFunc(
-                                                        (_Cluster)->TreeQueryClusterRunnerImpl.builder()
-                                                                .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                                                        .cacheTypeEnum(cacheTypeEnum)
-                                                                        .treeQuerySetting(treeQuerySetting)
-                                                                        .build())
-                                                                .cacheTypeEnum(cacheTypeEnum)
-                                                                .avroSchemaHelper(avroSchemaHelper)
-                                                                .atCluster(_Cluster)
-                                                                .discoveryServiceInterface(discoveryServiceInterface)
-                                                                .build()
+                                                        (_Cluster)-> {
+
+                                                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                                                                    _Cluster.toString(),
+                                                                    treeQuerySetting.getServicehostname(),
+                                                                    treeQuerySetting.getServicePort(),
+                                                                    treeQuerySetting.getCacheFilePath(),
+                                                                    treeQuerySetting.getRedisHostName(),
+                                                                    treeQuerySetting.getRedisPort()
+                                                            );
+
+                                                            return TreeQueryClusterRunnerImpl.builder()
+                                                                    .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                                                            .cacheTypeEnum(cacheTypeEnum)
+                                                                            .treeQuerySetting(treeQuerySetting)
+                                                                            .build())
+                                                                    .cacheTypeEnum(cacheTypeEnum)
+                                                                    .avroSchemaHelper(avroSchemaHelper)
+                                                                    .treeQuerySetting(remoteDummyTreeQuerySetting)
+                                                                    .discoveryServiceInterface(discoveryServiceInterface)
+                                                                    .build();
+                                                        }
                                                 )
                                                 .build();
     }
@@ -120,7 +133,7 @@ public class SimpleAsyncJoinClusterTest {
                                     .build())
                             .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
-                            .atCluster(treeQuerySetting.getCluster())
+                            .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();

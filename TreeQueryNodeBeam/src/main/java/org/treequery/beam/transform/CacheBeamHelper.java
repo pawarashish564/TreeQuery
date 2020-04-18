@@ -13,6 +13,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.bson.Document;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheNode;
@@ -30,11 +31,13 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CacheBeamHelper implements NodeBeamHelper {
     private final DiscoveryServiceInterface discoveryServiceInterface;
     private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    private final TreeQuerySetting treeQuerySetting;
     @Builder
-    CacheBeamHelper(DiscoveryServiceInterface discoveryServiceInterface){
+    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
+        this.treeQuerySetting = treeQuerySetting;
         treeQueryClusterAvroCacheInterface = TreeQueryClusterAvroCacheProxyFactory
-                                                .getDefaultCacheInterface(this.discoveryServiceInterface);
+                                                .getDefaultCacheInterface(treeQuerySetting, this.discoveryServiceInterface);
     }
 
     @Override
@@ -45,6 +48,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
         String identifier = node.getIdentifier();
         Schema schema ;
         try {
+            log.debug(String.format("Get cache Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
             //Get the Schema first
             schema = treeQueryClusterAvroCacheInterface
                     .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {

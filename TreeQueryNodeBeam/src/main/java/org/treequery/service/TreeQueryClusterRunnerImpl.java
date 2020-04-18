@@ -11,6 +11,7 @@ import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
@@ -41,12 +42,14 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     @NonNull
     DiscoveryServiceInterface discoveryServiceInterface;
     @NonNull
-    Cluster atCluster;
+    TreeQuerySetting treeQuerySetting;
+
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
     //Output is found in AvroIOHelper.getPageRecordFromAvroCache
     @Override
     public void runQueryTreeNetwork(Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback) {
+        Cluster atCluster = treeQuerySetting.getCluster();
         ClusterDependencyGraph clusterDependencyGraph = ClusterDependencyGraph.createClusterDependencyGraph(rootNode);
 
         Optional.ofNullable(this.treeQueryClusterRunnerProxyInterface).orElseThrow(()->{
@@ -124,7 +127,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
                     if(this.treeQueryClusterRunnerProxyInterface!=null){
                         this.treeQueryClusterRunnerProxyInterface.runQueryTreeNetwork(node, (statusTreeQueryCluster)->{
-                            registerCacheResult(statusTreeQueryCluster);
+                            //registerCacheResult(statusTreeQueryCluster);
                             beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster);
                         });
                     }else{
@@ -155,9 +158,12 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     private void registerCacheResult(StatusTreeQueryCluster statusTreeQueryCluster){
         boolean IsIssue = statusTreeQueryCluster.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
         Node node = statusTreeQueryCluster.getNode();
+        String identifier = node.getIdentifier();
+
         if (!IsIssue){
-            discoveryServiceInterface.registerCacheResult(node.getIdentifier(), node.getCluster());
+            discoveryServiceInterface.registerCacheResult(identifier, node.getCluster());
             log.debug("Register "+node.getIdentifier()+" into "+node.getCluster());
+            log.debug(String.format("Register Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
         }
     }
 
@@ -253,6 +259,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 .beamCacheOutputInterface(beamCacheOutputInterface)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
+                .treeQuerySetting(treeQuerySetting)
                 .build();
 
         //Inject Apache Beam pipeline runner
