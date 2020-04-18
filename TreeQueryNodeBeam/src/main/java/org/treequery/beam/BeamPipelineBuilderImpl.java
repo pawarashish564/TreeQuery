@@ -7,10 +7,7 @@ import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
-import org.treequery.beam.transform.JoinNodeHelper;
-import org.treequery.beam.transform.LoadLeafNodeHelper;
-import org.treequery.beam.transform.NodeBeamHelper;
-import org.treequery.beam.transform.QueryLeafNodeHelper;
+import org.treequery.beam.transform.*;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.execute.PipelineBuilderInterface;
 import org.treequery.model.CacheNode;
@@ -60,7 +57,7 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
             nodeBeamHelper = new JoinNodeHelper(avroSchemaHelper);
         }
         else if (node instanceof CacheNode){
-            throw new NoSuchMethodError("Not yet implemented CacheNode conversion");
+            nodeBeamHelper =  CacheBeamHelper.builder().discoveryServiceInterface(discoveryServiceInterface).build();
         }
         else{
             log.error("Not support node transforming to Apache Beam:",node.toString());

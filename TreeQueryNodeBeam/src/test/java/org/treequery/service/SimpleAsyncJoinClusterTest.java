@@ -132,11 +132,6 @@ public class SimpleAsyncJoinClusterTest {
 
             boolean IsIssue = status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
 
-            if (!IsIssue){
-                discoveryServiceInterface.registerCacheResult(rootNode.getIdentifier(), status.getCluster());
-                log.debug("Register "+rootNode.getIdentifier()+" into "+status.getCluster());
-            }
-
             if (IsIssue || status.getNode().getIdentifier().equals(rootNode.getIdentifier()))
                 asyncRunHelper.continueRun(status);
 

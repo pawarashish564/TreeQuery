@@ -100,10 +100,11 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                     try {
                         this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(),
                                 (statusTreeQueryCluster)->{
+                                    registerCacheResult(statusTreeQueryCluster);
                                     beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster);
                                 });
                     } catch(Throwable ex){
-                        log.error(ex.getMessage());
+                        log.error(ex.toString());
                         beamProcessSynchronizer.reportError(runJob.getUuid(), ex);
                         statusCallback.accept(
                                 StatusTreeQueryCluster.builder()
@@ -123,6 +124,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
                     if(this.treeQueryClusterRunnerProxyInterface!=null){
                         this.treeQueryClusterRunnerProxyInterface.runQueryTreeNetwork(node, (statusTreeQueryCluster)->{
+                            registerCacheResult(statusTreeQueryCluster);
                             beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster);
                         });
                     }else{
@@ -150,6 +152,14 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     }
 
 
+    private void registerCacheResult(StatusTreeQueryCluster statusTreeQueryCluster){
+        boolean IsIssue = statusTreeQueryCluster.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
+        Node node = statusTreeQueryCluster.getNode();
+        if (!IsIssue){
+            discoveryServiceInterface.registerCacheResult(node.getIdentifier(), node.getCluster());
+            log.debug("Register "+node.getIdentifier()+" into "+node.getCluster());
+        }
+    }
 
     @RequiredArgsConstructor
     @Getter

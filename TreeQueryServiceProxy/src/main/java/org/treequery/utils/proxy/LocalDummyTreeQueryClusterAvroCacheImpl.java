@@ -25,6 +25,8 @@ public class LocalDummyTreeQueryClusterAvroCacheImpl implements TreeQueryCluster
     @Override
     public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException {
         Cluster clusterStore = Optional.ofNullable(cluster).orElse(discoveryServiceInterface.getCacheResultCluster(identifier));
+        clusterStore = Optional.ofNullable(clusterStore).orElseThrow(()->new IllegalStateException(
+                String.format("No cache result for %s",identifier)));
         log.debug("Retrieve record from cluster:", clusterStore.toString());
         return AvroIOHelper.getPageRecordFromAvroCache(cacheTypeEnum, treeQuerySetting, identifier, pageSize, page, dataConsumer);
     }
