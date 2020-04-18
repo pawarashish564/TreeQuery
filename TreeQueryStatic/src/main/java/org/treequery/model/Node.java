@@ -3,6 +3,7 @@ package org.treequery.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.treequery.Transform.function.NoJoinAbleFunction;
 import org.treequery.cluster.Cluster;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
-
+@Slf4j
 @Getter
 public abstract class Node implements Serializable {
     @NonNull
@@ -75,7 +76,7 @@ public abstract class Node implements Serializable {
         }
     }
 
-    private String toJson(){
+    public String toJson(){
         Gson gson = new Gson();
         return gson.toJson(this);
     }

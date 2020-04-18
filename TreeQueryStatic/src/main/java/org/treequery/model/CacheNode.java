@@ -51,4 +51,21 @@ public  class CacheNode extends Node implements DataSource{
     public String getAvro_schema() {
         return avroSchemaHelper.getAvroSchema(this.originalNode).toString();
     }
+
+    @Override
+    public String getIdentifier(){
+        return this.originalNode.getIdentifier();
+    }
+    @Override
+    public String toJson(){
+        return this.originalNode.toJson();
+    }
+    @Override
+    public String getName(){
+        return this.originalNode.getName();
+    }
+    @Override
+    public String getDescription(){
+        return this.originalNode.getDescription();
+    }
 }
