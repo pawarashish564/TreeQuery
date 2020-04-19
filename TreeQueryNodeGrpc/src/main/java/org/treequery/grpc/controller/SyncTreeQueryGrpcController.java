@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 @Builder
 public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServiceImplBase {
     private static TreeQueryRequest.RunMode RUNMODE= TreeQueryRequest.RunMode.DIRECT;
-    private final TreeQueryBeamService treeQueryBeamServiceHelper;
+    private final TreeQueryBeamService treeQueryBeamService;
 
     @Override
     public void query(TreeQueryRequest request, StreamObserver<TreeQueryResponse> responseObserver) {
@@ -40,11 +40,11 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
         long pageSize = request.getPageSize();
         long page = request.getPage();
 
-        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonRequest);
+        PreprocessInput preprocessInput = treeQueryBeamService.preprocess(jsonRequest);
         Schema outputSchema = preprocessInput.getOutputSchema();
         DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(outputSchema);
 
-        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(
+        ReturnResult returnResult = treeQueryBeamService.runAndPageResult(
                 RUNMODE,
                 preprocessInput,
                 renewCache,
