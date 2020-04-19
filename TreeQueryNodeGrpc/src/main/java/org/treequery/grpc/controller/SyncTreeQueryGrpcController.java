@@ -12,7 +12,7 @@ import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.treequery.grpc.service.TreeQueryBeamService;
-import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
+import org.treequery.grpc.utils.DataConsumerIntoByteArray;
 import org.treequery.proto.*;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;
@@ -73,41 +73,5 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
 
         responseObserver.onNext(treeQueryResponseBuilder.build());
         responseObserver.onCompleted();
-    }
-
-
-    private static class DataConsumerIntoByteArray implements Consumer<GenericRecord> {
-        DatumWriter<GenericRecord> recordDatumWriter;
-        ByteArrayOutputStream byteArrayOutputStream;
-        BinaryEncoder binaryEncoder;
-        @Getter
-        int dataSize=0;
-        DataConsumerIntoByteArray(Schema outputSchema){
-            recordDatumWriter = new GenericDatumWriter<GenericRecord>(outputSchema);
-            byteArrayOutputStream = new ByteArrayOutputStream();
-            binaryEncoder = EncoderFactory.get().binaryEncoder(byteArrayOutputStream, null);
-        }
-
-
-        @Override
-        public void accept(GenericRecord genericRecord) {
-            try {
-                recordDatumWriter.write(genericRecord, binaryEncoder);
-                binaryEncoder.flush();
-                dataSize++;
-            }catch(IOException ioe){
-                log.error(ioe.getMessage());
-                throw new IllegalStateException("Failed to write Generic Record to Bytes");
-            }
-        }
-
-        public byte[] toArrayOutput(){
-            byte [] byteData = byteArrayOutputStream.toByteArray();
-            try {
-                byteArrayOutputStream.close();
-            }catch(IOException ioe){}
-            return byteData;
-        }
-
     }
 }
