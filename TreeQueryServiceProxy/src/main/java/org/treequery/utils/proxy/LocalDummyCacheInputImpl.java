@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Builder
-public class LocalDummyTreeQueryClusterAvroCacheImpl implements TreeQueryClusterAvroCacheInterface {
+public class LocalDummyCacheInputImpl implements CacheInputInterface {
 
     private final TreeQuerySetting treeQuerySetting;
     private final DiscoveryServiceInterface discoveryServiceInterface;
