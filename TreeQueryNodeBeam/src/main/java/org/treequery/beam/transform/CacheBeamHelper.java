@@ -18,7 +18,7 @@ import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 
 import java.util.List;
 import java.util.Optional;

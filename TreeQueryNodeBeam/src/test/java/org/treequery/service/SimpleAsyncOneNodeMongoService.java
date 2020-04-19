@@ -14,7 +14,7 @@ import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -22,7 +22,7 @@ import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 
 
 import java.util.List;

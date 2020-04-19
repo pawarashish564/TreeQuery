@@ -1,4 +1,4 @@
-package org.treequery.utils.proxy;
+package org.treequery.beam.cache;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
