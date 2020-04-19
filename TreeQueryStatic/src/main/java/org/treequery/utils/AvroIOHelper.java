@@ -56,7 +56,7 @@ public class AvroIOHelper {
             log.error(ioe.getMessage());
             throw new IllegalStateException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString()));
         }catch(CacheNotFoundException ce){
-            log.error(ce.getMessage());
+            log.info(ce.getMessage());
             throw new CacheNotFoundException(String.format("Cache %s not found", identifier));
         }
         throw new NoSuchMethodError("Only File Cache implemented");

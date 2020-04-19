@@ -15,6 +15,7 @@ message TreeQueryCacheRequest {
     string identifier = 1;
     uint64 pageSize = 2;
     uint64 page = 3;
+    string avroSchema = 4; //With AvroSchema provided, query run faster
 }
 
 message TreeQueryCacheResponse{

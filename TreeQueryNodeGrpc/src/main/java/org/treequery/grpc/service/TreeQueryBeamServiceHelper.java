@@ -121,6 +121,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                         .build();
             }catch(CacheNotFoundException che){
                 log.info(String.format("Cache %s not found, need to rerun", identifier));
+                return this.runQuery(preprocessInput.getNode(), pageSize, page, dataConsumer);
             }
         }
         return this.runQuery(preprocessInput.getNode(), pageSize, page, dataConsumer);
