@@ -14,4 +14,10 @@ public class TestDataAgent {
         String jsonString = JsonInstructionHelper.parseJsonFile(jsonFile.getAbsolutePath());
         return jsonString.replaceAll("\\$\\{WORKDIR\\}", workDirectory);
     }
+    public static String getTestResourceDirectory(String filename){
+        String workDirectory = null;
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        File resourceFile = new File(classLoader.getResource(filename).getFile());
+        return resourceFile.getParent();
+    }
 }
