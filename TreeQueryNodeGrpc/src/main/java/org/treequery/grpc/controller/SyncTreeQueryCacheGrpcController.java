@@ -12,6 +12,9 @@ public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.
 
     @Override
     public void get(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {
-        super.get(request, responseObserver);
+        String identifier = request.getIdentifier();
+        long pageSize = request.getPageSize();
+        long page = request.getPage();
+
     }
 }

@@ -3,6 +3,7 @@ package org.treequery.grpc.server;
 import io.grpc.BindableService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ import org.treequery.utils.TreeQuerySettingHelper;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,26 +77,37 @@ class TreeQueryWebServerTest {
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
-        boolean renewCache = true;
-        int pageSize = 3;
-        int page = 2;
-        TreeQueryResult treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
-                jsonString,
-                true,
-                pageSize,
-                page
-                );
-        assertTrue(treeQueryResult.getHeader().isSuccess());
-        assertEquals(0,treeQueryResult.getHeader().getErr_code());
-        TreeQueryResult.TreeQueryResponseResult treeQueryResponseResult = treeQueryResult.getResult();
-        assertEquals(3, treeQueryResponseResult.getDatasize());
-        List<GenericRecord> genericRecordList = treeQueryResult.getResult().getGenericRecordList();
-        genericRecordList.forEach(
-                genericRecord -> {
-                    assertThat(genericRecord).isNotNull();
-                    assertThat(genericRecord.get("bondtrade")).isNotNull();
-                }
-        );
+        boolean renewCache = false;
+        int pageSize = 100;
+        int page = 1;
+        TreeQueryResult treeQueryResult = null;
+        AtomicLong counter = new AtomicLong(0);
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+        do {
+            treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
+                    jsonString,
+                    renewCache,
+                    pageSize,
+                    page
+            );
+            assertTrue(treeQueryResult.getHeader().isSuccess());
+            assertEquals(0, treeQueryResult.getHeader().getErr_code());
+            TreeQueryResult.TreeQueryResponseResult treeQueryResponseResult = treeQueryResult.getResult();
+
+            List<GenericRecord> genericRecordList = treeQueryResult.getResult().getGenericRecordList();
+            genericRecordList.forEach(
+                    genericRecord -> {
+                        assertThat(genericRecord).isNotNull();
+                        assertThat(genericRecord.get("bondtrade")).isNotNull();
+                        assertThat(genericRecordSet).doesNotContain(genericRecord);
+                        counter.incrementAndGet();
+                        genericRecordSet.add(genericRecord);
+                    }
+            );
+            page++;
+        }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
+        assertEquals(1000, counter.get());
+        assertThat(genericRecordSet).hasSize(1000);
 
     }
 
