@@ -36,7 +36,7 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
             cacheResultBuilder.description(ne.getMessage());
             cacheResultBuilder.queryTypeEnum(CacheResult.QueryTypeEnum.FAIL);
         }
-        catch(Exception ex){
+        catch(Throwable ex){
             cacheResultBuilder.description(ex.getMessage());
             cacheResultBuilder.queryTypeEnum(CacheResult.QueryTypeEnum.SYSTEMERROR);
         }
