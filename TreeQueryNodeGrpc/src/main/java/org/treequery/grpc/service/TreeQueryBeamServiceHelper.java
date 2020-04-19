@@ -24,7 +24,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import java.util.function.Consumer;
 
 @Slf4j
-public class TreeQueryBeamServiceHelper {
+public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     TreeQueryClusterService treeQueryClusterService;
     @NonNull
     BeamCacheOutputBuilder beamCacheOutputBuilder;
@@ -77,7 +77,7 @@ public class TreeQueryBeamServiceHelper {
                             .build())
                 .build();
     }
-
+    @Override
     public PreprocessInput preprocess(String jsonInput){
         Node rootNode;
         Schema outputSchema;
@@ -92,7 +92,7 @@ public class TreeQueryBeamServiceHelper {
                 .outputSchema(outputSchema)
                 .build();
     }
-
+    @Override
     public ReturnResult runAndPageResult(TreeQueryRequest.RunMode runMode,
                                          PreprocessInput preprocessInput,
                                          boolean renewCache,

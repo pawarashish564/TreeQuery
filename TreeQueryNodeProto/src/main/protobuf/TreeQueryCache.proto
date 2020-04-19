@@ -1,0 +1,24 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "TreeQuery.proto";
+
+option java_multiple_files = true;
+option java_package = "org.treequery.proto";
+option java_outer_classname = "TreeQueryCacheProto";
+option objc_class_prefix = "HC";
+package treequery;
+service TreeQueryCacheService {
+    rpc get (TreeQueryCacheRequest) returns (TreeQueryCacheResponse);
+}
+
+message TreeQueryCacheRequest {
+    string identifier = 1;
+    uint64 pageSize = 2;
+    uint64 page = 3;
+}
+
+message TreeQueryCacheResponse{
+    string requestIdentifier = 1;
+    TreeQueryResponseHeader header = 2;
+    TreeQueryResponseResult result = 3;
+}

@@ -8,6 +8,7 @@ import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.server.WebServer;
+import org.treequery.grpc.service.TreeQueryBeamService;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
@@ -24,7 +25,7 @@ import java.util.Arrays;
 
 public class WebServerFactory {
 
-    static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    static TreeQueryBeamService treeQueryBeamService;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
     static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
@@ -71,7 +72,7 @@ public class WebServerFactory {
                         }
                 )
                 .build();
-        treeQueryBeamServiceHelper =  TreeQueryBeamServiceHelper.builder()
+        treeQueryBeamService =  TreeQueryBeamServiceHelper.builder()
                 .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
@@ -80,7 +81,7 @@ public class WebServerFactory {
                 .cacheInputInterface(cacheInputInterface)
                 .build();
         BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
-                .treeQueryBeamServiceHelper(treeQueryBeamServiceHelper).build();
+                .treeQueryBeamService(treeQueryBeamService).build();
 
         BindableService[] bindableServices = {new SyncHealthCheckGrpcController(), syncTreeQueryGrpcController};
 
