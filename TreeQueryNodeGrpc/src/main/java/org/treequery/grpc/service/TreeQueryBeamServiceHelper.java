@@ -19,7 +19,7 @@ import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AsyncRunHelper;
 import org.treequery.utils.JsonInstructionHelper;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 
 import java.util.function.Consumer;
 

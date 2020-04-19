@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.execute.NodePipeline;
 import org.treequery.utils.TreeQuerySettingHelper;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 
 import java.io.File;
 import java.util.List;

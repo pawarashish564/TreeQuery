@@ -23,7 +23,7 @@ import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.TreeQuerySettingHelper;
 import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.util.List;

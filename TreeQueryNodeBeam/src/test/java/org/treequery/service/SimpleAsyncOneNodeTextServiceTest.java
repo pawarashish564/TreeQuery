@@ -12,7 +12,7 @@ import org.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.beam.cache.CacheInputInterface;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
