@@ -8,6 +8,7 @@ import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.server.WebServer;
+import org.treequery.grpc.service.TreeQueryBeamService;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
@@ -24,7 +25,7 @@ import java.util.Arrays;
 
 public class WebServerFactory {
 
-    static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    static TreeQueryBeamService treeQueryBeamServiceHelper;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
     static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;

@@ -11,6 +11,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
+import org.treequery.grpc.service.TreeQueryBeamService;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.proto.*;
 import org.treequery.service.PreprocessInput;
@@ -27,7 +28,7 @@ import java.util.function.Consumer;
 @Builder
 public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServiceImplBase {
     private static TreeQueryRequest.RunMode RUNMODE= TreeQueryRequest.RunMode.DIRECT;
-    private final TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    private final TreeQueryBeamService treeQueryBeamServiceHelper;
 
     @Override
     public void query(TreeQueryRequest request, StreamObserver<TreeQueryResponse> responseObserver) {
