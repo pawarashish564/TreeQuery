@@ -88,7 +88,7 @@ class BeamPipelineBuilderImplTest {
                                             .discoveryServiceInterface(discoveryServiceInterface)
                                             .avroSchemaHelper(avroSchemaHelper)
                                             .treeQuerySetting(treeQuerySetting)
-                                            .treeQueryClusterAvroCacheInterface(cacheInputInterface)
+                                            .cacheInputInterface(cacheInputInterface)
                                             .build();
 
             NodePipeline nodePipeline = GraphNodePipeline.builder()

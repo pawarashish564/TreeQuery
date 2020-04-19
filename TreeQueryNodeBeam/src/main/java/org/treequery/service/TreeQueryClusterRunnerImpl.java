@@ -261,7 +261,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 .beamCacheOutputInterface(beamCacheOutputInterface)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
-                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
+                .cacheInputInterface(cacheInputInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .build();
 

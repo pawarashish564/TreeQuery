@@ -77,7 +77,7 @@ public class WebServerFactory {
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
+                .cacheInputInterface(cacheInputInterface)
                 .build();
         BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
                 .treeQueryBeamServiceHelper(treeQueryBeamServiceHelper).build();

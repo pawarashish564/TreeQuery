@@ -72,7 +72,7 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         else if (node instanceof CacheNode){
             nodeBeamHelper =  CacheBeamHelper.builder()
                     .treeQuerySetting(this.treeQuerySetting)
-                    .treeQueryClusterAvroCacheInterface(cacheInputInterface)
+                    .cacheInputInterface(cacheInputInterface)
                     .discoveryServiceInterface(discoveryServiceInterface).build();
         }
         else{

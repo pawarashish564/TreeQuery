@@ -92,7 +92,7 @@ class TreeQueryBeamServiceHelperTest {
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
+                .cacheInputInterface(cacheInputInterface)
                 .build();
     }
 
@@ -102,7 +102,7 @@ class TreeQueryBeamServiceHelperTest {
                 .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
-                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
+                .cacheInputInterface(cacheInputInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .build();
         int pageSize = 3;
