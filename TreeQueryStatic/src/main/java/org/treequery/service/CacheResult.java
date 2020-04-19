@@ -9,6 +9,7 @@ import org.apache.avro.Schema;
 import java.io.Serializable;
 
 @Builder
+@Getter
 public class CacheResult implements Serializable {
     @RequiredArgsConstructor
     public enum QueryTypeEnum {

@@ -43,10 +43,21 @@ class TreeQueryCacheServiceHelperTest {
     @Test
     void happyPathToGetCacheResult() {
         AtomicInteger counter = new AtomicInteger(0);
-        CacheResult cacheResult = treeQueryCacheService.get(identifier, 1 , 1, (record)->{
-            counter.incrementAndGet();
-            assertNotNull(record);
-        });
-        assertThat(counter).hasValueGreaterThan(0);
+        CacheResult cacheResult = null;
+        int pageSize = 1000;
+        int page = 1;
+        do {
+            int inx = counter.get();
+            cacheResult = treeQueryCacheService.get(identifier, pageSize , page, (record)->{
+                counter.incrementAndGet();
+                assertNotNull(record);
+            });
+            page+=1;
+            if (inx == counter.get()){
+                break;
+            }
+        }while(cacheResult.getQueryTypeEnum() == CacheResult.QueryTypeEnum.SUCCESS);
+
+        assertThat(counter).hasValue(1000);
     }
 }
