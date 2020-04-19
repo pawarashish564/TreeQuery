@@ -2,6 +2,7 @@ package org.treequery.grpc.service;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,15 +23,14 @@ import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
-import org.treequery.utils.TreeQuerySettingHelper;
+import org.treequery.utils.*;
 import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -137,7 +137,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
     }
     @Test
-    void happyPathRunBeamJoinLocally() {
+    void happyPathRunBeamJoinLocally() throws Exception{
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
         int pageSize = 3;
         DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
@@ -158,6 +158,27 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                     assertThat(genericRecord.toString()).isNotBlank();
                 }
         );
+
+
+        pageSize = 10000;
+        long page = 1;
+        AtomicInteger counter = new AtomicInteger();
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                treeQuerySetting,
+                preprocessInput.getNode().getIdentifier(),pageSize,page,
+                (record)->{
+                    assertThat(record).isNotNull();
+                    counter.incrementAndGet();
+                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
+                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                    assertThat(genericRecordSet).doesNotContain(record);
+                    assertEquals(isinBondTrade, isinSecCode);
+                    assertThat(isinBondTrade.length()).isGreaterThan(5);
+                    genericRecordSet.add(record);
+                });
+
+        assertEquals(1000, counter.get());
 
     }
 
