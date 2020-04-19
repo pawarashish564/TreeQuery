@@ -20,6 +20,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.values.PCollection;
+import org.treequery.utils.proxy.CacheInputInterface;
 
 
 import java.util.List;
@@ -38,6 +39,8 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
     private AvroSchemaHelper avroSchemaHelper;
     @NonNull
     private final TreeQuerySetting treeQuerySetting;
+    @NonNull
+    private final CacheInputInterface cacheInputInterface;
 
     private DiscoveryServiceInterface discoveryServiceInterface;
     private Node __node = null;
@@ -46,10 +49,12 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
     public BeamPipelineBuilderImpl(BeamCacheOutputInterface beamCacheOutputInterface,
                                    AvroSchemaHelper avroSchemaHelper,
                                    DiscoveryServiceInterface discoveryServiceInterface,
+                                   CacheInputInterface cacheInputInterface,
                                    TreeQuerySetting treeQuerySetting){
         this.beamCacheOutputInterface = beamCacheOutputInterface;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
+        this.cacheInputInterface = cacheInputInterface;
         this.treeQuerySetting = treeQuerySetting;
     }
 
@@ -67,6 +72,7 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         else if (node instanceof CacheNode){
             nodeBeamHelper =  CacheBeamHelper.builder()
                     .treeQuerySetting(this.treeQuerySetting)
+                    .cacheInputInterface(cacheInputInterface)
                     .discoveryServiceInterface(discoveryServiceInterface).build();
         }
         else{

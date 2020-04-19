@@ -2,7 +2,6 @@ package org.treequery.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,7 @@ import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.treequery.utils.proxy.CacheInputInterface;
 
 
 import java.util.List;
@@ -43,6 +43,8 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     DiscoveryServiceInterface discoveryServiceInterface;
     @NonNull
     TreeQuerySetting treeQuerySetting;
+    @NonNull
+    CacheInputInterface cacheInputInterface;
 
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
 
@@ -259,6 +261,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 .beamCacheOutputInterface(beamCacheOutputInterface)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
+                .cacheInputInterface(cacheInputInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .build();
 
