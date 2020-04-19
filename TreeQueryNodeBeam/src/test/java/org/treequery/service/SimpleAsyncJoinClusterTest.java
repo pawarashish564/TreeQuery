@@ -2,6 +2,8 @@ package org.treequery.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
@@ -15,9 +17,13 @@ import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.*;
+import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
+import org.treequery.beam.cache.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +43,7 @@ public class SimpleAsyncJoinClusterTest {
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-
+    CacheInputInterface cacheInputInterface;
 
     @BeforeAll
     public static void staticinit(){
@@ -56,6 +62,9 @@ public class SimpleAsyncJoinClusterTest {
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
 
+        CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
+
+        cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                                                 .treeQuerySetting(treeQuerySetting)
@@ -73,6 +82,9 @@ public class SimpleAsyncJoinClusterTest {
                                                                     treeQuerySetting.getRedisPort()
                                                             );
 
+                                                            CacheInputInterface _CacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(remoteDummyTreeQuerySetting, discoveryServiceInterface);
+
+
                                                             return TreeQueryClusterRunnerImpl.builder()
                                                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
                                                                             .cacheTypeEnum(cacheTypeEnum)
@@ -82,6 +94,7 @@ public class SimpleAsyncJoinClusterTest {
                                                                     .avroSchemaHelper(avroSchemaHelper)
                                                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                                                     .discoveryServiceInterface(discoveryServiceInterface)
+                                                                    .cacheInputInterface(_CacheInputInterface)
                                                                     .build();
                                                         }
                                                 )
@@ -134,6 +147,7 @@ public class SimpleAsyncJoinClusterTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
+                            .cacheInputInterface(cacheInputInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })
@@ -172,6 +186,7 @@ public class SimpleAsyncJoinClusterTest {
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
         Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
                 treeQuerySetting,
                 rootNode.getIdentifier(),pageSize,page,
@@ -180,8 +195,10 @@ public class SimpleAsyncJoinClusterTest {
                     counter.incrementAndGet();
                     String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
                     String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                    assertThat(genericRecordSet).doesNotContain(record);
                     assertEquals(isinBondTrade, isinSecCode);
                     assertThat(isinBondTrade.length()).isGreaterThan(5);
+                    genericRecordSet.add(record);
                 });
 
         assertEquals(1000, counter.get());
