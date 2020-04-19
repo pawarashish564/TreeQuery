@@ -17,9 +17,9 @@ import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.utils.*;
-import org.treequery.utils.proxy.LocalTreeQueryClusterAvroCacheProxyFactory;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
+import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
+import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class SimpleAsyncJoinClusterTest {
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    CacheInputInterface cacheInputInterface;
 
     @BeforeAll
     public static void staticinit(){
@@ -62,9 +62,9 @@ public class SimpleAsyncJoinClusterTest {
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
         discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
 
-        TreeQueryClusterAvroCacheProxyFactory treeQueryClusterAvroCacheProxyFactory = new LocalTreeQueryClusterAvroCacheProxyFactory();
+        CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
 
-        treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
+        cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                                                 .treeQuerySetting(treeQuerySetting)
@@ -82,7 +82,7 @@ public class SimpleAsyncJoinClusterTest {
                                                                     treeQuerySetting.getRedisPort()
                                                             );
 
-                                                            TreeQueryClusterAvroCacheInterface _treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheProxyFactory.getDefaultCacheInterface(remoteDummyTreeQuerySetting, discoveryServiceInterface);
+                                                            CacheInputInterface _CacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(remoteDummyTreeQuerySetting, discoveryServiceInterface);
 
 
                                                             return TreeQueryClusterRunnerImpl.builder()
@@ -94,7 +94,7 @@ public class SimpleAsyncJoinClusterTest {
                                                                     .avroSchemaHelper(avroSchemaHelper)
                                                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                                                     .discoveryServiceInterface(discoveryServiceInterface)
-                                                                    .treeQueryClusterAvroCacheInterface(_treeQueryClusterAvroCacheInterface)
+                                                                    .cacheInputInterface(_CacheInputInterface)
                                                                     .build();
                                                         }
                                                 )
@@ -147,7 +147,7 @@ public class SimpleAsyncJoinClusterTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                            .cacheInputInterface(cacheInputInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })

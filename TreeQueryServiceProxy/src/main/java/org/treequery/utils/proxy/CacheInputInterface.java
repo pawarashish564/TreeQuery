@@ -10,7 +10,7 @@ import org.treequery.model.CacheTypeEnum;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public interface TreeQueryClusterAvroCacheInterface {
+public interface CacheInputInterface {
 
     public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException ;
 }

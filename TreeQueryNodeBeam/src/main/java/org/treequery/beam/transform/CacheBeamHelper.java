@@ -18,8 +18,7 @@ import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
-import org.treequery.utils.proxy.LocalTreeQueryClusterAvroCacheProxyFactory;
+import org.treequery.utils.proxy.CacheInputInterface;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,14 +27,14 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class CacheBeamHelper implements NodeBeamHelper {
     private final DiscoveryServiceInterface discoveryServiceInterface;
-    private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    private final CacheInputInterface cacheInputInterface;
     private final TreeQuerySetting treeQuerySetting;
 
     @Builder
-    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface,TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface){
+    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface, CacheInputInterface cacheInputInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
         this.treeQuerySetting = treeQuerySetting;
-        this.treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheInterface;
+        this.cacheInputInterface = cacheInputInterface;
     }
 
     @Override
@@ -48,7 +47,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
         try {
             log.debug(String.format("Get cache Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
             //Get the Schema first
-            schema = treeQueryClusterAvroCacheInterface
+            schema = cacheInputInterface
                     .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {
                     });
         }catch(CacheNotFoundException che){
@@ -57,30 +56,30 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         PCollection<String> identifierCollection = pipeline.apply(Create.of(identifier));
         PCollection<GenericRecord> genericRecordPCollection = identifierCollection.apply(
-            new CacheReadTransform(treeQueryClusterAvroCacheInterface, schema)
+            new CacheReadTransform(cacheInputInterface, schema)
         );
         return genericRecordPCollection;
     }
 
     @RequiredArgsConstructor
     private static class CacheReadTransform extends PTransform< PCollection<String>, PCollection<GenericRecord> > {
-        private final TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+        private final CacheInputInterface cacheInputInterface;
         private final Schema schema;
         @Override
         public PCollection<GenericRecord> expand(PCollection<String> input) {
             AvroCoder coder = AvroCoder.of(GenericRecord.class, schema);
-            Optional.ofNullable(treeQueryClusterAvroCacheInterface).orElseThrow(()->new IllegalStateException("Cache interface is null"));
+            Optional.ofNullable(cacheInputInterface).orElseThrow(()->new IllegalStateException("Cache interface is null"));
             PCollection<GenericRecord> recordPCollection = input.apply(
-                    ParDo.of(new ReadFunction(treeQueryClusterAvroCacheInterface))
+                    ParDo.of(new ReadFunction(cacheInputInterface))
             ).setCoder(coder);
             return recordPCollection;
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private static TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+            private static CacheInputInterface cacheInputInterface;
 
-            ReadFunction(TreeQueryClusterAvroCacheInterface _treeQueryClusterAvroCacheInterface){
-                treeQueryClusterAvroCacheInterface = _treeQueryClusterAvroCacheInterface;
+            ReadFunction(CacheInputInterface _CacheInputInterface){
+                cacheInputInterface = _CacheInputInterface;
             }
 
             @ProcessElement
@@ -92,7 +91,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
 
                 while(true){
                     long lastCount = counter.get();
-                    treeQueryClusterAvroCacheInterface.getPageRecordFromAvroCache(null,
+                    cacheInputInterface.getPageRecordFromAvroCache(null,
                             CacheTypeEnum.FILE, identifier, pageSize, page, (record) -> {
                         counter.incrementAndGet();
                         out.output(record);

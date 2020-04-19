@@ -22,9 +22,9 @@ import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.TreeQuerySettingHelper;
-import org.treequery.utils.proxy.LocalTreeQueryClusterAvroCacheProxyFactory;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
+import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
+import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -43,7 +43,7 @@ class TreeQueryBeamServiceHelperTest {
     AvroSchemaHelper avroSchemaHelper;
     TreeQuerySetting treeQuerySetting;
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    CacheInputInterface cacheInputInterface;
 
     @BeforeEach
     void init(){
@@ -53,9 +53,9 @@ class TreeQueryBeamServiceHelperTest {
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
-        TreeQueryClusterAvroCacheProxyFactory treeQueryClusterAvroCacheProxyFactory = new LocalTreeQueryClusterAvroCacheProxyFactory();
+        CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
 
-        treeQueryClusterAvroCacheInterface = mock(TreeQueryClusterAvroCacheInterface.class);
+        cacheInputInterface = mock(CacheInputInterface.class);
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
@@ -81,7 +81,7 @@ class TreeQueryBeamServiceHelperTest {
                                     .avroSchemaHelper(avroSchemaHelper)
                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                     .discoveryServiceInterface(discoveryServiceInterface)
-                                    .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                                    .cacheInputInterface(cacheInputInterface)
                                     .build();
                         }
                 )
@@ -92,7 +92,7 @@ class TreeQueryBeamServiceHelperTest {
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
                 .build();
     }
 
@@ -102,7 +102,7 @@ class TreeQueryBeamServiceHelperTest {
                 .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
-                .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .build();
         int pageSize = 3;

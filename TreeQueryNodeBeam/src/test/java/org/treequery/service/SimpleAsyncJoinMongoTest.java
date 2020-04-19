@@ -14,7 +14,7 @@ import org.treequery.utils.*;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
+import org.treequery.utils.proxy.CacheInputInterface;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +34,7 @@ public class SimpleAsyncJoinMongoTest {
     DiscoveryServiceInterface discoveryServiceInterface = null;
     TreeQuerySetting treeQuerySetting = null;
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    CacheInputInterface cacheInputInterface;
     @BeforeEach
     public void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
@@ -42,7 +42,7 @@ public class SimpleAsyncJoinMongoTest {
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         treeQueryClusterRunnerProxyInterface = mock(TreeQueryClusterRunnerProxyInterface.class);
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
-        treeQueryClusterAvroCacheInterface = mock(TreeQueryClusterAvroCacheInterface.class);
+        cacheInputInterface = mock(CacheInputInterface.class);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class SimpleAsyncJoinMongoTest {
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                            .cacheInputInterface(cacheInputInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
                             .build();
                 })

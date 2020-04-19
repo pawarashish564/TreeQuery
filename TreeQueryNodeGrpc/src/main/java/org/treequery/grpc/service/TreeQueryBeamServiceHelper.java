@@ -19,7 +19,7 @@ import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AsyncRunHelper;
 import org.treequery.utils.JsonInstructionHelper;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
+import org.treequery.utils.proxy.CacheInputInterface;
 
 import java.util.function.Consumer;
 
@@ -39,7 +39,7 @@ public class TreeQueryBeamServiceHelper {
     @NonNull
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     @NonNull
-    TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    CacheInputInterface cacheInputInterface;
 
     @Builder
     public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum,
@@ -47,7 +47,7 @@ public class TreeQueryBeamServiceHelper {
                                       DiscoveryServiceInterface discoveryServiceInterface,
                                       TreeQuerySetting treeQuerySetting,
                                       TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface,
-                                      TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface){
+                                      CacheInputInterface cacheInputInterface){
         this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
@@ -56,7 +56,7 @@ public class TreeQueryBeamServiceHelper {
                                     .treeQuerySetting(treeQuerySetting).build();
         this.treeQueryClusterRunnerProxyInterface = treeQueryClusterRunnerProxyInterface;
         this.treeQuerySetting = treeQuerySetting;
-        this.treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheInterface;
+        this.cacheInputInterface = cacheInputInterface;
         init();
     }
 
@@ -73,7 +73,7 @@ public class TreeQueryBeamServiceHelper {
                                 .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                             .discoveryServiceInterface(discoveryServiceInterface)
-                            .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                            .cacheInputInterface(cacheInputInterface)
                             .build())
                 .build();
     }

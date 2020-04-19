@@ -16,9 +16,9 @@ import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
-import org.treequery.utils.proxy.LocalTreeQueryClusterAvroCacheProxyFactory;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheInterface;
-import org.treequery.utils.proxy.TreeQueryClusterAvroCacheProxyFactory;
+import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
+import org.treequery.utils.proxy.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.util.Arrays;
 
@@ -28,7 +28,7 @@ public class WebServerFactory {
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
     static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
-    static TreeQueryClusterAvroCacheInterface treeQueryClusterAvroCacheInterface;
+    static CacheInputInterface cacheInputInterface;
     static TreeQuerySetting treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
 
     public static WebServer createLocalDummyWebServer(TreeQuerySetting treeQuerySetting){
@@ -38,8 +38,8 @@ public class WebServerFactory {
 
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
 
-        TreeQueryClusterAvroCacheProxyFactory treeQueryClusterAvroCacheProxyFactory = new LocalTreeQueryClusterAvroCacheProxyFactory();
-        treeQueryClusterAvroCacheInterface = treeQueryClusterAvroCacheProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
+        CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
+        cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
@@ -65,7 +65,7 @@ public class WebServerFactory {
                                     .cacheTypeEnum(cacheTypeEnum)
                                     .avroSchemaHelper(avroSchemaHelper)
                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
-                                    .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                                    .cacheInputInterface(cacheInputInterface)
                                     .discoveryServiceInterface(discoveryServiceInterface)
                                     .build();
                         }
@@ -77,7 +77,7 @@ public class WebServerFactory {
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
-                .treeQueryClusterAvroCacheInterface(treeQueryClusterAvroCacheInterface)
+                .treeQueryClusterAvroCacheInterface(cacheInputInterface)
                 .build();
         BindableService syncTreeQueryGrpcController = SyncTreeQueryGrpcController.builder()
                 .treeQueryBeamServiceHelper(treeQueryBeamServiceHelper).build();

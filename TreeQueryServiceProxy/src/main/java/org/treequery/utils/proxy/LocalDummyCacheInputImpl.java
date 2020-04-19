@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Builder
-public class LocalDummyTreeQueryClusterAvroCacheImpl implements TreeQueryClusterAvroCacheInterface {
+public class LocalDummyCacheInputImpl implements CacheInputInterface {
 
     private final TreeQuerySetting treeQuerySetting;
     private final DiscoveryServiceInterface discoveryServiceInterface;
