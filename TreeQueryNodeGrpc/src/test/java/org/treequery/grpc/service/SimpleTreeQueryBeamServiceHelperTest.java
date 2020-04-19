@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
-class TreeQueryBeamServiceHelperTest {
+class SimpleTreeQueryBeamServiceHelperTest {
     String jsonString;
     TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     DiscoveryServiceInterface discoveryServiceInterface;
