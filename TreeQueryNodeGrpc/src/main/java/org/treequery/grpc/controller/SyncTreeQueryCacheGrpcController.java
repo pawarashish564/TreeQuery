@@ -8,6 +8,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaParseException;
 import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
+import org.treequery.grpc.utils.DataConsumerIntoByteArray;
 import org.treequery.proto.*;
 import org.treequery.service.CacheResult;
 
@@ -30,25 +31,43 @@ public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.
 
         Schema avroSchema = null;
         try{
-            avroSchema = getSchemaFromString(avroSchemaString, identifier);
+            avroSchema = getSchemaFromString(avroSchemaString, identifier, pageSize, page);
         }catch(SchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponse = sge.getTreeQueryCacheResponseBuilder();
             responseObserver.onNext(treeQueryCacheResponse.build());
             responseObserver.onCompleted();
             return;
         }
+        DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(avroSchema);
+
+        CacheResult cacheResult = treeQueryCacheService.get(identifier, pageSize, page, dataConsumerIntoByteArray);
+
+        TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder =  TreeQueryCacheResponse.newBuilder();
+        treeQueryCacheResponseBuilder.setRequestIdentifier(identifier);
+        treeQueryCacheResponseBuilder = prepareHeaderResponse(cacheResult);
 
 
+        TreeQueryResponseResult.Builder treeQueryResponseDataBuilder = TreeQueryResponseResult.newBuilder();
+        ByteString avroLoad = ByteString.copyFrom(dataConsumerIntoByteArray.toArrayOutput());
+        treeQueryResponseDataBuilder.setAvroLoad(avroLoad);
+        treeQueryResponseDataBuilder.setDatasize(dataConsumerIntoByteArray.getDataSize());
+        treeQueryResponseDataBuilder.setPage(page);
+        treeQueryResponseDataBuilder.setPageSize(pageSize);
+        treeQueryResponseDataBuilder.setAvroSchema(Optional.ofNullable(cacheResult.getDataSchema()).map(schema -> schema.toString()).orElse(""));
+        treeQueryCacheResponseBuilder.setResult(treeQueryResponseDataBuilder.build());
+
+        responseObserver.onNext(treeQueryCacheResponseBuilder.build());
+        responseObserver.onCompleted();
 
     }
 
-    Schema getSchemaFromString (String schemaString, String identifier) throws SchemaGetException{
+    Schema getSchemaFromString (String schemaString, String identifier,long pageSize, long page) throws SchemaGetException{
         if (schemaString==null || schemaString.length()==0 ){
             CacheResult cacheResult = treeQueryCacheService.get(identifier, 1, 1, (record)->{});
             if (cacheResult.getQueryTypeEnum()== CacheResult.QueryTypeEnum.SUCCESS) {
                 return cacheResult.getDataSchema();
             }else{
-                throw new SchemaGetException(cacheResult);
+                throw new SchemaGetException(cacheResult, pageSize, page);
             }
         }
         Schema.Parser parser = new Schema.Parser();
@@ -56,7 +75,7 @@ public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.
             Schema schema = parser.parse(schemaString);
             return schema;
         }catch(Throwable t){
-            throw new SchemaGetException(identifier, t);
+            throw new SchemaGetException(identifier, t, pageSize, page);
         }
     }
 
@@ -79,11 +98,11 @@ public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.
     static class SchemaGetException extends Exception{
         @Getter
         TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder= null;
-        SchemaGetException( CacheResult cacheResult){
+        SchemaGetException( CacheResult cacheResult,long pageSize, long page){
             treeQueryCacheResponseBuilder = prepareHeaderResponse(cacheResult);
-            treeQueryCacheResponseBuilder.setResult(setNullResponse().build());
+            treeQueryCacheResponseBuilder.setResult(setNullResponse(pageSize, page).build());
         }
-        SchemaGetException( String identifier, Throwable throwable){
+        SchemaGetException( String identifier, Throwable throwable,long pageSize, long page){
             treeQueryCacheResponseBuilder =  TreeQueryCacheResponse.newBuilder();
             treeQueryCacheResponseBuilder.setRequestIdentifier(identifier);
             TreeQueryResponseHeader.Builder headerBuilder = TreeQueryResponseHeader.newBuilder();
@@ -91,15 +110,15 @@ public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.
             headerBuilder.setErrMsg(throwable.getMessage());
             headerBuilder.setSuccess(false);
             treeQueryCacheResponseBuilder.setHeader(headerBuilder.build());
-            treeQueryCacheResponseBuilder.setResult(setNullResponse().build());
+            treeQueryCacheResponseBuilder.setResult(setNullResponse(pageSize, page).build());
         }
 
     }
 
-    static TreeQueryResponseResult.Builder setNullResponse(){
+    static TreeQueryResponseResult.Builder setNullResponse(long pageSize, long page){
         TreeQueryResponseResult.Builder treeQueryResponseResultBuilder = TreeQueryResponseResult.newBuilder();
-        treeQueryResponseResultBuilder.setPageSize(0);
-        treeQueryResponseResultBuilder.setPage(0);
+        treeQueryResponseResultBuilder.setPageSize(pageSize);
+        treeQueryResponseResultBuilder.setPage(page);
         treeQueryResponseResultBuilder.setDatasize(0);
         treeQueryResponseResultBuilder.setAvroSchema("");
         treeQueryResponseResultBuilder.setAvroLoad(ByteString.copyFrom(new byte[0]));
