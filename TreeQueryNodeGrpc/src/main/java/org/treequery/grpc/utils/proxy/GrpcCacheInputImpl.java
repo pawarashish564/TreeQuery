@@ -9,6 +9,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.model.Location;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheTypeEnum;
 
@@ -27,6 +28,10 @@ public class GrpcCacheInputImpl implements CacheInputInterface {
     public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException {
         Cluster clusterStore = CacheInputInterface.getCluster(discoveryServiceInterface, cluster, identifier);
         log.debug("Retrieve record from cluster:", clusterStore.toString());
+
+        Location location = discoveryServiceInterface.getClusterLocation(clusterStore);
+
+
         return null;
     }
 }
