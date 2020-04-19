@@ -19,10 +19,10 @@ public class CacheResult implements Serializable {
     }
     @NonNull
     private final String identifier;
-    @NonNull
+
     private final Schema dataSchema;
     @NonNull
     private final String description;
-
+    @NonNull
     private final QueryTypeEnum queryTypeEnum;
 }

@@ -60,4 +60,19 @@ class TreeQueryCacheServiceHelperTest {
 
         assertThat(counter).hasValue(1000);
     }
+
+    @Test
+    void NotFoundGetCacheResult() {
+        AtomicInteger counter = new AtomicInteger(0);
+        CacheResult cacheResult = null;
+        int pageSize = 1000;
+        int page = 1;
+
+        cacheResult = treeQueryCacheService.get("XXX", pageSize , page, (record)->{
+                counter.incrementAndGet();
+                assertNotNull(record);});
+
+
+        assertThat(cacheResult.getQueryTypeEnum()).isEqualTo(CacheResult.QueryTypeEnum.NOTFOUND);
+    }
 }
