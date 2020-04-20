@@ -78,17 +78,21 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private volatile static Map<ReadFunction, CacheInputInterface> cacheInputInterfaceMap = Maps.newConcurrentMap();
+            private volatile static  CacheInputInterface cacheInputInterface;
 
             ReadFunction(CacheInputInterface _CacheInputInterface){
-                cacheInputInterfaceMap.put(this, _CacheInputInterface);
+                synchronized (ReadFunction.class) {
+                    if (cacheInputInterface == null) {
+                        cacheInputInterface = _CacheInputInterface;
+                    }
+                }
             }
 
             @ProcessElement
             public void processElement(@Element String identifier, OutputReceiver<GenericRecord > out) throws CacheNotFoundException {
                 AtomicLong counter = new AtomicLong(0);
-                CacheInputInterface cacheInputInterface = cacheInputInterfaceMap.getOrDefault(this, null);
                 if (cacheInputInterface == null){
+                    log.error("Failed to find CacheInputInterface instance for this run");
                     throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
                 }
                 int page = 1;
