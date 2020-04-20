@@ -1,5 +1,6 @@
 package org.treequery.beam.transform;
 
+import com.google.common.collect.Maps;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.treequery.model.Node;
 import org.treequery.beam.cache.CacheInputInterface;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -76,16 +78,19 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private static CacheInputInterface cacheInputInterface;
+            private volatile static Map<ReadFunction, CacheInputInterface> cacheInputInterfaceMap = Maps.newConcurrentMap();
 
             ReadFunction(CacheInputInterface _CacheInputInterface){
-                cacheInputInterface = _CacheInputInterface;
+                cacheInputInterfaceMap.put(this, _CacheInputInterface);
             }
 
             @ProcessElement
             public void processElement(@Element String identifier, OutputReceiver<GenericRecord > out) throws CacheNotFoundException {
                 AtomicLong counter = new AtomicLong(0);
-
+                CacheInputInterface cacheInputInterface = cacheInputInterfaceMap.getOrDefault(this, null);
+                if (cacheInputInterface == null){
+                    throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
+                }
                 int page = 1;
                 int pageSize = 100;
 
