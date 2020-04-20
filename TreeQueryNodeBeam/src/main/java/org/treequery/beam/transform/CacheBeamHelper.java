@@ -1,5 +1,6 @@
 package org.treequery.beam.transform;
 
+import com.google.common.collect.Maps;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,8 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.metrics.Counter;
+import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -21,7 +24,9 @@ import org.treequery.model.Node;
 import org.treequery.beam.cache.CacheInputInterface;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -76,16 +81,26 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private static CacheInputInterface cacheInputInterface;
+            private volatile static  CacheInputInterface cacheInputInterface;
+            private Counter counter = Metrics.counter(ReadFunction.class, "ReadCacheCounter");
 
             ReadFunction(CacheInputInterface _CacheInputInterface){
-                cacheInputInterface = _CacheInputInterface;
+                synchronized (ReadFunction.class) {
+                    if (cacheInputInterface == null) {
+                        cacheInputInterface = _CacheInputInterface;
+                        counter.inc();
+                    }
+                }
+
             }
 
             @ProcessElement
             public void processElement(@Element String identifier, OutputReceiver<GenericRecord > out) throws CacheNotFoundException {
                 AtomicLong counter = new AtomicLong(0);
-
+                if (cacheInputInterface == null){
+                    log.error("Failed to find CacheInputInterface instance for this run");
+                    throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
+                }
                 int page = 1;
                 int pageSize = 100;
 
