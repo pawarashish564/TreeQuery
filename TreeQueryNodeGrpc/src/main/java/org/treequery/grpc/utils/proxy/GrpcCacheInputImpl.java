@@ -25,13 +25,13 @@ public class GrpcCacheInputImpl implements CacheInputInterface {
     private final DiscoveryServiceInterface discoveryServiceInterface;
 
     @Override
-    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException {
+    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer, Schema schema) throws CacheNotFoundException {
         Cluster clusterStore = CacheInputInterface.getCluster(discoveryServiceInterface, cluster, identifier);
         log.debug("Retrieve record from cluster:", clusterStore.toString());
 
         Location location = discoveryServiceInterface.getClusterLocation(clusterStore);
 
 
-        return null;
+        throw new NoSuchMethodError("Not implemented");
     }
 }

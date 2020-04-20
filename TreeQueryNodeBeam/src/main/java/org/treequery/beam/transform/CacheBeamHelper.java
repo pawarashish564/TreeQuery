@@ -1,6 +1,5 @@
 package org.treequery.beam.transform;
 
-import com.google.common.collect.Maps;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +23,7 @@ import org.treequery.model.Node;
 import org.treequery.beam.cache.CacheInputInterface;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -54,7 +51,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
             //Get the Schema first
             schema = cacheInputInterface
                     .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {
-                    });
+                    }, ((CacheNode) node).getAvroSchemaObj());
         }catch(CacheNotFoundException che){
             log.error(che.getMessage());
             throw new IllegalStateException(String.format("Failed to retrieve cache for %s(%s)", node.getName() ,identifier));
@@ -106,11 +103,12 @@ public class CacheBeamHelper implements NodeBeamHelper {
 
                 while(true){
                     long lastCount = counter.get();
-                    cacheInputInterface.getPageRecordFromAvroCache(null,
+                    Schema schema = null;
+                    schema = cacheInputInterface.getPageRecordFromAvroCache(null,
                             CacheTypeEnum.FILE, identifier, pageSize, page, (record) -> {
                         counter.incrementAndGet();
                         out.output(record);
-                    });
+                    }, schema);
                     page++;
                     if (counter.get() == lastCount){
                         break;
