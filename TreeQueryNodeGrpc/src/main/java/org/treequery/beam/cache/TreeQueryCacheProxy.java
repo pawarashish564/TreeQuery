@@ -2,8 +2,10 @@ package org.treequery.beam.cache;
 
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
+import io.grpc.StatusRuntimeException;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.treequery.beam.cache.CacheInputInterface;
@@ -21,7 +23,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-
+@Slf4j
 public class TreeQueryCacheProxy implements CacheInputInterface {
     private volatile Map<Cluster, TreeQueryCacheServiceGrpc.TreeQueryCacheServiceBlockingStub> clusterGrpcClientChannelMap = Maps.newConcurrentMap();
     @NonNull
@@ -68,8 +70,13 @@ public class TreeQueryCacheProxy implements CacheInputInterface {
         treeQueryCacheRequestBuilder.setPageSize(pageSize);
         treeQueryCacheRequestBuilder.setAvroSchema(avroSchema);
 
-        TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheServiceBlockingStub.get(treeQueryCacheRequestBuilder.build());
-
+        TreeQueryCacheResponse treeQueryCacheResponse = null;
+        try {
+            treeQueryCacheResponse = treeQueryCacheServiceBlockingStub.get(treeQueryCacheRequestBuilder.build());
+        }catch(StatusRuntimeException se){
+            log.error(se.getMessage());
+            throw new CacheNotFoundException("Not able to connect:"+se.getMessage());
+        }
         boolean success = treeQueryCacheResponse.getHeader().getSuccess();
         TreeQueryResponseHeader header = treeQueryCacheResponse.getHeader();
         if (!success){

@@ -99,7 +99,7 @@ public class TreeQueryClient {
             treeQueryResult = treeQueryResultBuilder.build();
 
         }catch(StatusRuntimeException se){
-            log.info("unable to connect:"+se.getMessage());
+            log.error("unable to connect:"+se.getMessage());
             throw new IllegalStateException("unable to connect:"+se.getMessage());
         } catch(Exception ex){
             log.warn("failed to do query:"+ex.getMessage());

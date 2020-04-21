@@ -1,6 +1,7 @@
 package org.treequery.beam.cache;
 
 import io.grpc.BindableService;
+import io.grpc.StatusRuntimeException;
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,7 +84,27 @@ class TreeQueryCacheProxyTest {
                     pageSize,
                     page, (record) -> {}, schema);
         });
+        when(discoveryServiceInterface.getCacheResultCluster(any(String.class)))
+                .thenReturn(Cluster.builder().clusterName("A").build());
+        assertThrows( CacheNotFoundException.class,()->{
+            cacheInputInterface.getPageRecordFromAvroCache(null,
+                    CacheTypeEnum.NOTCARE,
+                    identifier,
+                    pageSize,
+                    page, (record) -> {}, schema);
+        });
 
+        when(discoveryServiceInterface.getCacheResultCluster(any(String.class)))
+                .thenReturn(Cluster.builder().clusterName("A").build());
+        when(discoveryServiceInterface.getClusterLocation(any(Cluster.class)))
+                .thenReturn(new Location(HOSTNAME, PORT+10));
+        assertThrows( CacheNotFoundException.class,()->{
+            cacheInputInterface.getPageRecordFromAvroCache(null,
+                    CacheTypeEnum.NOTCARE,
+                    identifier,
+                    pageSize,
+                    page, (record) -> {}, schema);
+        });
     }
 
     @Test

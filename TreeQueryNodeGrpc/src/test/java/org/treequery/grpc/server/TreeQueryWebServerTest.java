@@ -72,6 +72,29 @@ class TreeQueryWebServerTest {
     }
 
     @Test
+    void failtoConnect(){
+        String AvroTree = "SimpleJoin.json";
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT+20);
+
+        boolean renewCache = false;
+        int pageSize = 100;
+        int page = 1;
+        TreeQueryResult treeQueryResult = null;
+        AtomicLong counter = new AtomicLong(0);
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+        assertThrows(IllegalStateException.class,()->{
+             treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
+                    jsonString,
+                    renewCache,
+                    pageSize,
+                    page
+            );
+        });
+
+    }
+
+    @Test
     void happyPathSimpleJoin(){
         String AvroTree = "SimpleJoin.json";
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
