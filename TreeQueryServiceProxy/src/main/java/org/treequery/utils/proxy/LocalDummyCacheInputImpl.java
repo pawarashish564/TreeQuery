@@ -24,7 +24,7 @@ public class LocalDummyCacheInputImpl implements CacheInputInterface {
     private final DiscoveryServiceInterface discoveryServiceInterface;
 
     @Override
-    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException {
+    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer, @Nullable Schema shema) throws CacheNotFoundException {
         Cluster clusterStore = CacheInputInterface.getCluster(discoveryServiceInterface, cluster, identifier);
         log.debug("Retrieve record from cluster:", clusterStore.toString());
         return AvroIOHelper.getPageRecordFromAvroCache(cacheTypeEnum, treeQuerySetting, identifier, pageSize, page, dataConsumer);

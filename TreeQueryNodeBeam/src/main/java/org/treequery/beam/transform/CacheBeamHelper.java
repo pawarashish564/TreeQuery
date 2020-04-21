@@ -7,6 +7,8 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.metrics.Counter;
+import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -31,7 +33,9 @@ public class CacheBeamHelper implements NodeBeamHelper {
     private final TreeQuerySetting treeQuerySetting;
 
     @Builder
-    CacheBeamHelper(TreeQuerySetting treeQuerySetting, DiscoveryServiceInterface discoveryServiceInterface, CacheInputInterface cacheInputInterface){
+    CacheBeamHelper(TreeQuerySetting treeQuerySetting,
+                    DiscoveryServiceInterface discoveryServiceInterface,
+                    CacheInputInterface cacheInputInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
         this.treeQuerySetting = treeQuerySetting;
         this.cacheInputInterface = cacheInputInterface;
@@ -49,7 +53,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
             //Get the Schema first
             schema = cacheInputInterface
                     .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {
-                    });
+                    }, ((CacheNode) node).getAvroSchemaObj());
         }catch(CacheNotFoundException che){
             log.error(che.getMessage());
             throw new IllegalStateException(String.format("Failed to retrieve cache for %s(%s)", node.getName() ,identifier));
@@ -76,26 +80,37 @@ public class CacheBeamHelper implements NodeBeamHelper {
         }
         @RequiredArgsConstructor
         private static class ReadFunction extends DoFn<String, GenericRecord> {
-            private static CacheInputInterface cacheInputInterface;
+            private volatile static  CacheInputInterface cacheInputInterface;
+            private Counter counter = Metrics.counter(ReadFunction.class, "ReadCacheCounter");
 
             ReadFunction(CacheInputInterface _CacheInputInterface){
-                cacheInputInterface = _CacheInputInterface;
+                synchronized (ReadFunction.class) {
+                    if (cacheInputInterface == null) {
+                        cacheInputInterface = _CacheInputInterface;
+                        counter.inc();
+                    }
+                }
+
             }
 
             @ProcessElement
             public void processElement(@Element String identifier, OutputReceiver<GenericRecord > out) throws CacheNotFoundException {
                 AtomicLong counter = new AtomicLong(0);
-
+                if (cacheInputInterface == null){
+                    log.error("Failed to find CacheInputInterface instance for this run");
+                    throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
+                }
                 int page = 1;
                 int pageSize = 100;
 
                 while(true){
                     long lastCount = counter.get();
-                    cacheInputInterface.getPageRecordFromAvroCache(null,
+                    Schema schema = null;
+                    schema = cacheInputInterface.getPageRecordFromAvroCache(null,
                             CacheTypeEnum.FILE, identifier, pageSize, page, (record) -> {
                         counter.incrementAndGet();
                         out.output(record);
-                    });
+                    }, schema);
                     page++;
                     if (counter.get() == lastCount){
                         break;

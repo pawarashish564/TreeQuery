@@ -14,6 +14,7 @@ import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
+import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.proto.TreeQueryRequest;
 
@@ -64,14 +65,16 @@ public class TreeQueryClient {
             treeQueryResponse = blockingStub.query(treeQueryRequestBuilder.build());
             treeQueryResultBuilder.requestHash(treeQueryResponse.getRequestHash());
 
-            TreeQueryResult.TreeQueryResponseHeader.TreeQueryResponseHeaderBuilder treeQueryResponseHeaderBuilder = TreeQueryResult.TreeQueryResponseHeader.builder();
+            TreeQueryResult.TreeQueryResponseHeader.TreeQueryResponseHeaderBuilder treeQueryResponseHeaderBuilder =
+                    TreeQueryResult.TreeQueryResponseHeader.builder();
             boolean success = treeQueryResponse.getHeader().getSuccess();
             treeQueryResponseHeaderBuilder.success(success);
             treeQueryResponseHeaderBuilder.err_code(treeQueryResponse.getHeader().getErrCode());
             treeQueryResponseHeaderBuilder.err_msg(treeQueryResponse.getHeader().getErrMsg());
             treeQueryResultBuilder.header(treeQueryResponseHeaderBuilder.build());
 
-            TreeQueryResult.TreeQueryResponseResult.TreeQueryResponseResultBuilder treeQueryResponseResultBuilder = TreeQueryResult.TreeQueryResponseResult.builder();
+            TreeQueryResult.TreeQueryResponseResult.TreeQueryResponseResultBuilder treeQueryResponseResultBuilder =
+                    TreeQueryResult.TreeQueryResponseResult.builder();
             treeQueryResponseResultBuilder.datasize(treeQueryResponse.getResult().getDatasize());
             treeQueryResponseResultBuilder.page(treeQueryResponse.getResult().getPage());
             treeQueryResponseResultBuilder.pageSize(treeQueryResponse.getResult().getPageSize());
@@ -97,8 +100,8 @@ public class TreeQueryClient {
             treeQueryResult = treeQueryResultBuilder.build();
 
         }catch(StatusRuntimeException se){
-            log.info("unable to connect:"+se.getMessage());
-            throw new IllegalStateException("unable to connect:"+se.getMessage());
+            log.error("unable to connect:"+se.getMessage());
+            throw new FailConnectionException("unable to connect:"+se.getMessage());
         } catch(Exception ex){
             log.warn("failed to do query:"+ex.getMessage());
             throw new IllegalStateException("failed to do query:"+ex.getMessage());
