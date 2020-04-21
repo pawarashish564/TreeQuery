@@ -16,6 +16,7 @@ import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
+import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -69,6 +70,29 @@ class TreeQueryWebServerTest {
         boolean checkStatus = healthWebClient.healthCheck();
         assertTrue(checkStatus);
         log.info(String.format("Web client health check %b", checkStatus));
+    }
+
+    @Test
+    void failtoConnect(){
+        String AvroTree = "SimpleJoin.json";
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT+20);
+
+        boolean renewCache = false;
+        int pageSize = 100;
+        int page = 1;
+        TreeQueryResult treeQueryResult = null;
+        AtomicLong counter = new AtomicLong(0);
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+        assertThrows(FailConnectionException.class,()->{
+             treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
+                    jsonString,
+                    renewCache,
+                    pageSize,
+                    page
+            );
+        });
+
     }
 
     @Test
