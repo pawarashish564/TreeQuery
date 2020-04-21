@@ -14,7 +14,13 @@ import java.util.function.Consumer;
 
 public interface CacheInputInterface {
 
-    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster, CacheTypeEnum cacheTypeEnum, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer, @Nullable Schema schema) throws CacheNotFoundException ;
+    public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster,
+                                             CacheTypeEnum cacheTypeEnum,
+                                             String identifier,
+                                             long pageSize,
+                                             long page,
+                                             Consumer<GenericRecord> dataConsumer,
+                                             @Nullable Schema schema) throws CacheNotFoundException ;
 
     static Cluster getCluster(DiscoveryServiceInterface discoveryServiceInterface, Cluster cluster, String identifier){
         Cluster clusterStore = Optional.ofNullable(cluster).orElse(discoveryServiceInterface.getCacheResultCluster(identifier));

@@ -64,14 +64,16 @@ public class TreeQueryClient {
             treeQueryResponse = blockingStub.query(treeQueryRequestBuilder.build());
             treeQueryResultBuilder.requestHash(treeQueryResponse.getRequestHash());
 
-            TreeQueryResult.TreeQueryResponseHeader.TreeQueryResponseHeaderBuilder treeQueryResponseHeaderBuilder = TreeQueryResult.TreeQueryResponseHeader.builder();
+            TreeQueryResult.TreeQueryResponseHeader.TreeQueryResponseHeaderBuilder treeQueryResponseHeaderBuilder =
+                    TreeQueryResult.TreeQueryResponseHeader.builder();
             boolean success = treeQueryResponse.getHeader().getSuccess();
             treeQueryResponseHeaderBuilder.success(success);
             treeQueryResponseHeaderBuilder.err_code(treeQueryResponse.getHeader().getErrCode());
             treeQueryResponseHeaderBuilder.err_msg(treeQueryResponse.getHeader().getErrMsg());
             treeQueryResultBuilder.header(treeQueryResponseHeaderBuilder.build());
 
-            TreeQueryResult.TreeQueryResponseResult.TreeQueryResponseResultBuilder treeQueryResponseResultBuilder = TreeQueryResult.TreeQueryResponseResult.builder();
+            TreeQueryResult.TreeQueryResponseResult.TreeQueryResponseResultBuilder treeQueryResponseResultBuilder =
+                    TreeQueryResult.TreeQueryResponseResult.builder();
             treeQueryResponseResultBuilder.datasize(treeQueryResponse.getResult().getDatasize());
             treeQueryResponseResultBuilder.page(treeQueryResponse.getResult().getPage());
             treeQueryResponseResultBuilder.pageSize(treeQueryResponse.getResult().getPageSize());
