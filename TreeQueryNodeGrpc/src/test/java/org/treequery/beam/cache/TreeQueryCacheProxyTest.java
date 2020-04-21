@@ -14,6 +14,7 @@ import org.treequery.discoveryservice.model.Location;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryCacheGrpcController;
+import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.server.WebServer;
 import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
@@ -98,7 +99,7 @@ class TreeQueryCacheProxyTest {
                 .thenReturn(Cluster.builder().clusterName("A").build());
         when(discoveryServiceInterface.getClusterLocation(any(Cluster.class)))
                 .thenReturn(new Location(HOSTNAME, PORT+10));
-        assertThrows( CacheNotFoundException.class,()->{
+        assertThrows( FailConnectionException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
                     CacheTypeEnum.NOTCARE,
                     identifier,

@@ -14,6 +14,7 @@ import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
+import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.proto.TreeQueryRequest;
 
@@ -100,7 +101,7 @@ public class TreeQueryClient {
 
         }catch(StatusRuntimeException se){
             log.error("unable to connect:"+se.getMessage());
-            throw new IllegalStateException("unable to connect:"+se.getMessage());
+            throw new FailConnectionException("unable to connect:"+se.getMessage());
         } catch(Exception ex){
             log.warn("failed to do query:"+ex.getMessage());
             throw new IllegalStateException("failed to do query:"+ex.getMessage());

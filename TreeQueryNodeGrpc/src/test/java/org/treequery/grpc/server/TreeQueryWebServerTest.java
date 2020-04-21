@@ -16,6 +16,7 @@ import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
+import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -83,7 +84,7 @@ class TreeQueryWebServerTest {
         TreeQueryResult treeQueryResult = null;
         AtomicLong counter = new AtomicLong(0);
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        assertThrows(IllegalStateException.class,()->{
+        assertThrows(FailConnectionException.class,()->{
              treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
                     jsonString,
                     renewCache,

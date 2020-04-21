@@ -14,6 +14,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.model.Location;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.grpc.client.GrpcClientChannel;
+import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.utils.GenericRecordReader;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.*;
@@ -75,7 +76,7 @@ public class TreeQueryCacheProxy implements CacheInputInterface {
             treeQueryCacheResponse = treeQueryCacheServiceBlockingStub.get(treeQueryCacheRequestBuilder.build());
         }catch(StatusRuntimeException se){
             log.error(se.getMessage());
-            throw new CacheNotFoundException("Not able to connect:"+se.getMessage());
+            throw new FailConnectionException("Not able to connect:"+se.getMessage());
         }
         boolean success = treeQueryCacheResponse.getHeader().getSuccess();
         TreeQueryResponseHeader header = treeQueryCacheResponse.getHeader();
