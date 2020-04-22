@@ -65,7 +65,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT+1);
+        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
         cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
