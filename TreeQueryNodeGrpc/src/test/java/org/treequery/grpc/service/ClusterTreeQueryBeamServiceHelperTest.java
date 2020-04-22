@@ -164,7 +164,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
                 preprocessInput.getNode().getIdentifier(),pageSize,page,
                 (record)->{

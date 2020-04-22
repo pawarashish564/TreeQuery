@@ -1,40 +1,30 @@
 package org.treequery.grpc.server;
 
-import io.grpc.BindableService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
-import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
-import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
-import org.treequery.service.TreeQueryClusterRunnerImpl;
-import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
-import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +57,7 @@ class TreeQueryWebServerTest {
                 Cluster.builder().clusterName("B").build(),
                 HOSTNAME, PORT);
 
-        webServer = WebServerFactory.createLocalDummyWebServer(
+        webServer = WebServerFactory.createWebServer(
                 treeQuerySetting,
                 discoveryServiceInterface);
 

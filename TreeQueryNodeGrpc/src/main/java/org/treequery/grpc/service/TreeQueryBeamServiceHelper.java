@@ -104,7 +104,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
 
         if (!renewCache){
             try{
-                Schema schema = AvroIOHelper.getPageRecordFromAvroCache( cacheTypeEnum,
+                Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                         treeQuerySetting, identifier, pageSize, page,
                          dataConsumer);
                 return ReturnResult.builder()
@@ -145,7 +145,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                         .build();
             }else{
                 try {
-                    Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                    Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                             treeQuerySetting,
                             rootNode.getIdentifier(), pageSize, page, dataConsumer);
                     return ReturnResult.builder()

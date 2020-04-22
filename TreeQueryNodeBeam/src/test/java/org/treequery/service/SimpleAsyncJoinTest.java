@@ -87,7 +87,7 @@ public class SimpleAsyncJoinTest {
         AtomicInteger counter = new AtomicInteger();
         while (true){
             int orgValue = counter.get();
-            Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+            Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                     treeQuerySetting,
                     rootNode.getIdentifier(),pageSize,page,
                     (record)->{

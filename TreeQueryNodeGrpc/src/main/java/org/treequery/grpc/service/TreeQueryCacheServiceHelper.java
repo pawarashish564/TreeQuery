@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 
 @Builder
 public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
-    private final CacheTypeEnum cacheTypeEnum;
     private final TreeQuerySetting treeQuerySetting;
 
     @Override
@@ -23,7 +22,7 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
         cacheResultBuilder.identifier(identifier);
         cacheResultBuilder.queryTypeEnum(CacheResult.QueryTypeEnum.RUNNING);
         try {
-            schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+            schema = AvroIOHelper.getPageRecordFromAvroCache(
                     this.treeQuerySetting,
                     identifier, pageSize, page, dataConsumer);
             cacheResultBuilder.dataSchema(schema);

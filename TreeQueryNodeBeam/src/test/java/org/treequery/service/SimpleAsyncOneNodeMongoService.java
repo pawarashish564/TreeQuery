@@ -94,7 +94,7 @@ public class SimpleAsyncOneNodeMongoService {
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
                 rootNode.getIdentifier(),pageSize,page,
                 (record)->{
