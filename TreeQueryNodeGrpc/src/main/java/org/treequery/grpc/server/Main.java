@@ -26,7 +26,11 @@ public class Main {
 
 
     public static void main(String [] args) throws IOException, InterruptedException {
-        WebServer webServer = WebServerFactory.createLocalDummyWebServer(TreeQuerySettingHelper.createFromYaml());
+        TreeQuerySetting treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        DiscoveryServiceInterface discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        WebServer webServer = WebServerFactory.createLocalDummyWebServer(
+                treeQuerySetting,
+                discoveryServiceInterface);
         webServer.start();
         webServer.blockUntilShutdown();
     }

@@ -57,8 +57,19 @@ class TreeQueryWebServerTest {
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        webServer = WebServerFactory.createLocalDummyWebServer(treeQuerySetting);
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("A").build(),
+                HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                HOSTNAME, PORT);
+
+        webServer = WebServerFactory.createLocalDummyWebServer(
+                treeQuerySetting,
+                discoveryServiceInterface);
 
         webServer.start();
         //webServer.blockUntilShutdown();
@@ -98,6 +109,15 @@ class TreeQueryWebServerTest {
     @Test
     void happyPathSimpleJoin(){
         String AvroTree = "SimpleJoin.json";
+        run(AvroTree);
+    }
+    @Test
+    void happyPathSimpleClusterJoin(){
+        String AvroTree = "SimpleJoinCluster.json";
+        run(AvroTree);
+    }
+
+    void run(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -118,7 +138,7 @@ class TreeQueryWebServerTest {
             assertEquals(0, treeQueryResult.getHeader().getErr_code());
             TreeQueryResult.TreeQueryResponseResult treeQueryResponseResult = treeQueryResult.getResult();
 
-            List<GenericRecord> genericRecordList = treeQueryResult.getResult().getGenericRecordList();
+            List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
             genericRecordList.forEach(
                     genericRecord -> {
                         assertThat(genericRecord).isNotNull();
@@ -132,7 +152,6 @@ class TreeQueryWebServerTest {
         }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
         assertEquals(1000, counter.get());
         assertThat(genericRecordSet).hasSize(1000);
-
     }
 
 
