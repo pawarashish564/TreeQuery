@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClusterTreeQueryBeamServiceHelperTest {
-    final static int PORT = 9005;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static int PORT = 8005;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     String jsonString;
     static DiscoveryServiceInterface discoveryServiceInterface = null;
