@@ -68,7 +68,6 @@ public class SimpleAsyncJoinClusterTest {
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                                                 .treeQuerySetting(treeQuerySetting)
-                                                .cacheTypeEnum(cacheTypeEnum)
                                                 .avroSchemaHelper(avroSchemaHelper)
                                                 .createLocalTreeQueryClusterRunnerFunc(
                                                         (_Cluster)-> {
@@ -87,10 +86,8 @@ public class SimpleAsyncJoinClusterTest {
 
                                                             return TreeQueryClusterRunnerImpl.builder()
                                                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                                                            .cacheTypeEnum(cacheTypeEnum)
                                                                             .treeQuerySetting(treeQuerySetting)
                                                                             .build())
-                                                                    .cacheTypeEnum(cacheTypeEnum)
                                                                     .avroSchemaHelper(avroSchemaHelper)
                                                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                                                     .discoveryServiceInterface(discoveryServiceInterface)
@@ -140,10 +137,8 @@ public class SimpleAsyncJoinClusterTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)

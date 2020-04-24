@@ -32,45 +32,16 @@ public class WebServerFactory {
 
     static TreeQueryBeamService treeQueryBeamService;
     static AvroSchemaHelper avroSchemaHelper;
-    static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     static CacheInputInterface cacheInputInterface;
 
     public static WebServer createWebServer(TreeQuerySetting treeQuerySetting,
-                                            DiscoveryServiceInterface discoveryServiceInterface){
-        CacheTypeEnum cacheTypeEnum = treeQuerySetting.getCacheTypeEnum();
+                                            DiscoveryServiceInterface discoveryServiceInterface,
+                                            TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface){
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
 
 
-        treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
-                .treeQuerySetting(treeQuerySetting)
-                .cacheTypeEnum(cacheTypeEnum)
-                .avroSchemaHelper(avroSchemaHelper)
-                .createLocalTreeQueryClusterRunnerFunc(
-                        (_Cluster)-> {
 
-                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
-                                    _Cluster.getClusterName(),
-                                    treeQuerySetting.getServicehostname(),
-                                    treeQuerySetting.getServicePort(),
-                                    treeQuerySetting.getCacheFilePath(),
-                                    treeQuerySetting.getRedisHostName(),
-                                    treeQuerySetting.getRedisPort()
-                            );
-                            return TreeQueryClusterRunnerImpl.builder()
-                                    .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                            .cacheTypeEnum(cacheTypeEnum)
-                                            .treeQuerySetting(treeQuerySetting)
-                                            .build())
-                                    .cacheTypeEnum(cacheTypeEnum)
-                                    .avroSchemaHelper(avroSchemaHelper)
-                                    .treeQuerySetting(remoteDummyTreeQuerySetting)
-                                    .cacheInputInterface(cacheInputInterface)
-                                    .discoveryServiceInterface(discoveryServiceInterface)
-                                    .build();
-                        }
-                )
-                .build();
         treeQueryBeamService =  TreeQueryBeamServiceHelper.builder()
                 .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)

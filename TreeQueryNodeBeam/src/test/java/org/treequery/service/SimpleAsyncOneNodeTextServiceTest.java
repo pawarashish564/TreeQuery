@@ -58,10 +58,8 @@ class SimpleAsyncOneNodeTextServiceTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
@@ -111,10 +109,8 @@ class SimpleAsyncOneNodeTextServiceTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)

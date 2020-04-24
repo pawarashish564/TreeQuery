@@ -6,6 +6,8 @@ import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
+import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
@@ -17,9 +19,13 @@ import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
+import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
+import org.treequery.service.TreeQueryClusterRunnerImpl;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.ByteArrayOutputStream;
@@ -48,7 +54,7 @@ class TreeQueryWebServerTest {
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("A").build(),
@@ -57,9 +63,38 @@ class TreeQueryWebServerTest {
                 Cluster.builder().clusterName("B").build(),
                 HOSTNAME, PORT);
 
+        CacheInputInterface cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
+
+        treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
+                .treeQuerySetting(treeQuerySetting)
+                .avroSchemaHelper(avroSchemaHelper)
+                .createLocalTreeQueryClusterRunnerFunc(
+                        (_Cluster)-> {
+
+                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                                    _Cluster.getClusterName(),
+                                    treeQuerySetting.getServicehostname(),
+                                    treeQuerySetting.getServicePort(),
+                                    treeQuerySetting.getCacheFilePath(),
+                                    treeQuerySetting.getRedisHostName(),
+                                    treeQuerySetting.getRedisPort()
+                            );
+                            return TreeQueryClusterRunnerImpl.builder()
+                                    .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                            .treeQuerySetting(treeQuerySetting)
+                                            .build())
+                                    .avroSchemaHelper(avroSchemaHelper)
+                                    .treeQuerySetting(remoteDummyTreeQuerySetting)
+                                    .cacheInputInterface(cacheInputInterface)
+                                    .discoveryServiceInterface(discoveryServiceInterface)
+                                    .build();
+                        }
+                )
+                .build();
         webServer = WebServerFactory.createWebServer(
                 treeQuerySetting,
-                discoveryServiceInterface);
+                discoveryServiceInterface,
+                treeQueryClusterRunnerProxyInterface);
 
         webServer.start();
         //webServer.blockUntilShutdown();
@@ -144,6 +179,11 @@ class TreeQueryWebServerTest {
         assertThat(genericRecordSet).hasSize(1000);
     }
 
+    private static CacheInputInterface prepareCacheInputInterface(TreeQuerySetting treeQuerySetting,
+                                                                  DiscoveryServiceInterface discoveryServiceInterface){
+        return new GrpcCacheInputInterfaceProxyFactory()
+                .getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
+    }
 
     @Test
     void testByteStream() throws Exception{
