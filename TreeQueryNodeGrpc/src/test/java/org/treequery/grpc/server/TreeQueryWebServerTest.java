@@ -25,6 +25,7 @@ import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.ByteArrayOutputStream;
@@ -53,7 +54,7 @@ class TreeQueryWebServerTest {
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("A").build(),
