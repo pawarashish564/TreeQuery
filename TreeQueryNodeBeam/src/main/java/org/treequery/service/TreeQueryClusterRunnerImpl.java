@@ -32,7 +32,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @Slf4j
-@Builder
 public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheTypeEnum cacheTypeEnum;
     @NonNull
@@ -47,6 +46,22 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
     CacheInputInterface cacheInputInterface;
 
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
+
+    @Builder
+    TreeQueryClusterRunnerImpl(BeamCacheOutputBuilder beamCacheOutputBuilder,
+                               AvroSchemaHelper avroSchemaHelper,
+                               DiscoveryServiceInterface discoveryServiceInterface,
+                               TreeQuerySetting treeQuerySetting,
+                               CacheInputInterface cacheInputInterface,
+                               TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface){
+        this.beamCacheOutputBuilder = beamCacheOutputBuilder;
+        this.avroSchemaHelper = avroSchemaHelper;
+        this.discoveryServiceInterface = discoveryServiceInterface;
+        this.treeQuerySetting = treeQuerySetting;
+        this.cacheInputInterface = cacheInputInterface;
+        this.treeQueryClusterRunnerProxyInterface = treeQueryClusterRunnerProxyInterface;
+        this.cacheTypeEnum = treeQuerySetting.getCacheTypeEnum();
+    }
 
     //Output is found in AvroIOHelper.getPageRecordFromAvroCache
     @Override

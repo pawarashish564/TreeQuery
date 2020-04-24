@@ -52,7 +52,6 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(treeQuerySetting).build();
         this.treeQueryClusterRunnerProxyInterface = treeQueryClusterRunnerProxyInterface;
         this.treeQuerySetting = treeQuerySetting;
@@ -65,10 +64,8 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                 .treeQueryClusterRunnerFactory(()->
                         TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(this.cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                                 .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
