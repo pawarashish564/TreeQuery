@@ -3,3 +3,6 @@ setuptools
 pytest
 mysql-connector
 pymongo
+requests
+websockets
+websocket_client

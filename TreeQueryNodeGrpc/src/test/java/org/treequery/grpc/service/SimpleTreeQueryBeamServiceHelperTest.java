@@ -59,7 +59,6 @@ class SimpleTreeQueryBeamServiceHelperTest {
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
-                .cacheTypeEnum(cacheTypeEnum)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
@@ -74,10 +73,8 @@ class SimpleTreeQueryBeamServiceHelperTest {
 
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                            .cacheTypeEnum(cacheTypeEnum)
                                             .treeQuerySetting(treeQuerySetting)
                                             .build())
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .avroSchemaHelper(avroSchemaHelper)
                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                     .discoveryServiceInterface(discoveryServiceInterface)

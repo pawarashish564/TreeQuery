@@ -59,7 +59,7 @@ public class TreeQueryCacheProxy implements CacheInputInterface {
                                              long page,
                                              Consumer<GenericRecord> dataConsumer,
                                              @Nullable Schema schema) throws CacheNotFoundException {
-
+        log.debug(String.format("Run Grpc page Avro Cache page %d with page Size %d", page, pageSize));
         Cluster _cluster = Optional.ofNullable(cluster).orElse(discoveryServiceInterface.getCacheResultCluster(identifier));
         Optional.ofNullable(_cluster).orElseThrow(()->new CacheNotFoundException("No cluster for "+identifier));
         TreeQueryCacheServiceGrpc.TreeQueryCacheServiceBlockingStub treeQueryCacheServiceBlockingStub = this.getBlockingStub(_cluster);

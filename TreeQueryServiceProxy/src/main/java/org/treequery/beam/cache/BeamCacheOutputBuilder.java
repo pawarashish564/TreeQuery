@@ -8,13 +8,12 @@ import java.util.NoSuchElementException;
 
 @Builder
 public class BeamCacheOutputBuilder {
-    CacheTypeEnum cacheTypeEnum;
     TreeQuerySetting treeQuerySetting;
 
     public BeamCacheOutputInterface createBeamCacheOutputImpl(){
         BeamCacheOutputInterface beamCacheOutputInterface;
 
-        switch(cacheTypeEnum){
+        switch(treeQuerySetting.getCacheTypeEnum()){
             case FILE:
                 beamCacheOutputInterface = new FileBeamCacheOutputImpl(treeQuerySetting.getCacheFilePath());
                 break;

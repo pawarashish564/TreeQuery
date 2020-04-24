@@ -58,7 +58,6 @@ class TreeQueryCacheProxyTest {
         treeQuerySetting = treeQuerySettingBuilder.build();
 
         treeQueryCacheService = TreeQueryCacheServiceHelper.builder()
-                .cacheTypeEnum(cacheTypeEnum)
                 .treeQuerySetting(treeQuerySetting)
                 .build();
 

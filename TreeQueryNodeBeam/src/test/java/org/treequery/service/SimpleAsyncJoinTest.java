@@ -55,10 +55,8 @@ public class SimpleAsyncJoinTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
@@ -87,7 +85,7 @@ public class SimpleAsyncJoinTest {
         AtomicInteger counter = new AtomicInteger();
         while (true){
             int orgValue = counter.get();
-            Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+            Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                     treeQuerySetting,
                     rootNode.getIdentifier(),pageSize,page,
                     (record)->{
@@ -118,10 +116,8 @@ public class SimpleAsyncJoinTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)

@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRunnerProxyInterface {
 
-    private final CacheTypeEnum cacheTypeEnum;
+
     Map<Cluster, TreeQueryClusterRunner> treeQueryClusterRunnerMap = Maps.newHashMap();
     @NonNull
     private final TreeQuerySetting treeQuerySetting;
@@ -27,10 +27,9 @@ public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRu
     private Function<Cluster, TreeQueryClusterRunner> createLocalTreeQueryClusterRunnerFunc;
 
     @Builder
-    LocalDummyTreeQueryClusterRunnerProxy(CacheTypeEnum cacheTypeEnum, TreeQuerySetting treeQuerySetting, AvroSchemaHelper avroSchemaHelper, Function<Cluster, TreeQueryClusterRunner> createLocalTreeQueryClusterRunnerFunc){
+    LocalDummyTreeQueryClusterRunnerProxy(TreeQuerySetting treeQuerySetting, AvroSchemaHelper avroSchemaHelper, Function<Cluster, TreeQueryClusterRunner> createLocalTreeQueryClusterRunnerFunc){
         this.treeQuerySetting = treeQuerySetting;
         this.avroSchemaHelper = avroSchemaHelper;
-        this.cacheTypeEnum = cacheTypeEnum;
         this.createLocalTreeQueryClusterRunnerFunc = createLocalTreeQueryClusterRunnerFunc;
 
     }
