@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClusterTreeQueryBeamServiceHelperTest {
-    final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static int PORT = 8005;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     String jsonString;
     static DiscoveryServiceInterface discoveryServiceInterface = null;
@@ -65,14 +65,13 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
         discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT+1);
+        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
         cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
-                .cacheTypeEnum(cacheTypeEnum)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
@@ -87,10 +86,8 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                            .cacheTypeEnum(cacheTypeEnum)
                                             .treeQuerySetting(treeQuerySetting)
                                             .build())
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .avroSchemaHelper(avroSchemaHelper)
                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
                                     .discoveryServiceInterface(discoveryServiceInterface)
@@ -164,7 +161,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
                 preprocessInput.getNode().getIdentifier(),pageSize,page,
                 (record)->{

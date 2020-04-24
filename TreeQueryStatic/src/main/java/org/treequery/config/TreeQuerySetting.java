@@ -2,16 +2,18 @@ package org.treequery.config;
 
 import lombok.*;
 import org.treequery.cluster.Cluster;
+import org.treequery.model.CacheTypeEnum;
 
 @ToString
 @Getter
 public class TreeQuerySetting {
-    Cluster cluster;
-    String servicehostname;
-    int servicePort;
-    String cacheFilePath;
-    String redisHostName;
-    int redisPort;
+    private final Cluster cluster;
+    private final String servicehostname;
+    private final int servicePort;
+    private final String cacheFilePath;
+    private final String redisHostName;
+    private final int redisPort;
+    private final CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
 
     public TreeQuerySetting(String cluster, String servicehostname, int servicePort,
                             String cacheFilePath, String redisHostName, int redisPort) {

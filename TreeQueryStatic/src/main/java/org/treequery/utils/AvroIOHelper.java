@@ -46,9 +46,9 @@ public class AvroIOHelper {
         }
     }
 
-    public static Schema getPageRecordFromAvroCache(CacheTypeEnum cacheTypeEnum, TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException{
+    public static Schema getPageRecordFromAvroCache(TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException{
         try {
-            if (cacheTypeEnum == CacheTypeEnum.FILE) {
+            if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
                 String readFileName = String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
                 return AvroIOHelper.getPageRecordFromAvroFile(readFileName, pageSize, page, dataConsumer);
             }

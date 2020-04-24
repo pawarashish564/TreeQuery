@@ -52,7 +52,6 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(treeQuerySetting).build();
         this.treeQueryClusterRunnerProxyInterface = treeQueryClusterRunnerProxyInterface;
         this.treeQuerySetting = treeQuerySetting;
@@ -65,10 +64,8 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                 .treeQueryClusterRunnerFactory(()->
                         TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(this.cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                                 .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
@@ -104,7 +101,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
 
         if (!renewCache){
             try{
-                Schema schema = AvroIOHelper.getPageRecordFromAvroCache( cacheTypeEnum,
+                Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                         treeQuerySetting, identifier, pageSize, page,
                          dataConsumer);
                 return ReturnResult.builder()
@@ -145,7 +142,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                         .build();
             }else{
                 try {
-                    Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+                    Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                             treeQuerySetting,
                             rootNode.getIdentifier(), pageSize, page, dataConsumer);
                     return ReturnResult.builder()

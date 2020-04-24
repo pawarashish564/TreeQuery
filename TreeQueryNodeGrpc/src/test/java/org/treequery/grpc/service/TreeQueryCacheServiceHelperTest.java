@@ -35,7 +35,6 @@ class TreeQueryCacheServiceHelperTest {
         treeQuerySetting = treeQuerySettingBuilder.build();
 
         treeQueryCacheService = TreeQueryCacheServiceHelper.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(treeQuerySetting)
                                     .build();
     }

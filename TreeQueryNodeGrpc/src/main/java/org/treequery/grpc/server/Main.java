@@ -1,32 +1,28 @@
 package org.treequery.grpc.server;
 
-import io.grpc.BindableService;
 import lombok.extern.slf4j.Slf4j;
-import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
-import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
-import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
-import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.WebServerFactory;
-import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
-import org.treequery.model.CacheTypeEnum;
-import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 public class Main {
 
 
     public static void main(String [] args) throws IOException, InterruptedException {
-        WebServer webServer = WebServerFactory.createLocalDummyWebServer(TreeQuerySettingHelper.createFromYaml());
+        TreeQuerySetting treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        DiscoveryServiceInterface discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface =null;
+        WebServer webServer = WebServerFactory.createWebServer(
+                treeQuerySetting,
+                discoveryServiceInterface,
+                Optional.of(treeQueryClusterRunnerProxyInterface).get());
         webServer.start();
         webServer.blockUntilShutdown();
     }

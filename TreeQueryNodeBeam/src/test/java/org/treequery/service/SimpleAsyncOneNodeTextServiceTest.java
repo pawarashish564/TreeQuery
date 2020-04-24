@@ -58,10 +58,8 @@ class SimpleAsyncOneNodeTextServiceTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
@@ -85,7 +83,7 @@ class SimpleAsyncOneNodeTextServiceTest {
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
                 rootNode.getIdentifier(),pageSize,page,
                 (record)->{
@@ -111,10 +109,8 @@ class SimpleAsyncOneNodeTextServiceTest {
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                    .cacheTypeEnum(cacheTypeEnum)
                                     .treeQuerySetting(this.treeQuerySetting)
                                     .build())
-                            .cacheTypeEnum(cacheTypeEnum)
                             .avroSchemaHelper(avroSchemaHelper)
                             .treeQuerySetting(treeQuerySetting)
                             .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
@@ -138,7 +134,7 @@ class SimpleAsyncOneNodeTextServiceTest {
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(this.cacheTypeEnum,
+        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
                 rootNode.getIdentifier(),pageSize,page,
                 (record)->{

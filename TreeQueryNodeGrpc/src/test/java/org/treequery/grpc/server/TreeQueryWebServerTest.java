@@ -1,6 +1,5 @@
 package org.treequery.grpc.server;
 
-import io.grpc.BindableService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
@@ -8,33 +7,30 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
+import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
-import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
-import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
 import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
+import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
-import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,8 +53,48 @@ class TreeQueryWebServerTest {
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        webServer = WebServerFactory.createLocalDummyWebServer(treeQuerySetting);
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("A").build(),
+                HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                HOSTNAME, PORT);
+
+        CacheInputInterface cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
+
+        treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
+                .treeQuerySetting(treeQuerySetting)
+                .avroSchemaHelper(avroSchemaHelper)
+                .createLocalTreeQueryClusterRunnerFunc(
+                        (_Cluster)-> {
+
+                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                                    _Cluster.getClusterName(),
+                                    treeQuerySetting.getServicehostname(),
+                                    treeQuerySetting.getServicePort(),
+                                    treeQuerySetting.getCacheFilePath(),
+                                    treeQuerySetting.getRedisHostName(),
+                                    treeQuerySetting.getRedisPort()
+                            );
+                            return TreeQueryClusterRunnerImpl.builder()
+                                    .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                            .treeQuerySetting(treeQuerySetting)
+                                            .build())
+                                    .avroSchemaHelper(avroSchemaHelper)
+                                    .treeQuerySetting(remoteDummyTreeQuerySetting)
+                                    .cacheInputInterface(cacheInputInterface)
+                                    .discoveryServiceInterface(discoveryServiceInterface)
+                                    .build();
+                        }
+                )
+                .build();
+        webServer = WebServerFactory.createWebServer(
+                treeQuerySetting,
+                discoveryServiceInterface,
+                treeQueryClusterRunnerProxyInterface);
 
         webServer.start();
         //webServer.blockUntilShutdown();
@@ -98,6 +134,15 @@ class TreeQueryWebServerTest {
     @Test
     void happyPathSimpleJoin(){
         String AvroTree = "SimpleJoin.json";
+        run(AvroTree);
+    }
+    @Test
+    void happyPathSimpleClusterJoin(){
+        String AvroTree = "SimpleJoinCluster.json";
+        run(AvroTree);
+    }
+
+    void run(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -118,7 +163,7 @@ class TreeQueryWebServerTest {
             assertEquals(0, treeQueryResult.getHeader().getErr_code());
             TreeQueryResult.TreeQueryResponseResult treeQueryResponseResult = treeQueryResult.getResult();
 
-            List<GenericRecord> genericRecordList = treeQueryResult.getResult().getGenericRecordList();
+            List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
             genericRecordList.forEach(
                     genericRecord -> {
                         assertThat(genericRecord).isNotNull();
@@ -132,9 +177,13 @@ class TreeQueryWebServerTest {
         }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
         assertEquals(1000, counter.get());
         assertThat(genericRecordSet).hasSize(1000);
-
     }
 
+    private static CacheInputInterface prepareCacheInputInterface(TreeQuerySetting treeQuerySetting,
+                                                                  DiscoveryServiceInterface discoveryServiceInterface){
+        return new GrpcCacheInputInterfaceProxyFactory()
+                .getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
+    }
 
     @Test
     void testByteStream() throws Exception{
