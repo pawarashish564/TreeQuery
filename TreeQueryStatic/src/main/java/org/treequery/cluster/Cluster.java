@@ -13,6 +13,4 @@ import java.io.Serializable;
 public class Cluster implements Serializable {
     @Getter
     private String clusterName;
-
-
 }

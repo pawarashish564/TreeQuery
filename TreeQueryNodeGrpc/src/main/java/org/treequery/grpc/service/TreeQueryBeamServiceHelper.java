@@ -117,7 +117,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                         .dataSchema(schema)
                         .build();
             }catch(CacheNotFoundException che){
-                log.info(String.format("Cache %s not found, need to rerun", identifier));
+                log.info(String.format("Cluster:%s Node:%s from cluster %s identifier %s not found, need to rerun",
+                        treeQuerySetting.getCluster().toString(),
+                        preprocessInput.getNode().getName(),
+                        preprocessInput.getNode().getCluster(),
+                        identifier));
                 return this.runQuery(preprocessInput.getNode(), pageSize, page, dataConsumer);
             }
         }

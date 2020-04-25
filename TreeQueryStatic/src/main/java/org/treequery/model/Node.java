@@ -77,8 +77,11 @@ public abstract class Node implements Serializable {
     }
 
     public String toJson(){
-        Gson gson = new Gson();
-        return gson.toJson(this);
+        return Optional.ofNullable(this.jNode).map(
+                jsonNode -> jsonNode.toString()
+        ).orElse(
+                new Gson().toJson(this)
+        );
     }
 
     public String getIdentifier(){

@@ -137,22 +137,23 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                         return;
                     }
                 }else{
-                    log.debug(String.format("RPC call: Cluster %s %s", node.toString(), node.getName()));
+                    log.debug(String.format("RPC call: Node: %s Cluster %s",  node.getName(), node.getCluster().toString()));
                     //It should be RPC call...
                     //the execution behavior depends on the injected TreeQueryClusterRunnerProxyInterface
                     final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
-
-                    if(this.treeQueryClusterRunnerProxyInterface!=null){
-                        this.treeQueryClusterRunnerProxyInterface.runQueryTreeNetwork(node, (statusTreeQueryCluster)->{
-                            //registerCacheResult(statusTreeQueryCluster);
-                            beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster);
-                        });
-                    }else{
-                        beamProcessSynchronizer.reportError(runJob.getUuid(), new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call"));
+                    try{
+                        Optional.ofNullable(treeQueryClusterRunnerProxyInterface)
+                                .orElseThrow(()-> new IllegalStateException("Not found treeQueryClusterProxyInteface in remote call") )
+                            .runQueryTreeNetwork(node, (statusTreeQueryCluster)->
+                            beamProcessSynchronizer.removeWaitItem(runJob.getUuid(), statusTreeQueryCluster)
+                        );
+                    }catch(Throwable throwable){
+                        log.error(throwable.getMessage());
+                        beamProcessSynchronizer.reportError(runJob.getUuid(), throwable);
                         statusCallback.accept(
                                 StatusTreeQueryCluster.builder()
                                         .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
-                                        .description("Not found treeQueryClusterProxyInteface in remote call")
+                                        .description(throwable.getMessage())
                                         .node(node)
                                         .cluster(atCluster)
                                         .build()

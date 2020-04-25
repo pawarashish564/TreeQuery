@@ -2,6 +2,7 @@ package org.treequery.service.proxy;
 
 import com.google.common.collect.Maps;
 import lombok.Builder;
+import lombok.NonNull;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.model.Location;
@@ -19,6 +20,7 @@ import java.util.function.Consumer;
 
 public class GrpcTreeQueryClusterRunnerProxy implements TreeQueryClusterRunnerProxyInterface {
     private final TreeQueryRequest.RunMode runMode;
+    @NonNull
     private final DiscoveryServiceInterface discoveryServiceInterface;
     private final boolean renewCache;
     private final Map<Cluster, TreeQueryClient> treeQueryClientMap = Maps.newConcurrentMap();

@@ -36,6 +36,7 @@ public class FileBeamCacheOutputImpl implements BeamCacheOutputInterface {
     public void writeGenericRecord(PCollection<GenericRecord> stream, Schema avroSchema, String outputLabel) {
 
         fileName = String.format("%s/%s", path.toAbsolutePath().toString(), outputLabel);
+        log.debug(String.format("%s Write into %s",outputLabel, fileName));
         stream.apply(
                 AvroIO.writeGenericRecords(avroSchema).to(fileName).withoutSharding().withSuffix(".avro")
         );
