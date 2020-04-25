@@ -13,4 +13,9 @@ import org.treequery.service.TreeQueryClusterRunner;
 import java.util.function.Consumer;
 
 public interface TreeQueryClusterRunnerProxyInterface extends TreeQueryClusterRunner {
+    @Override
+    default void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
+        throw new NoSuchMethodError("A proxy not need a proxy interface");
+    }
 }
+

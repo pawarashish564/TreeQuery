@@ -5,9 +5,7 @@ import lombok.Getter;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
@@ -36,8 +34,9 @@ import java.util.function.Consumer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("integration")
 public class ClusterTreeQueryBeamServiceHelperTest {
-    final static int PORT = 8005;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static int PORT = 9009;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     String jsonString;
     static DiscoveryServiceInterface discoveryServiceInterface = null;
@@ -133,6 +132,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         assertEquals(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR,returnResult.getStatusTreeQueryCluster().getStatus());
 
     }
+
     @Test
     void happyPathRunBeamJoinLocally() throws Exception{
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.

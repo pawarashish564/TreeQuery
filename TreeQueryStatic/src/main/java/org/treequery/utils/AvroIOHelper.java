@@ -75,7 +75,7 @@ public class AvroIOHelper {
 
         Path filepath = Paths.get(readFileName);
         if (!(Files.exists(filepath) && Files.isReadable(filepath) )){
-            throw new CacheNotFoundException("Cache not found for avroFileName");
+            throw new CacheNotFoundException(String.format("Cache not found for %s", avroFileName));
         }
         DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
         schema = dataFileReader.getSchema();

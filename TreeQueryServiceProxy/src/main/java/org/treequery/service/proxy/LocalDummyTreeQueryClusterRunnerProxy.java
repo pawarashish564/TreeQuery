@@ -49,8 +49,4 @@ public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRu
         treeQueryClusterRunner.runQueryTreeNetwork(rootNode, statusCallback);
     }
 
-    @Override
-    public void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
-        throw new NoSuchMethodError("A proxy not need a proxy interface");
-    }
 }
