@@ -69,7 +69,7 @@ class TreeQueryWebServerTest {
 
         cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
 
-        treeQueryClusterRunnerProxyInterface = creatLocalRunProxy();
+        treeQueryClusterRunnerProxyInterface = createLocalRunProxy();//createRemoteProxy();
         webServer = WebServerFactory.createWebServer(
                 treeQuerySetting,
                 discoveryServiceInterface,
@@ -87,7 +87,7 @@ class TreeQueryWebServerTest {
                 .build();
     }
 
-    private static TreeQueryClusterRunnerProxyInterface creatLocalRunProxy(){
+    private static TreeQueryClusterRunnerProxyInterface createLocalRunProxy(){
         return LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
                 .avroSchemaHelper(avroSchemaHelper)
