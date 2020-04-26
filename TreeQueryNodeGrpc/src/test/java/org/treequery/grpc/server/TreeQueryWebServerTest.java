@@ -40,14 +40,14 @@ import static org.mockito.Mockito.mock;
 
 @Slf4j
 class TreeQueryWebServerTest {
-    static WebServer webServer;
+    static WebServer webServerA, webServerB;
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     static String jsonString;
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
-    static TreeQuerySetting treeQuerySetting;
+    static TreeQuerySetting treeQuerySettingA, treeQuerySettingB;
     static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     static CacheInputInterface cacheInputInterface;
     static TreeQueryRequest.RunMode RUNMODE = TreeQueryRequest.RunMode.DIRECT;
@@ -56,27 +56,26 @@ class TreeQueryWebServerTest {
     @BeforeAll
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
-        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
+
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("A").build(),
                 HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(
-                Cluster.builder().clusterName("B").build(),
-                HOSTNAME, PORT);
 
-        cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
 
-        treeQueryClusterRunnerProxyInterface = creatLocalRunProxy();
-        webServer = WebServerFactory.createWebServer(
-                treeQuerySetting,
+        cacheInputInterface = prepareCacheInputInterface(treeQuerySettingA, discoveryServiceInterface);
+
+        treeQueryClusterRunnerProxyInterface = createRemoteProxy();//createLocalRunProxy();//
+        webServerA = WebServerFactory.createWebServer(
+                treeQuerySettingA,
                 discoveryServiceInterface,
                 treeQueryClusterRunnerProxyInterface);
 
-        webServer.start();
-        //webServer.blockUntilShutdown();
+        webServerA.start();
+        //webServerA.blockUntilShutdown();
     }
 
     private static TreeQueryClusterRunnerProxyInterface createRemoteProxy(){
@@ -87,24 +86,24 @@ class TreeQueryWebServerTest {
                 .build();
     }
 
-    private static TreeQueryClusterRunnerProxyInterface creatLocalRunProxy(){
+    private static TreeQueryClusterRunnerProxyInterface createLocalRunProxy(){
         return LocalDummyTreeQueryClusterRunnerProxy.builder()
-                .treeQuerySetting(treeQuerySetting)
+                .treeQuerySetting(treeQuerySettingA)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
 
                             TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
                                     _Cluster.getClusterName(),
-                                    treeQuerySetting.getServicehostname(),
-                                    treeQuerySetting.getServicePort(),
-                                    treeQuerySetting.getCacheFilePath(),
-                                    treeQuerySetting.getRedisHostName(),
-                                    treeQuerySetting.getRedisPort()
+                                    treeQuerySettingA.getServicehostname(),
+                                    treeQuerySettingA.getServicePort(),
+                                    treeQuerySettingA.getCacheFilePath(),
+                                    treeQuerySettingA.getRedisHostName(),
+                                    treeQuerySettingA.getRedisPort()
                             );
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                            .treeQuerySetting(treeQuerySetting)
+                                            .treeQuerySetting(treeQuerySettingA)
                                             .build())
                                     .avroSchemaHelper(avroSchemaHelper)
                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
@@ -153,11 +152,37 @@ class TreeQueryWebServerTest {
         run(AvroTree);
     }
     @Test
-    void happyPathSimpleClusterJoin(){
+    void throwErrorWhenSendingQueryToWrongClusterPathSimpleClusterJoin(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                HOSTNAME, PORT);
         String AvroTree = "SimpleJoinCluster.json";
-        run(AvroTree);
+        TreeQueryResult treeQueryResult = runException(AvroTree);
+        assertFalse(treeQueryResult.getHeader().isSuccess());
+        assertEquals("500:Node cluster Cluster(clusterName=B) not matching Service cluster Cluster(clusterName=A)",
+                treeQueryResult.getHeader().getErr_msg());
+
     }
 
+    TreeQueryResult runException(String AvroTree){
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+
+        boolean renewCache = false;
+        int pageSize = 100;
+        int page = 1;
+        TreeQueryResult treeQueryResult = null;
+        AtomicLong counter = new AtomicLong(0);
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+        treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
+                    jsonString,
+                    renewCache,
+                    pageSize,
+                    page
+        );
+        assertFalse(treeQueryResult.getHeader().isSuccess());
+        return treeQueryResult;
+    }
     void run(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
@@ -212,6 +237,6 @@ class TreeQueryWebServerTest {
     @AfterAll
     static void finish() throws Exception{
         log.info("All testing finish");
-        webServer.stop();
+        webServerA.stop();
     }
 }

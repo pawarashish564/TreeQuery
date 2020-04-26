@@ -14,14 +14,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TreeQuerySettingHelper {
     static AtomicInteger atomicCounter = new AtomicInteger(0);
 
-    public static TreeQuerySetting createFromYaml() {
+    public static TreeQuerySetting createFromYaml(){
+        return TreeQuerySettingHelper.createFromYaml("treeQuery.yaml");
+    }
+    public static TreeQuerySetting createFromYaml(String fileName) {
         atomicCounter.incrementAndGet();
         TreeQuerySetting setting;
         TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
 
         // Loading the YAML file from the /resources folder
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File file = new File(classLoader.getResource("treeQuery.yaml").getFile());
+        File file = new File(classLoader.getResource(fileName).getFile());
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
