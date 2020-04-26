@@ -57,7 +57,7 @@ class TreeQueryWebServerTest {
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
-
+        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml");
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
@@ -72,9 +72,16 @@ class TreeQueryWebServerTest {
         webServerA = WebServerFactory.createWebServer(
                 treeQuerySettingA,
                 discoveryServiceInterface,
-                treeQueryClusterRunnerProxyInterface);
+                treeQueryClusterRunnerProxyInterface
+        );
+        webServerB = WebServerFactory.createWebServer(
+                treeQuerySettingB,
+                discoveryServiceInterface,
+                treeQueryClusterRunnerProxyInterface
+        );
 
         webServerA.start();
+        webServerB.start();
         //webServerA.blockUntilShutdown();
     }
 
@@ -238,5 +245,6 @@ class TreeQueryWebServerTest {
     static void finish() throws Exception{
         log.info("All testing finish");
         webServerA.stop();
+        webServerB.stop();
     }
 }
