@@ -40,14 +40,14 @@ import static org.mockito.Mockito.mock;
 
 @Slf4j
 class TreeQueryWebServerTest {
-    static WebServer webServer;
+    static WebServer webServerA, webServerB;
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     static String jsonString;
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
-    static TreeQuerySetting treeQuerySetting;
+    static TreeQuerySetting treeQuerySettingA, treeQuerySettingB;
     static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     static CacheInputInterface cacheInputInterface;
     static TreeQueryRequest.RunMode RUNMODE = TreeQueryRequest.RunMode.DIRECT;
@@ -56,7 +56,8 @@ class TreeQueryWebServerTest {
     @BeforeAll
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
-        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
+
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
@@ -65,16 +66,16 @@ class TreeQueryWebServerTest {
                 HOSTNAME, PORT);
 
 
-        cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
+        cacheInputInterface = prepareCacheInputInterface(treeQuerySettingA, discoveryServiceInterface);
 
         treeQueryClusterRunnerProxyInterface = createRemoteProxy();//createLocalRunProxy();//
-        webServer = WebServerFactory.createWebServer(
-                treeQuerySetting,
+        webServerA = WebServerFactory.createWebServer(
+                treeQuerySettingA,
                 discoveryServiceInterface,
                 treeQueryClusterRunnerProxyInterface);
 
-        webServer.start();
-        //webServer.blockUntilShutdown();
+        webServerA.start();
+        //webServerA.blockUntilShutdown();
     }
 
     private static TreeQueryClusterRunnerProxyInterface createRemoteProxy(){
@@ -87,22 +88,22 @@ class TreeQueryWebServerTest {
 
     private static TreeQueryClusterRunnerProxyInterface createLocalRunProxy(){
         return LocalDummyTreeQueryClusterRunnerProxy.builder()
-                .treeQuerySetting(treeQuerySetting)
+                .treeQuerySetting(treeQuerySettingA)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
 
                             TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
                                     _Cluster.getClusterName(),
-                                    treeQuerySetting.getServicehostname(),
-                                    treeQuerySetting.getServicePort(),
-                                    treeQuerySetting.getCacheFilePath(),
-                                    treeQuerySetting.getRedisHostName(),
-                                    treeQuerySetting.getRedisPort()
+                                    treeQuerySettingA.getServicehostname(),
+                                    treeQuerySettingA.getServicePort(),
+                                    treeQuerySettingA.getCacheFilePath(),
+                                    treeQuerySettingA.getRedisHostName(),
+                                    treeQuerySettingA.getRedisPort()
                             );
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                                            .treeQuerySetting(treeQuerySetting)
+                                            .treeQuerySetting(treeQuerySettingA)
                                             .build())
                                     .avroSchemaHelper(avroSchemaHelper)
                                     .treeQuerySetting(remoteDummyTreeQuerySetting)
@@ -236,6 +237,6 @@ class TreeQueryWebServerTest {
     @AfterAll
     static void finish() throws Exception{
         log.info("All testing finish");
-        webServer.stop();
+        webServerA.stop();
     }
 }
