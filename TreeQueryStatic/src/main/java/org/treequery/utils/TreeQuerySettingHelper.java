@@ -15,16 +15,22 @@ public class TreeQuerySettingHelper {
     static AtomicInteger atomicCounter = new AtomicInteger(0);
 
     public static TreeQuerySetting createFromYaml(){
-        return TreeQuerySettingHelper.createFromYaml("treeQuery.yaml");
+        return TreeQuerySettingHelper.createFromYaml("treeQuery.yaml", false);
     }
-    public static TreeQuerySetting createFromYaml(String fileName) {
+    public static TreeQuerySetting createFromYaml(String fileName, boolean realPath) {
         atomicCounter.incrementAndGet();
         TreeQuerySetting setting;
         TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
 
-        // Loading the YAML file from the /resources folder
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
+        File file = null;
+        if(!realPath) {
+            // Loading the YAML file from the /resources folder
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            file = new File(classLoader.getResource(fileName).getFile());
+        }else{
+            file = new File(fileName);
+        }
+
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
