@@ -91,7 +91,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                 log.debug("Waiting siginal:"+syncStatus.toString());
             }while (syncStatus == BeamProcessSynchronizer.SyncStatus.WAIT);
             if (syncStatus != BeamProcessSynchronizer.SyncStatus.GO){
-                log.error("Not able to send job with exception");
+                log.error("Not able to retrieve cache result with exception");
                 beamProcessSynchronizer.statusLogList.forEach(
                         log->statusCallback.accept(log)
                 );
@@ -108,7 +108,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
             for (Node node: nodeList) {
 
                 if (atCluster.equals(node.getCluster())){
-                    log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
+                    log.debug(String.format("%s: Local Run: %s (%s) Cluster  %s", atCluster.toString(), node.toString(), node.getName(), node.getCluster().toString()));
                     final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
                     try {
                         this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(),
@@ -130,7 +130,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                         return;
                     }
                 }else{
-                    log.debug(String.format("RPC call: Node: %s Cluster %s",  node.getName(), node.getCluster().toString()));
+                    log.debug(String.format("%s : RPC call: Node: %s Cluster %s",  atCluster.toString(), node.getName(), node.getCluster().toString()));
                     //It should be RPC call...
                     //the execution behavior depends on the injected TreeQueryClusterRunnerProxyInterface
                     final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
