@@ -86,7 +86,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
             throw new IllegalArgumentException(String.format("Not able to parse:%s", jsonInput));
         }
         if (!rootNode.getCluster().equals(treeQuerySetting.getCluster())){
-            NodeNotMatchingGrpcServiceClusterException runtimeException = new NodeNotMatchingGrpcServiceClusterException(rootNode.getCluster(), treeQuerySetting.getCluster());
+            NodeNotMatchingGrpcServiceClusterException runtimeException = new NodeNotMatchingGrpcServiceClusterException(rootNode.getCluster(), treeQuerySetting);
             log.error(runtimeException.getMessage());
             throw runtimeException;
         }
