@@ -13,6 +13,7 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.treequery.grpc.service.TreeQueryBeamService;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
+import org.treequery.model.Node;
 import org.treequery.proto.*;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;
@@ -40,38 +41,63 @@ public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryS
         long pageSize = request.getPageSize();
         long page = request.getPage();
 
-        PreprocessInput preprocessInput = treeQueryBeamService.preprocess(jsonRequest);
-        Schema outputSchema = preprocessInput.getOutputSchema();
-        DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(outputSchema);
+        try {
+            treeQueryResponseBuilder.setRequestHash(Node.getHash(jsonRequest));
+            PreprocessInput preprocessInput = treeQueryBeamService.preprocess(jsonRequest);
+            Schema outputSchema = preprocessInput.getOutputSchema();
+            DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(outputSchema);
 
-        ReturnResult returnResult = treeQueryBeamService.runAndPageResult(
-                RUNMODE,
-                preprocessInput,
-                renewCache,
-                pageSize,
-                page,dataConsumerIntoByteArray);
+            ReturnResult returnResult = treeQueryBeamService.runAndPageResult(
+                    RUNMODE,
+                    preprocessInput,
+                    renewCache,
+                    pageSize,
+                    page, dataConsumerIntoByteArray);
 
-        treeQueryResponseBuilder.setRequestHash(returnResult.getHashCode());
+            treeQueryResponseBuilder.setRequestHash(returnResult.getHashCode());
 
+            TreeQueryResponseHeader.Builder headerBuilder = TreeQueryResponseHeader.newBuilder();
+            StatusTreeQueryCluster statusTreeQueryCluster = returnResult.getStatusTreeQueryCluster();
+            headerBuilder.setSuccess(statusTreeQueryCluster.getStatus() == StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+            headerBuilder.setErrCode(statusTreeQueryCluster.getStatus().getValue());
+            headerBuilder.setErrMsg(statusTreeQueryCluster.getDescription());
+
+            treeQueryResponseBuilder.setHeader(headerBuilder.build());
+
+            TreeQueryResponseResult.Builder treeQueryResponseDataBuilder = TreeQueryResponseResult.newBuilder();
+            ByteString avroLoad = ByteString.copyFrom(dataConsumerIntoByteArray.toArrayOutput());
+            treeQueryResponseDataBuilder.setAvroLoad(avroLoad);
+            treeQueryResponseDataBuilder.setDatasize(dataConsumerIntoByteArray.getDataSize());
+            treeQueryResponseDataBuilder.setPage(page);
+            treeQueryResponseDataBuilder.setPageSize(pageSize);
+            treeQueryResponseDataBuilder.setAvroSchema(Optional.ofNullable(returnResult.getDataSchema()).map(schema -> schema.toString()).orElse(""));
+            treeQueryResponseBuilder.setResult(treeQueryResponseDataBuilder.build());
+
+
+            responseObserver.onNext(treeQueryResponseBuilder.build());
+            responseObserver.onCompleted();
+        }catch(Throwable throwable){
+            prepareSystemErrorException(treeQueryResponseBuilder, throwable);
+            responseObserver.onNext(treeQueryResponseBuilder.build());
+            responseObserver.onCompleted();
+        }
+
+    }
+
+    static void prepareSystemErrorException(TreeQueryResponse.Builder treeQueryResponseBuilder, Throwable throwable){
         TreeQueryResponseHeader.Builder headerBuilder = TreeQueryResponseHeader.newBuilder();
-        StatusTreeQueryCluster statusTreeQueryCluster = returnResult.getStatusTreeQueryCluster();
-        headerBuilder.setSuccess(statusTreeQueryCluster.getStatus()==StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
-        headerBuilder.setErrCode(statusTreeQueryCluster.getStatus().getValue());
-        headerBuilder.setErrMsg(statusTreeQueryCluster.getDescription());
-
+        headerBuilder.setSuccess(false);
+        headerBuilder.setErrCode(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR.getValue());
+        headerBuilder.setErrMsg(throwable.getMessage());
         treeQueryResponseBuilder.setHeader(headerBuilder.build());
 
         TreeQueryResponseResult.Builder treeQueryResponseDataBuilder = TreeQueryResponseResult.newBuilder();
-        ByteString avroLoad = ByteString.copyFrom(dataConsumerIntoByteArray.toArrayOutput());
-        treeQueryResponseDataBuilder.setAvroLoad(avroLoad);
-        treeQueryResponseDataBuilder.setDatasize(dataConsumerIntoByteArray.getDataSize());
-        treeQueryResponseDataBuilder.setPage(page);
-        treeQueryResponseDataBuilder.setPageSize(pageSize);
-        treeQueryResponseDataBuilder.setAvroSchema(Optional.ofNullable(returnResult.getDataSchema()).map(schema -> schema.toString()).orElse(""));
+        treeQueryResponseDataBuilder.setAvroLoad(ByteString.EMPTY);
+        treeQueryResponseDataBuilder.setDatasize(0);
+        treeQueryResponseDataBuilder.setPage(0);
+        treeQueryResponseDataBuilder.setPageSize(0);
+        treeQueryResponseDataBuilder.setAvroSchema("");
         treeQueryResponseBuilder.setResult(treeQueryResponseDataBuilder.build());
-
-
-        responseObserver.onNext(treeQueryResponseBuilder.build());
-        responseObserver.onCompleted();
     }
+
 }

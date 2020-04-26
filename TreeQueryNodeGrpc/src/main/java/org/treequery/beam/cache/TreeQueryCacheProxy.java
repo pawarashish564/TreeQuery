@@ -76,7 +76,7 @@ public class TreeQueryCacheProxy implements CacheInputInterface {
             treeQueryCacheResponse = treeQueryCacheServiceBlockingStub.get(treeQueryCacheRequestBuilder.build());
         }catch(StatusRuntimeException se){
             log.error(se.getMessage());
-            throw new FailConnectionException("Not able to connect:"+se.getMessage());
+            throw new FailConnectionException("Not able to connect to cache:"+se.getMessage());
         }
         boolean success = treeQueryCacheResponse.getHeader().getSuccess();
         TreeQueryResponseHeader header = treeQueryCacheResponse.getHeader();

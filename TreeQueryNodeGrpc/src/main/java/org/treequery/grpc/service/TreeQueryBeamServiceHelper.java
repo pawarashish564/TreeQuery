@@ -10,6 +10,7 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
+import org.treequery.grpc.exception.NodeNotMatchingGrpcServiceClusterException;
 import org.treequery.service.*;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroIOHelper;
@@ -83,6 +84,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
             outputSchema = avroSchemaHelper.getAvroSchema(rootNode);
         }catch(Exception je){
             throw new IllegalArgumentException(String.format("Not able to parse:%s", jsonInput));
+        }
+        if (!rootNode.getCluster().equals(treeQuerySetting.getCluster())){
+            NodeNotMatchingGrpcServiceClusterException runtimeException = new NodeNotMatchingGrpcServiceClusterException(rootNode.getCluster(), treeQuerySetting.getCluster());
+            log.error(runtimeException.getMessage());
+            throw runtimeException;
         }
         return PreprocessInput.builder()
                 .node(rootNode)

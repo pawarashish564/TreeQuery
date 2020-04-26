@@ -88,8 +88,12 @@ public abstract class Node implements Serializable {
         return this.getSHA256();
     }
     private String getSHA256(){
+        String sha256hex = getHash(this.toJson());
+        return sha256hex;
+    }
+    public static String getHash(String identifier){
         String sha256hex = Hashing.sha256()
-                .hashString(this.toJson(), StandardCharsets.UTF_8)
+                .hashString(identifier, StandardCharsets.UTF_8)
                 .toString();
         return sha256hex;
     }

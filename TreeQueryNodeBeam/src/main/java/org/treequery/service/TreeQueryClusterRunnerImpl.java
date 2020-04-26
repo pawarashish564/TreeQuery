@@ -86,24 +86,17 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
             //Wait for BeamProcessQueueSynchronizer to be cleared
             BeamProcessSynchronizer.SyncStatus syncStatus;
             do {
+                log.debug("Waiting to submit Beam job");
                 syncStatus = beamProcessSynchronizer.canSubmitJob();
+                log.debug("Waiting siginal:"+syncStatus.toString());
             }while (syncStatus == BeamProcessSynchronizer.SyncStatus.WAIT);
             if (syncStatus != BeamProcessSynchronizer.SyncStatus.GO){
-                StatusTreeQueryCluster.QueryTypeEnum queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.FAIL;
-                switch (syncStatus){
-                    case SYSTEM_ERROR:
-                        queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR;
-                        break;
-                    case FAIL:
-                        queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.FAIL;
-                        break;
-                }
-                statusCallback.accept(StatusTreeQueryCluster.builder()
-                        .status(queryTypeEnum)
-                        .description("Exception:"+rootNode.getName())
-                        .node(rootNode)
-                        .cluster(rootNode.getCluster())
-                        .build());
+                log.error("Not able to retrieve cache result with exception");
+                beamProcessSynchronizer.statusLogList.forEach(
+                        log->statusCallback.accept(log)
+                );
+                this.reportNodeFailure(syncStatus, rootNode, statusCallback);
+
                 break;
             }
 
@@ -115,7 +108,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
             for (Node node: nodeList) {
 
                 if (atCluster.equals(node.getCluster())){
-                    log.debug(String.format("Local Run: Cluster %s %s", node.toString(), node.getName()));
+                    log.debug(String.format("%s: Local Run: %s (%s) Cluster  %s", atCluster.toString(), node.toString(), node.getName(), node.getCluster().toString()));
                     final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
                     try {
                         this.executeBeamRun(node, beamCacheOutputBuilder.createBeamCacheOutputImpl(),
@@ -137,7 +130,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                         return;
                     }
                 }else{
-                    log.debug(String.format("RPC call: Node: %s Cluster %s",  node.getName(), node.getCluster().toString()));
+                    log.debug(String.format("%s : RPC call: Node: %s Cluster %s",  atCluster.toString(), node.getName(), node.getCluster().toString()));
                     //It should be RPC call...
                     //the execution behavior depends on the injected TreeQueryClusterRunnerProxyInterface
                     final RunJob runJob = beamProcessSynchronizer.pushWaitItem(node);
@@ -172,6 +165,23 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                 .build());
     }
 
+    private void reportNodeFailure(BeamProcessSynchronizer.SyncStatus syncStatus, Node rootNode, Consumer<StatusTreeQueryCluster> statusCallback){
+        StatusTreeQueryCluster.QueryTypeEnum queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.FAIL;
+        switch (syncStatus){
+            case SYSTEM_ERROR:
+                queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR;
+                break;
+            case FAIL:
+                queryTypeEnum = StatusTreeQueryCluster.QueryTypeEnum.FAIL;
+                break;
+        }
+        statusCallback.accept(StatusTreeQueryCluster.builder()
+                .status(queryTypeEnum)
+                .description("Failed to process:"+rootNode.getName())
+                .node(rootNode)
+                .cluster(rootNode.getCluster())
+                .build());
+    }
 
     private void registerCacheResult(StatusTreeQueryCluster statusTreeQueryCluster){
         boolean IsIssue = statusTreeQueryCluster.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
