@@ -57,13 +57,13 @@ class TreeQueryWebServerTest {
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
-
+        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml");
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("A").build(),
-                HOSTNAME, PORT);
+                treeQuerySettingA.getServicehostname(), treeQuerySettingA.getServicePort());
 
 
         cacheInputInterface = prepareCacheInputInterface(treeQuerySettingA, discoveryServiceInterface);
@@ -72,9 +72,16 @@ class TreeQueryWebServerTest {
         webServerA = WebServerFactory.createWebServer(
                 treeQuerySettingA,
                 discoveryServiceInterface,
-                treeQueryClusterRunnerProxyInterface);
+                treeQueryClusterRunnerProxyInterface
+        );
+        webServerB = WebServerFactory.createWebServer(
+                treeQuerySettingB,
+                discoveryServiceInterface,
+                treeQueryClusterRunnerProxyInterface
+        );
 
         webServerA.start();
+        webServerB.start();
         //webServerA.blockUntilShutdown();
     }
 
@@ -155,13 +162,21 @@ class TreeQueryWebServerTest {
     void throwErrorWhenSendingQueryToWrongClusterPathSimpleClusterJoin(){
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("B").build(),
-                HOSTNAME, PORT);
+                treeQuerySettingA.getServicehostname(), treeQuerySettingA.getServicePort());
         String AvroTree = "SimpleJoinCluster.json";
         TreeQueryResult treeQueryResult = runException(AvroTree);
         assertFalse(treeQueryResult.getHeader().isSuccess());
-        assertEquals("500:Node cluster Cluster(clusterName=B) not matching Service cluster Cluster(clusterName=A)",
+        assertEquals("500:Node cluster Cluster(clusterName=B) not matching Service cluster Cluster(clusterName=A) serving at localhost:9002",
                 treeQueryResult.getHeader().getErr_msg());
 
+    }
+    @Test
+    void happyPathSimpleClusterJoin(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        String AvroTree = "SimpleJoinCluster.json";
+        run(AvroTree);
     }
 
     TreeQueryResult runException(String AvroTree){
@@ -238,5 +253,6 @@ class TreeQueryWebServerTest {
     static void finish() throws Exception{
         log.info("All testing finish");
         webServerA.stop();
+        webServerB.stop();
     }
 }
