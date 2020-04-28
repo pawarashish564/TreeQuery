@@ -144,7 +144,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
 
         try {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
-            if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+            if(asyncRunHelper.isError()){
                 log.error("Failure run with status code:"+statusTreeQueryCluster.getStatus());
                 return ReturnResult.builder()
                         .hashCode(hashCode)

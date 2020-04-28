@@ -2,13 +2,13 @@ package org.treequery.grpc.client;
 
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.model.Location;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -27,25 +27,25 @@ class TreeQueryClientTest {
 
     static DiscoveryServiceInterface discoveryServiceInterface;
 
-    @Before
+    @BeforeEach
     void init(){
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        discoveryServiceInterface.registerCluster(Cluster.builder()
+                .clusterName("A").build(), "localhost", 9002);
     }
 
     @Test
     void happyPathSimpleJoin(){
-        TreeQuerySetting treeQuerySettingA = TreeQuerySettingHelper.createFromYaml("treeQuery.yaml",false);
-        discoveryServiceInterface.registerCluster(Cluster.builder()
-                .clusterName("A").build(), "localhost", 9002);
         String AvroTree = "SimpleJoin.json";
-        run(AvroTree,
-                treeQuerySettingA.getServicehostname(),
-                treeQuerySettingA.getServicePort());
+        run(AvroTree, discoveryServiceInterface);
     }
 
-    void run(String AvroTree, String HOSTNAME, int PORT){
+    private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+        TreeQueryClient treeQueryClient = TreeQueryClientFactory.
+                createTreeQueryClientFromJsonInput(
+                        jsonString,
+                        discoveryServiceInterface);
 
         boolean renewCache = false;
         int pageSize = 100;
