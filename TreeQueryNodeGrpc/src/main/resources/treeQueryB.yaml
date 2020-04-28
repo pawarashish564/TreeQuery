@@ -1,0 +1,5 @@
+---
+servicehostname: "localhost"
+servicePort: 9003
+cacheFilePath: "${TMPDIR}"
+cluster: "B"

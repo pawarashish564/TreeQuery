@@ -1,5 +1,6 @@
 package org.treequery.utils;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.Duration;
 
@@ -13,9 +14,14 @@ public class AsyncRunHelper {
     private final AtomicInteger count;
     private final long WAIT_MS = Duration.standardHours(1).getMillis();
     private StatusTreeQueryCluster status;
+
+    @Getter
+    private volatile boolean isError;
+
     private AsyncRunHelper(Object object){
         __object = object;
         count = new AtomicInteger(0);
+        isError = false;
     }
 
     public static AsyncRunHelper of(){
@@ -28,8 +34,14 @@ public class AsyncRunHelper {
 
     public  void continueRun(StatusTreeQueryCluster __status){
         synchronized (__object){
+
+            if (__status.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+                isError = true;
+                status = __status;
+            }else if (!isError) {
+                status = __status;
+            }
             __object.notifyAll();
-            status = __status;
             count.incrementAndGet();
         }
     }

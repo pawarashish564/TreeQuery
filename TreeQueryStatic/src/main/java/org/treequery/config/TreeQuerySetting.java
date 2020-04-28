@@ -1,10 +1,14 @@
 package org.treequery.config;
 
-import lombok.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.treequery.cluster.Cluster;
 import org.treequery.model.CacheTypeEnum;
 
-@ToString
 @Getter
 public class TreeQuerySetting {
     private final Cluster cluster;
@@ -27,6 +31,11 @@ public class TreeQuerySetting {
 
     public static TreeQuerySettingBuilder builder() {
         return new TreeQuerySettingBuilder();
+    }
+
+    public String toString() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
 
 
