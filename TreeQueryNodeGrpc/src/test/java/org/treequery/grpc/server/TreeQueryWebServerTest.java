@@ -57,7 +57,7 @@ class TreeQueryWebServerTest {
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
-        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml");
+        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
