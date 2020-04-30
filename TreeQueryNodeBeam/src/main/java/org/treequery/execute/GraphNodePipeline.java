@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.treequery.cluster.Cluster;
+import org.treequery.exception.NotAllChildBeamReadyToAttach;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;
@@ -58,6 +59,8 @@ public  class GraphNodePipeline implements NodePipeline {
         }
         this.helpGetDefaultMapValue(this.graph, newParentNode).add(node);
         this.helpGetDefaultMapValue(this.depends, node).add(newParentNode);
+        log.debug(String.format("Pipeline Add %s to %s", node.getName(), newParentNode.getName()));
+        log.debug(String.format("Dependency map: %s depends on %s", node.getName(), newParentNode.getName()));
         assert(newParentNode!=null);
 
         return ;
@@ -71,6 +74,7 @@ public  class GraphNodePipeline implements NodePipeline {
                     List<Node> dependOn = helpGetDefaultMapValue(this.depends, rNode);
                     if (dependOn.size()==0){
                         queue.add(rNode);
+                        log.debug(String.format("Enqueue %s for processing", rNode.getName()));
                     }
                 }
         );
@@ -78,12 +82,23 @@ public  class GraphNodePipeline implements NodePipeline {
             Node node = queue.remove();
             List<Node> dependOnList = this.depends.get(node);
 
-            this.insertNode2PipelineHelper(dependOnList, node);
+            try {
+                this.insertNode2PipelineHelper(dependOnList, node);
+            }catch(NotAllChildBeamReadyToAttach nac){
+                log.debug(nac.getMessage());
+                if (queue.size()==0){
+                    throw nac;
+                }
+                queue.add(node);
+                continue;
+            }
 
             List<Node> nextChildLst = this.graph.get(node);
             nextChildLst.forEach(
                     c->{
+                        log.debug(String.format("Check insert child node {%s} to beam", c.getName()));
                         if (!queue.contains(c)){
+                            log.debug(String.format("add child node {%s} to beam", c.getName()));
                             queue.add(c);
                         }
                     }

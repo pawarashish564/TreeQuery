@@ -103,7 +103,7 @@ public class SimpleAsyncFlattenTest {
         this.runTest(AvroTree);
     }
 
-    @RepeatedTest(1)
+    @RepeatedTest(2)
     public void SimpleAsyncJoinTest2layers() throws Exception{
         String AvroTree = "TreeQueryInput3.json";
         this.runTest(AvroTree);

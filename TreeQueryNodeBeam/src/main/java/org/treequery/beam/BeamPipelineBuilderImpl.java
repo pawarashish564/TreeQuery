@@ -11,6 +11,7 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.transform.*;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.exception.NotAllChildBeamReadyToAttach;
 import org.treequery.execute.PipelineBuilderInterface;
 import org.treequery.model.CacheNode;
 import org.treequery.utils.AvroSchemaHelper;
@@ -93,24 +94,17 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
 
         List<PCollection<GenericRecord>> parentLst = parentNodeLst.stream().map(
             pNode-> {
-                PCollection<GenericRecord> beamPipeline =  nodePCollectionMap.get(pNode);
-                if (beamPipeline == null){
-                    throw new RuntimeException(
-                            String.format("Node %s not able to get beam pipeline", pNode.getName())
-                    );
-                }
+                PCollection<GenericRecord> beamPipeline =  Optional.ofNullable(nodePCollectionMap.get(pNode))
+                        .orElseThrow(()-> new NotAllChildBeamReadyToAttach(pNode));
+                log.debug(String.format("insertNode2PipelineHelper insert %s to parents %s", node.getName(),pNode.getName()));
                 return beamPipeline;
             }
         ).collect(Collectors.toList());
 
         PCollection<GenericRecord> transform = nodeBeamHelper.apply(this.pipeline, parentLst, node);
-        if (transform == null){
-            throw new RuntimeException(
-                String.format(
-                        "NodeBeamHelper %s failed to create transform for %s",
-                        nodeBeamHelper.getClass().getName(), node.getName())
-            );
-        }
+
+        log.debug(String.format("Node %s insert beam transform with NodeBeamHelper %s",
+                node.getName(), nodeBeamHelper.getClass().getName()));
         nodePCollectionMap.put(node, transform);
     }
 
