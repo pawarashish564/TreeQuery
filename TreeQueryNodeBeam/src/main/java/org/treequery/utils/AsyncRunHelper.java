@@ -24,7 +24,7 @@ public class AsyncRunHelper {
         isError = false;
     }
 
-    public static AsyncRunHelper of(){
+    public static AsyncRunHelper create(){
         return new AsyncRunHelper(new Object());
     }
     /*
