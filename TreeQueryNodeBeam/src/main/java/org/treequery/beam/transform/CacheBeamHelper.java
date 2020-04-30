@@ -85,10 +85,13 @@ public class CacheBeamHelper implements NodeBeamHelper {
 
             ReadFunction(CacheInputInterface _CacheInputInterface){
                 synchronized (ReadFunction.class) {
+                    counter.inc();
+                    cacheInputInterface = _CacheInputInterface;
+                    /*
                     if (cacheInputInterface == null) {
                         cacheInputInterface = _CacheInputInterface;
                         counter.inc();
-                    }
+                    }*/
                 }
 
             }

@@ -97,7 +97,6 @@ public class SimpleAsyncFlattenTest {
         String AvroTree = "TreeQueryInputFlattenClusterOnly.json";
         this.runTest(AvroTree);
     }
-    @Disabled
     @RepeatedTest(1)
     public void SimpleAsyncJoinTestWithDiffCluster2() throws Exception{
         String AvroTree = "TreeQueryInputFlattenClusterOnly2.json";
