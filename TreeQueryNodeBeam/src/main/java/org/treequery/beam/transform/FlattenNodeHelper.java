@@ -9,6 +9,7 @@ import org.treequery.exception.FlattenRunTimeException;
 import org.treequery.model.Node;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FlattenNodeHelper implements NodeBeamHelper {
     @Override
@@ -16,8 +17,18 @@ public class FlattenNodeHelper implements NodeBeamHelper {
         if (parentCollectionLst.size() < 1){
             throw new FlattenRunTimeException("Flatten element size should be >= 1");
         }
-        PCollectionList<GenericRecord> genericRecordPCollectionList = PCollectionList.of(parentCollectionLst);
-
+        PCollectionList<GenericRecord> genericRecordPCollectionList = null;
+        try {
+            genericRecordPCollectionList = PCollectionList.of(parentCollectionLst);
+        }catch(NullPointerException ex){
+            ex.printStackTrace();
+            System.out.println(String.format("Number of elements:%d", parentCollectionLst.size()));
+            int i = 0;
+            for (PCollection<GenericRecord> strema: parentCollectionLst){
+                System.out.println(String.format("%d:%s",++i, Optional.ofNullable(strema).map(s->s.toString()).orElse("null")));
+            }
+            throw new RuntimeException(ex.getMessage());
+        }
         PCollection<GenericRecord> merged = genericRecordPCollectionList.apply(Flatten.<GenericRecord>pCollections());
 
         return merged;

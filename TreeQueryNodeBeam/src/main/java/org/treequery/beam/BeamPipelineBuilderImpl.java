@@ -92,10 +92,25 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         this.__node = node;
 
         List<PCollection<GenericRecord>> parentLst = parentNodeLst.stream().map(
-            pNode->nodePCollectionMap.get(pNode)
+            pNode-> {
+                PCollection<GenericRecord> beamPipeline =  nodePCollectionMap.get(pNode);
+                if (beamPipeline == null){
+                    throw new RuntimeException(
+                            String.format("Node %s not able to get beam pipeline", pNode.getName())
+                    );
+                }
+                return beamPipeline;
+            }
         ).collect(Collectors.toList());
 
         PCollection<GenericRecord> transform = nodeBeamHelper.apply(this.pipeline, parentLst, node);
+        if (transform == null){
+            throw new RuntimeException(
+                String.format(
+                        "NodeBeamHelper %s failed to create transform for %s",
+                        nodeBeamHelper.getClass().getName(), node.getName())
+            );
+        }
         nodePCollectionMap.put(node, transform);
     }
 

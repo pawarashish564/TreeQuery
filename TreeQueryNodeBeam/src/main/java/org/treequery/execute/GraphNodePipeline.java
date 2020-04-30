@@ -58,6 +58,7 @@ public  class GraphNodePipeline implements NodePipeline {
         }
         this.helpGetDefaultMapValue(this.graph, newParentNode).add(node);
         this.helpGetDefaultMapValue(this.depends, node).add(newParentNode);
+        assert(newParentNode!=null);
 
         return ;
     }

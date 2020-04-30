@@ -58,6 +58,8 @@ class GraphNodePipeline(NodePipeline):
             newParentNode = cacheNode
         self.graph[newParentNode].append(node)
         self.depends[node].append(newParentNode)
+        if (newParentNode is None):
+            raise Exception("INvalid state:"+ node.description)
 
     def getPipelineBuilder(self):
         #Fill in blank dependency for root
