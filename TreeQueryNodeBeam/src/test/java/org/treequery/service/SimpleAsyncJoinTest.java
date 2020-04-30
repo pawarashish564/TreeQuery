@@ -65,7 +65,7 @@ public class SimpleAsyncJoinTest {
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.create();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);
@@ -126,7 +126,7 @@ public class SimpleAsyncJoinTest {
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.create();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
             asyncRunHelper.continueRun(status);

@@ -3,6 +3,7 @@ package org.treequery.beam;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.treequery.Transform.FlattenNode;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
@@ -74,6 +75,9 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
                     .treeQuerySetting(this.treeQuerySetting)
                     .cacheInputInterface(cacheInputInterface)
                     .discoveryServiceInterface(discoveryServiceInterface).build();
+        }
+        else if (node instanceof FlattenNode){
+            nodeBeamHelper = new FlattenNodeHelper();
         }
         else{
             log.error("Not support node transforming to Apache Beam:",node.toString());
