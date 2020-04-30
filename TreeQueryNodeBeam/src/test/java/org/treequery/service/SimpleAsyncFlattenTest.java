@@ -102,6 +102,13 @@ public class SimpleAsyncFlattenTest {
         String AvroTree = "TreeQueryInputFlattenClusterOnly2.json";
         this.runTest(AvroTree);
     }
+
+    @RepeatedTest(2)
+    public void SimpleAsyncJoinTest2layers() throws Exception{
+        String AvroTree = "TreeQueryInput3.new.json";
+        this.runTest(AvroTree);
+    }
+
     private void runTest(String AvroTree) throws Exception{
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
