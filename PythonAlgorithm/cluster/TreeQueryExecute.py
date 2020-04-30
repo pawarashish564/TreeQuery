@@ -58,6 +58,9 @@ class GraphNodePipeline(NodePipeline):
             newParentNode = cacheNode
         self.graph[newParentNode].append(node)
         self.depends[node].append(newParentNode)
+        print(f"Pipeline Add {node} to {newParentNode}")
+        if (newParentNode is None):
+            raise Exception("INvalid state:"+ node.description)
 
     def getPipelineBuilder(self):
         #Fill in blank dependency for root
@@ -66,6 +69,9 @@ class GraphNodePipeline(NodePipeline):
             l = self.depends[rNode]
             if len(l) == 0:
                 s.append(rNode)
+                if str(rNode) == "(Join5YData:Join 5Y data)":
+                    rNode=rNode
+                print(f"Enqueue {rNode} for processing");
 
         while len(s) > 0:
             node = s.popleft()
@@ -77,14 +83,19 @@ class GraphNodePipeline(NodePipeline):
             nextChildLst = self.graph[node]
             for c in nextChildLst:
                 try:
+                    print(f"Check insert child node {c} to beam");
                     s.index(c)
+                    print(f"refuse to add child node  {c} to beam");
                 except ValueError as ve:
+                    print(f"add child node {c} to beam");
                     s.append(c)
 
 
         return self.pipelineBuilder
 
     def insertNode2PipelineHelper(self, parentList:List[Node], node):
+        if str(node) == "(Join5YData:Join 5Y data)":
+            node = node
         for p in parentList:
             print("Insert node %s to parents %s"%(node, p))
 

@@ -9,6 +9,7 @@ import org.treequery.exception.FlattenRunTimeException;
 import org.treequery.model.Node;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FlattenNodeHelper implements NodeBeamHelper {
     @Override
