@@ -51,7 +51,7 @@ public class TreeQuerySettingHelper {
             String _pathName = treeQuerySettingBuilder.getCacheFilePath().toUpperCase();
             if (_pathName.equals("$TMPDIR") || _pathName.equals("${TMPDIR}")){
                 Path path = Files.createTempDirectory("TreeQuery"+treeQuerySettingBuilder.getCluster()+"_");
-                log.info(String.format("Write cache File to path: %s", path.toAbsolutePath().toString()));
+                log.info(String.format("File Cache write cache File to path: %s", path.toAbsolutePath().toString()));
                 treeQuerySettingBuilder.setCacheFilePath(path.toAbsolutePath().toString());
             }
         }catch(Exception ex){}

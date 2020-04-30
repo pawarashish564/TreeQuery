@@ -135,7 +135,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     }
 
     private ReturnResult runQuery(Node rootNode, long pageSize, long page, Consumer<GenericRecord> dataConsumer){
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.create();
         final String hashCode = rootNode.getIdentifier();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             asyncRunHelper.continueRun(status);

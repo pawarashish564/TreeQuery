@@ -14,12 +14,6 @@
         <level value="DEBUG"/>
     </logger>
 
-    <logger name="org.treequery.beam.cache.FileBeamCacheOutputImpl">
-        <level value="INFO"/>
-    </logger>
-
-
-
     <root>
         <level value="ERROR" />
         <appender-ref ref="console" />
