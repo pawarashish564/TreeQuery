@@ -118,6 +118,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
                                 });
                     } catch(Throwable ex){
                         log.error(ex.toString());
+                        ex.printStackTrace();
                         beamProcessSynchronizer.reportError(runJob.getUuid(), ex);
                         statusCallback.accept(
                                 StatusTreeQueryCluster.builder()
