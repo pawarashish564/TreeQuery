@@ -29,8 +29,6 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     TreeQueryClusterService treeQueryClusterService;
     @NonNull
     BeamCacheOutputBuilder beamCacheOutputBuilder;
-
-    CacheTypeEnum cacheTypeEnum;
     @NonNull
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
@@ -43,13 +41,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     CacheInputInterface cacheInputInterface;
 
     @Builder
-    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum,
-                                      AvroSchemaHelper avroSchemaHelper,
+    public TreeQueryBeamServiceHelper(AvroSchemaHelper avroSchemaHelper,
                                       DiscoveryServiceInterface discoveryServiceInterface,
                                       TreeQuerySetting treeQuerySetting,
                                       TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface,
                                       CacheInputInterface cacheInputInterface){
-        this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()

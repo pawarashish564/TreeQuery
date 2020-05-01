@@ -84,7 +84,6 @@ class SimpleTreeQueryBeamServiceHelperTest {
                 )
                 .build();
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(cacheTypeEnum)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
@@ -96,7 +95,6 @@ class SimpleTreeQueryBeamServiceHelperTest {
     @Test
     void throwIllegalArugmentExceptionIfBlankProxy(){
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .cacheInputInterface(cacheInputInterface)

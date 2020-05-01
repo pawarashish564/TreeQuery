@@ -96,7 +96,6 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                 )
                 .build();
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(cacheTypeEnum)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
@@ -109,7 +108,6 @@ public class ClusterTreeQueryBeamServiceHelperTest {
     @Test
     void throwIllegalArugmentExceptionIfBlankProxy(){
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .cacheInputInterface(cacheInputInterface)
