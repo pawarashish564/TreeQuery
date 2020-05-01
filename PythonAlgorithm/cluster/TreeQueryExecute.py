@@ -13,6 +13,10 @@ class NodePipeline(abc.ABC):
     def addNodeToPipeline(self, parentNode:Node, node:Node):
         pass
 
+class NodeNotMatchingGrpcServiceClusterException(Exception):
+    def __init__(self, args, **argv):
+        Exception.__init__(args)
+
 #Decorator of normal Node
 class CacheNode(Node):
     def __init__(self, node:Node):
@@ -76,10 +80,14 @@ class GraphNodePipeline(NodePipeline):
         while len(s) > 0:
             node = s.popleft()
             dependOnList = self.depends[node]
-            if len(dependOnList) == 0:
-                self.insertNode2PipelineHelper([None], node)
-            else:
+            #if len(dependOnList) == 0:
+            #    self.insertNode2PipelineHelper([None], node)
+            #else:
+            try:
                 self.insertNode2PipelineHelper(dependOnList, node)
+            except NodeNotMatchingGrpcServiceClusterException as ex:
+                s.append(node)
+                continue
             nextChildLst = self.graph[node]
             for c in nextChildLst:
                 try:
