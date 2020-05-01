@@ -39,6 +39,7 @@ public class QueryLeafNodeHelper implements NodeBeamHelper {
             //Do Mongo query
             return this.doMongoQuery(pipeline, queryLeafNode);
         }
+
         throw new NoSuchMethodError();
     }
 
