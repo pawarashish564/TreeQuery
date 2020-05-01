@@ -1,6 +1,7 @@
 package org.treequery.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import org.treequery.Transform.function.NoJoinAbleFunction;
 import org.treequery.cluster.Cluster;
 import lombok.Getter;
 import lombok.NonNull;
-import org.apache.beam.vendor.grpc.v1p21p0.com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
