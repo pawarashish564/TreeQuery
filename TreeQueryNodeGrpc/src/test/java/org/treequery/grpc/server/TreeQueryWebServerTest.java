@@ -156,7 +156,7 @@ class TreeQueryWebServerTest {
     @Test
     void happyPathSimpleJoin(){
         String AvroTree = "SimpleJoin.json";
-        run(AvroTree);
+        run2Layers(AvroTree);
     }
     @Test
     void throwErrorWhenSendingQueryToWrongClusterPathSimpleClusterJoin(){
@@ -176,10 +176,19 @@ class TreeQueryWebServerTest {
                 Cluster.builder().clusterName("B").build(),
                 treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
         String AvroTree = "SimpleJoinCluster.json";
-        run(AvroTree);
+        run2Layers(AvroTree);
     }
 
-    TreeQueryResult runException(String AvroTree){
+    @Test
+    void happyPathTreeQuery3layers(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        String AvroTree = "TreeQueryInput3.new.json";
+        run3Layers(AvroTree);
+    }
+
+    void run3Layers(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -189,16 +198,33 @@ class TreeQueryWebServerTest {
         TreeQueryResult treeQueryResult = null;
         AtomicLong counter = new AtomicLong(0);
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
+        do {
+            treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
                     jsonString,
                     renewCache,
                     pageSize,
                     page
-        );
-        assertFalse(treeQueryResult.getHeader().isSuccess());
-        return treeQueryResult;
+            );
+            assertTrue(treeQueryResult.getHeader().isSuccess());
+            assertEquals(0, treeQueryResult.getHeader().getErr_code());
+            TreeQueryResult.TreeQueryResponseResult treeQueryResponseResult = treeQueryResult.getResult();
+
+            List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
+            genericRecordList.forEach(
+                    genericRecord -> {
+                        assertThat(genericRecord).isNotNull();
+                        assertThat(genericRecord.get("bondtrade")).isNotNull();
+                        assertThat(genericRecordSet).doesNotContain(genericRecord);
+                        counter.incrementAndGet();
+                        genericRecordSet.add(genericRecord);
+                    }
+            );
+            page++;
+        }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
+        log.debug("Number of records:" + counter.get());
     }
-    void run(String AvroTree){
+
+    void run2Layers(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -254,5 +280,25 @@ class TreeQueryWebServerTest {
         log.info("All testing finish");
         webServerA.stop();
         webServerB.stop();
+    }
+
+    TreeQueryResult runException(String AvroTree){
+        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+
+        boolean renewCache = false;
+        int pageSize = 100;
+        int page = 1;
+        TreeQueryResult treeQueryResult = null;
+        AtomicLong counter = new AtomicLong(0);
+        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+        treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
+                jsonString,
+                renewCache,
+                pageSize,
+                page
+        );
+        assertFalse(treeQueryResult.getHeader().isSuccess());
+        return treeQueryResult;
     }
 }
