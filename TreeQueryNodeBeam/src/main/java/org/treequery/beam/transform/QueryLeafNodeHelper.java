@@ -26,6 +26,7 @@ import org.treequery.Transform.QueryLeafNode;
 import org.treequery.Transform.function.MongoQueryFunction;
 import org.treequery.Transform.function.SqlQueryFunction;
 
+import org.treequery.beam.transform.query.JDBCReadTransform;
 import org.treequery.beam.transform.query.MongoDocumentTransform;
 import org.treequery.model.Node;
 import org.treequery.model.QueryAble;
@@ -82,19 +83,9 @@ public class QueryLeafNodeHelper implements NodeBeamHelper {
         SqlQueryFunction sqlQueryFunction = (SqlQueryFunction)queryLeafNode.getQueryAble();
         //Reference : https://beam.apache.org/releases/javadoc/2.0.0/org/apache/beam/sdk/io/jdbc/JdbcIO.html
 
-        pipeline.apply(JdbcIO.<KV<Integer, String>>read()
-                .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration.create(
-                        sqlQueryFunction.getDriverClassName(),
-                        sqlQueryFunction.getSqlConnString())
-                        .withUsername(sqlQueryFunction.getUsername())
-                        .withPassword(sqlQueryFunction.getPassword()))
-                .withQuery(sqlQueryFunction.getQuery())
-                .withCoder(KvCoder.of(BigEndianIntegerCoder.of(), StringUtf8Coder.of()))
-                .withRowMapper(new JdbcIO.RowMapper<KV<Integer, String>>() {
-                    public KV<Integer, String> mapRow(ResultSet resultSet) throws Exception {
-                        throw new NoSuchMethodError("Not yet implemented");
-                    }
-                })
+        Schema schema = queryLeafNode.getAvroSchemaObj();
+        pipeline.apply(
+                JDBCReadTransform.getJDBCRead(sqlQueryFunction, schema)
         );
         return output;
     }
