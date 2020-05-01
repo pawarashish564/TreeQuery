@@ -43,7 +43,6 @@ public class WebServerFactory {
 
 
         treeQueryBeamService =  TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
