@@ -33,4 +33,5 @@ ext{
     jacksonVersion = "2.10.2"
     mockitVersion = "3.2.4"
     snakeymlVersion = "1.26"
+    mysqlVersion = "5.1.49"
 }
