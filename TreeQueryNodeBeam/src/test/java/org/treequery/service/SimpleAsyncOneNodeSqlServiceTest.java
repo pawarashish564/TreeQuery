@@ -19,9 +19,12 @@ import org.treequery.utils.*;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
@@ -88,12 +91,32 @@ public class SimpleAsyncOneNodeSqlServiceTest {
         long pageSize = 10000;
         long page = 1;
         AtomicInteger counter = new AtomicInteger();
+        Pattern tenorPattern = Pattern.compile("(\\d+)Y");
+        Pattern datePattern = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})");
         Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
                 rootNode.getIdentifier(),pageSize,page,
                 (record)->{
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
+                    assertThat(record.get("AsOfDate")).isNotNull();
+                    final GenericRecordSchemaHelper.StringField dateField = new GenericRecordSchemaHelper.StringField();
+                    GenericRecordSchemaHelper.getValue(record, "AsOfDate", dateField);
+                    assertThat(dateField.getValue()).matches((date)->{
+                        Matcher matcher = datePattern.matcher(date);
+                        return matcher.matches();
+                    });
+
+                    final GenericRecordSchemaHelper.StringField tenorField = new GenericRecordSchemaHelper.StringField();
+                    GenericRecordSchemaHelper.getValue(record, "Tenor", tenorField);
+                    assertThat(tenorField.getValue()).matches((tenor)->{
+                        Matcher matcher = tenorPattern.matcher(tenor);
+                        return matcher.matches();
+                    });
+                    final GenericRecordSchemaHelper.DoubleField priceField = new GenericRecordSchemaHelper.DoubleField();
+                    GenericRecordSchemaHelper.getValue(record, "Price", priceField);
+                    assertNotEquals(0.0,priceField.getValue());
+
                 });
 
         assertEquals(4, counter.get());
