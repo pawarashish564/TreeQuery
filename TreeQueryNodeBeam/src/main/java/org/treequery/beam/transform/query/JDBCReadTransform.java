@@ -3,6 +3,7 @@ package org.treequery.beam.transform.query;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.BigEndianIntegerCoder;
@@ -12,8 +13,11 @@ import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.values.KV;
 
 import org.treequery.Transform.function.SqlQueryFunction;
+import org.treequery.exception.JDBCConversionRuntimeException;
+import org.treequery.utils.GenericRecordSchemaHelper;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Slf4j
 public class JDBCReadTransform {
@@ -43,7 +47,42 @@ public class JDBCReadTransform {
         @Override
         public GenericRecord mapRow(ResultSet resultSet) throws Exception {
             log.debug(resultSet.toString());
-            throw new NoSuchMethodError("Not yet implemented");
+            GenericRecord record = new GenericData.Record(schema);
+            schema.getFields().forEach(
+                    field -> {
+                        Schema.Type type = field.schema().getType();
+                        setGenericRecordValueHelper(record, resultSet, field);
+                    }
+            );
+
+            return record;
         }
     }
+
+    static GenericRecord setGenericRecordValueHelper(GenericRecord genericRecord, ResultSet resultSet, Schema.Field field)  {
+        final String fieldName = field.name();
+        final Schema.Type type = field.schema().getType();
+        try {
+            switch (type) {
+                case STRING:
+                    genericRecord.put(fieldName, resultSet.getString(fieldName));
+                    break;
+                case INT:
+                    genericRecord.put(fieldName, resultSet.getInt(fieldName));
+                    break;
+                case DOUBLE:
+                    genericRecord.put(fieldName, resultSet.getDouble(fieldName));
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Invalid value type from SQL query:%s with type %s", fieldName, type.getName()));
+            }
+        }catch(SQLException sqe){
+            sqe.printStackTrace();
+            throw new JDBCConversionRuntimeException(sqe.getMessage());
+        }
+
+        return genericRecord;
+    }
+
+
 }

@@ -95,8 +95,7 @@ public class SimpleAsyncOneNodeSqlServiceTest {
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
                 });
-        log.debug(String.format("Number of records:%d", counter.get()));
 
-
+        assertEquals(4, counter.get());
     }
 }
