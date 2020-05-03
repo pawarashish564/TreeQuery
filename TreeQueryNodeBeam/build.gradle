@@ -39,6 +39,9 @@ dependencies {
     compile group: 'org.apache.beam', name: 'beam-sdks-java-extensions-join-library', version: "$beamVersion"
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-jdbc', version: "$beamVersion"
 
+    compile group: 'mysql', name: 'mysql-connector-java', version: "$mysqlVersion"
+
+
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"

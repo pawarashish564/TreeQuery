@@ -320,7 +320,7 @@ public class TreeQueryClusterRunnerImpl implements TreeQueryClusterRunner {
 
         }catch(Throwable ex){
             log.error(ex.getMessage());
-
+            ex.printStackTrace();
             statusCallback.accept(
                     StatusTreeQueryCluster.builder()
                             .node(node)
