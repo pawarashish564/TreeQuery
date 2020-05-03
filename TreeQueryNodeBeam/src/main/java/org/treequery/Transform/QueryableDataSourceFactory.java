@@ -13,7 +13,7 @@ import java.util.Optional;
 public class QueryableDataSourceFactory implements NodeFactory {
     private static String MongDBConnString = "mongodb://mongoadmin:secret@localhost:27017";
 
-    private static String SQLDBConnString = "jdbc:mysql://hostname:3306/ppmtcourse";
+    private static String SQLDBConnString = "jdbc:mysql://localhost:3306/ppmtcourse";
     private static String SQLDriverClassName = "com.mysql.jdbc.Driver";
 
 
@@ -67,7 +67,7 @@ public class QueryableDataSourceFactory implements NodeFactory {
                 jNode.get("database"))
                 .orElseThrow(()->new IllegalArgumentException("SQL database missing"))
                 .asText());
-        sqlQueryFunctionBuilder.database(Optional.ofNullable(
+        sqlQueryFunctionBuilder.query(Optional.ofNullable(
                 jNode.get("query"))
                 .orElseThrow(()->new IllegalArgumentException("SQL query missing"))
                 .asText());

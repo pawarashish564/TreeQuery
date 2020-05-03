@@ -84,7 +84,7 @@ public class QueryLeafNodeHelper implements NodeBeamHelper {
         //Reference : https://beam.apache.org/releases/javadoc/2.0.0/org/apache/beam/sdk/io/jdbc/JdbcIO.html
 
         Schema schema = queryLeafNode.getAvroSchemaObj();
-        pipeline.apply(
+        output = pipeline.apply(
                 JDBCReadTransform.getJDBCRead(sqlQueryFunction, schema)
         );
         return output;
