@@ -1,5 +1,8 @@
-apply plugin: 'java'
-apply plugin: 'maven'
+plugins {
+    id 'org.springframework.boot' version '2.1.7.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
 
 
 group 'org.treequery'
@@ -13,12 +16,11 @@ repositories {
 
 
 dependencies {
-    compile project(':TreeQueryStatic')
-    compile project (':TreeQueryServiceProxy')
-    compile project(':TreeQueryDiscoveryService')
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
-    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    compile project(':TreeQueryStatic'), project (':TreeQueryServiceProxy')
+
+//    compile "org.slf4j:slf4j-api:$slf4jVersion"
+//    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+//    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
     compile  "org.apache.beam:beam-sdks-java-core:$beamVersion"
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
@@ -41,8 +43,6 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
-
-
 
 }
 

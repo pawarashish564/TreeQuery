@@ -16,8 +16,7 @@ public class TreeQuerySettingHelper {
 
     public static TreeQuerySetting createFromYaml() {
         atomicCounter.incrementAndGet();
-        TreeQuerySetting setting;
-        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
+        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder;
 
         // Loading the YAML file from the /resources folder
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

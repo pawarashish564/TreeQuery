@@ -12,6 +12,7 @@ import java.util.Map;
 public class LocalDummyDiscoveryServiceProxy implements DiscoveryServiceInterface {
     Map<String, Cluster> cacheResultMap = Maps.newHashMap();
     Map<Cluster, Location> clusterLocationMap = Maps.newHashMap();
+
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
 
@@ -27,12 +28,11 @@ public class LocalDummyDiscoveryServiceProxy implements DiscoveryServiceInterfac
         }
     }
 
-    @Override
     public void registerCluster(Cluster cluster, String address, int port) {
         clusterLocationMap.put(
                 cluster,
                 new Location(address, port)
-                );
+        );
     }
 
     @Override

@@ -8,10 +8,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.CacheInputInterface;
-import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.exception.FailConnectionException;
@@ -53,15 +52,16 @@ class TreeQueryWebServerTest {
     static void init() throws Exception{
         String AvroTree = "SimpleJoin.json";
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        discoveryServiceInterface.registerCluster(
-                Cluster.builder().clusterName("A").build(),
-                HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(
-                Cluster.builder().clusterName("B").build(),
-                HOSTNAME, PORT);
+//        discoveryServiceInterface.registerCluster(
+//                Cluster.builder().clusterName("A").build(),
+//                HOSTNAME, PORT);
+//        discoveryServiceInterface.registerCluster(
+//                Cluster.builder().clusterName("B").build(),
+//                HOSTNAME, PORT);
 
         CacheInputInterface cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
 

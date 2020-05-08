@@ -13,7 +13,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
@@ -50,7 +50,8 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
     @BeforeAll
     public static void staticinit(){
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
     }
 
     @BeforeEach
@@ -64,8 +65,8 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+//        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+//        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
         cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 

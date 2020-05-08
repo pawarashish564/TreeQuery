@@ -7,19 +7,18 @@ import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
+import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
-import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
-import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
+import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;
-import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
-import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
+import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -47,7 +46,8 @@ public class SimpleAsyncJoinClusterTest {
 
     @BeforeAll
     public static void staticinit(){
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
     }
 
     @BeforeEach
@@ -59,8 +59,8 @@ public class SimpleAsyncJoinClusterTest {
 
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+//        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+//        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
 
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
 
