@@ -46,7 +46,6 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
-    compile "org.springframework.cloud:spring-cloud-starter-feign:$feignVersion"
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
