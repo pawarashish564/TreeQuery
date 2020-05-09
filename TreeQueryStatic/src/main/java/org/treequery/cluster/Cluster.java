@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Builder
 @EqualsAndHashCode
 @ToString
-@Getter
 public class Cluster implements Serializable {
+    @Getter
     private String clusterName;
 }

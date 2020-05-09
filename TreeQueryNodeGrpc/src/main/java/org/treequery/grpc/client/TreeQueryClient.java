@@ -3,6 +3,7 @@ package org.treequery.grpc.client;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +29,14 @@ public class TreeQueryClient {
     private final TreeQueryServiceGrpc.TreeQueryServiceBlockingStub blockingStub;
 
     private GrpcClientChannel grpcClientChannel;
+    @Getter
+    private final String host;
+    @Getter
+    private final int port;
 
     public TreeQueryClient(String host, int port) {
+        this.host = host;
+        this.port = port;
         grpcClientChannel = new GrpcClientChannel(host, port);
         this.blockingStub = TreeQueryServiceGrpc.newBlockingStub(grpcClientChannel.getChannel());
 

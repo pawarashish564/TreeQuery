@@ -1,5 +1,5 @@
 ---
 servicehostname: "localhost"
-servicePort: 9003
+servicePort: 9002
 cacheFilePath: "${TMPDIR}"
 cluster: "A"

@@ -14,13 +14,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TreeQuerySettingHelper {
     static AtomicInteger atomicCounter = new AtomicInteger(0);
 
-    public static TreeQuerySetting createFromYaml() {
+    public static TreeQuerySetting createFromYaml(){
+        return TreeQuerySettingHelper.createFromYaml("treeQuery.yaml", false);
+    }
+    public static TreeQuerySetting createFromYaml(String fileName, boolean realPath) {
         atomicCounter.incrementAndGet();
-        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder;
+        TreeQuerySetting setting;
+        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = TreeQuerySetting.builder();
 
-        // Loading the YAML file from the /resources folder
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File file = new File(classLoader.getResource("treeQuery.yaml").getFile());
+        File file = null;
+        if(!realPath) {
+            // Loading the YAML file from the /resources folder
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            file = new File(classLoader.getResource(fileName).getFile());
+        }else{
+            file = new File(fileName);
+        }
+
 
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
@@ -40,8 +50,8 @@ public class TreeQuerySettingHelper {
         try {
             String _pathName = treeQuerySettingBuilder.getCacheFilePath().toUpperCase();
             if (_pathName.equals("$TMPDIR") || _pathName.equals("${TMPDIR}")){
-                Path path = Files.createTempDirectory("TreeQuery_");
-                log.info(String.format("Write cache File to path: %s", path.toAbsolutePath().toString()));
+                Path path = Files.createTempDirectory("TreeQuery"+treeQuerySettingBuilder.getCluster()+"_");
+                log.info(String.format("File Cache write cache File to path: %s", path.toAbsolutePath().toString()));
                 treeQuerySettingBuilder.setCacheFilePath(path.toAbsolutePath().toString());
             }
         }catch(Exception ex){}

@@ -1,8 +1,11 @@
 package org.treequery.grpc.utils;
 
 import io.grpc.BindableService;
+import org.treequery.beam.cache.BeamCacheOutputBuilder;
+import org.treequery.beam.cache.TreeQueryCacheProxy;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryCacheGrpcController;
 import org.treequery.grpc.controller.SyncTreeQueryGrpcController;
@@ -13,10 +16,15 @@ import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
 import org.treequery.model.CacheTypeEnum;
+import org.treequery.service.TreeQueryClusterRunnerImpl;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
+import org.treequery.utils.TreeQuerySettingHelper;
+import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
 import org.treequery.beam.cache.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.util.Arrays;
 
@@ -35,7 +43,6 @@ public class WebServerFactory {
 
 
         treeQueryBeamService =  TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)

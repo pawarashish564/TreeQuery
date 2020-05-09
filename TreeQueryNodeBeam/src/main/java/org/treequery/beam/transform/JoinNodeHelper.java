@@ -17,6 +17,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.function.JoinFunction;
 import org.treequery.Transform.function.NoJoinAbleFunction;
+import org.treequery.exception.JoinOnlySupport2NodesException;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
@@ -42,7 +43,7 @@ public class JoinNodeHelper implements NodeBeamHelper{
         List<JoinAble.JoinKey> joinKeyList = joinFunction.getJoinKeys();
 
         if (joinKeyList.size() > 1){
-            throw new IllegalStateException("Not support join more than 2 stream");
+            throw new JoinOnlySupport2NodesException(node);
         }
 
         PCollection<GenericRecord> result = null;

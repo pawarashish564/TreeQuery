@@ -3,6 +3,7 @@ package org.treequery.beam;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.treequery.Transform.FlattenNode;
 import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.LoadLeafNode;
 import org.treequery.Transform.QueryLeafNode;
@@ -10,6 +11,7 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.transform.*;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.exception.NotAllChildBeamReadyToAttach;
 import org.treequery.execute.PipelineBuilderInterface;
 import org.treequery.model.CacheNode;
 import org.treequery.utils.AvroSchemaHelper;
@@ -75,6 +77,9 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
                     .cacheInputInterface(cacheInputInterface)
                     .discoveryServiceInterface(discoveryServiceInterface).build();
         }
+        else if (node instanceof FlattenNode){
+            nodeBeamHelper = new FlattenNodeHelper();
+        }
         else{
             log.error("Not support node transforming to Apache Beam:",node.toString());
             throw new NoSuchMethodError(String.format("Not support node transforming to Apache Beam:%s",node.toString()));
@@ -88,10 +93,18 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
         this.__node = node;
 
         List<PCollection<GenericRecord>> parentLst = parentNodeLst.stream().map(
-            pNode->nodePCollectionMap.get(pNode)
+            pNode-> {
+                PCollection<GenericRecord> beamPipeline =  Optional.ofNullable(nodePCollectionMap.get(pNode))
+                        .orElseThrow(()-> new NotAllChildBeamReadyToAttach(pNode));
+                log.debug(String.format("insertNode2PipelineHelper insert %s to parents %s", node.getName(),pNode.getName()));
+                return beamPipeline;
+            }
         ).collect(Collectors.toList());
 
         PCollection<GenericRecord> transform = nodeBeamHelper.apply(this.pipeline, parentLst, node);
+
+        log.debug(String.format("Node %s insert beam transform with NodeBeamHelper %s",
+                node.getName(), nodeBeamHelper.getClass().getName()));
         nodePCollectionMap.put(node, transform);
     }
 
