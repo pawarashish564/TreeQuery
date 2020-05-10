@@ -3,7 +3,7 @@ apply plugin: 'maven'
 
 
 group 'org.treequery'
-version '1.0-SNAPSHOT'
+version "$TREEQUERY_VERSION"
 archivesBaseName = "TreeQueryNodeBeam"
 sourceCompatibility = 1.8
 
