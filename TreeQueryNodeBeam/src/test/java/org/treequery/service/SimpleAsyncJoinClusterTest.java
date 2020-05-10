@@ -3,6 +3,7 @@ package org.treequery.service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.assertj.core.data.Offset;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
 import org.treequery.Transform.JoinNode;
@@ -131,8 +132,25 @@ public class SimpleAsyncJoinClusterTest {
                                 rootNode.getIdentifier(), pageSize, page,
                                 (record) -> {
                                     assertThat(record).isNotNull();
+                                    String bondTradeTenor = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade_bondstatic.bondstatic.original_maturity");
+                                    String bondMarketDataTenor = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondprice.Tenor");
+                                    assertEquals(bondTradeTenor, bondMarketDataTenor);
+                                    GenericRecordSchemaHelper.DoubleField doubleField = new GenericRecordSchemaHelper.DoubleField();
+                                    GenericRecordSchemaHelper.getValue(record, "bondprice.Price", doubleField);
+                                    double refPrice=0;
+                                    if (bondTradeTenor.equals("10Y")){
+                                        refPrice = 0.72;
+                                    }else if(bondMarketDataTenor.equals("15Y")){
+                                        refPrice = 0.78;
+                                    }else if(bondMarketDataTenor.equals("5Y")){
+                                        refPrice = 0.6;
+                                    }else if(bondMarketDataTenor.equals("3Y")){
+                                        refPrice = 0.62;
+                                    }
+                                    assertThat(doubleField.getValue()).isCloseTo(refPrice, Offset.offset(0.0001));
                                     counter.incrementAndGet();
                                     genericRecordSet.add(record);
+
                                 });
                     }catch (CacheNotFoundException che){
                         che.printStackTrace();

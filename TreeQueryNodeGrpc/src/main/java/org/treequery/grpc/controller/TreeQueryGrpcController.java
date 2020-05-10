@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 //Reference: https://www.programcreek.com/java-api-examples/?api=org.apache.avro.io.BinaryEncoder
 @Slf4j
 @Builder
-public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServiceImplBase {
+public class TreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServiceImplBase {
     private static TreeQueryRequest.RunMode RUNMODE= TreeQueryRequest.RunMode.DIRECT;
     private final TreeQueryBeamService treeQueryBeamService;
 

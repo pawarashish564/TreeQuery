@@ -1,0 +1,59 @@
+apply plugin: 'application'
+apply plugin: 'java'
+
+group 'org.treequery'
+version '1.0-SNAPSHOT'
+
+mainClassName = "org.treequery.grpc.server.Main"
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    ext{
+        shadowjarVersion = '4.0.3'
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadowjarVersion"
+    }
+}
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+dependencies {
+    compile project(':TreeQueryNodeBeam')
+    compile project(':TreeQueryNodeProto')
+    compile project(':TreeQueryNodeGrpc')
+    compile project(':TreeQueryDiscoveryServiceStatic')
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
+    testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
+    testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+}
+
+
+
+shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+    zip64 true
+    mergeServiceFiles()
+    with jar
+}
