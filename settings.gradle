@@ -5,4 +5,5 @@ include 'TreeQueryNodeProto'
 include 'TreeQueryDiscoveryService'
 include 'TreeQueryStatic'
 include 'TreeQueryServiceProxy'
+include 'TreeQueryDiscoveryServiceStatic'
 
