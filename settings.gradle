@@ -5,10 +5,7 @@ include 'TreeQueryNodeProto'
 include 'TreeQueryDiscoveryService'
 include 'TreeQueryStatic'
 include 'TreeQueryServiceProxy'
-<<<<<<< HEAD
 include 'ServiceDiscoveryServer'
 include 'ZuulProxyGateway'
-=======
 include 'TreeQueryDiscoveryServiceStatic'
->>>>>>> MOVE_Discovery_Service_INTERFACE_OUT_FROM_SPRING_IMPL_PREPARATION
 
