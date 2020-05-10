@@ -59,6 +59,11 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
     }
 
     @Override
+    public void registerCluster(Cluster cluster, String address, int port) {
+        throw new NoSuchMethodError("This DiscoveryService implementation not support registerCluster");
+    }
+
+    @Override
     public Location getClusterLocation(Cluster cluster) {
         RestTemplate restTemplate = new RestTemplate();
         String serviceUrl = "http://localhost:8762/" + cluster.getClusterName() + "/location";
