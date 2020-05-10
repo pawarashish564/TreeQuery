@@ -3,8 +3,8 @@ apply plugin: 'com.google.protobuf'
 
 
 group 'org.treequery'
-version '1.0-SNAPSHOT'
-
+version "$TREEQUERY_VERSION"
+archivesBaseName = "TreeQueryNodeProto"
 sourceCompatibility = 1.8
 
 repositories {
@@ -73,4 +73,10 @@ dependencies {
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
     testImplementation "junit:junit:4.12"
     testImplementation "org.mockito:mockito-core:2.25.1"
+}
+
+
+
+if(project.hasProperty('nexus')){
+    apply from: rootProject.file('gradle/uploadNexus.gradle');
 }

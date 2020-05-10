@@ -14,6 +14,7 @@ repositories {
 //NOte Beam 2.17-2.18 failed with Avro + Beam
 // only 2.16, 2.19 working
 ext{
+    TREEQUERY_VERSION = '1.0-SNAPSHOT'
     beamVersion = '2.20.0'
     slf4jVersion = '1.7.28'
     log4jVersion = '2.12.1'
