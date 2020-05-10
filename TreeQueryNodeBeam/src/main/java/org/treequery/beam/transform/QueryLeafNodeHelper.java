@@ -11,17 +11,28 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.BigEndianIntegerCoder;
+import org.apache.beam.sdk.coders.KvCoder;
+import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.io.mongodb.MongoDbIO;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.bson.Document;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.Transform.function.MongoQueryFunction;
+import org.treequery.Transform.function.SqlQueryFunction;
+
+import org.treequery.beam.transform.query.JDBCReadTransform;
+import org.treequery.beam.transform.query.MongoDocumentTransform;
 import org.treequery.model.Node;
+import org.treequery.model.QueryAble;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.List;
 @Slf4j
 public class QueryLeafNodeHelper implements NodeBeamHelper {
@@ -35,10 +46,13 @@ public class QueryLeafNodeHelper implements NodeBeamHelper {
         }
         QueryLeafNode queryLeafNode = (QueryLeafNode) node;
 
-        if (queryLeafNode.getQueryAble() instanceof MongoQueryFunction){
-            //Do Mongo query
+        QueryAble queryAble = queryLeafNode.getQueryAble();
+        if (queryAble instanceof MongoQueryFunction){
             return this.doMongoQuery(pipeline, queryLeafNode);
+        }else if(queryAble instanceof SqlQueryFunction){
+            return this.doSqlQuery(pipeline, queryLeafNode);
         }
+
         throw new NoSuchMethodError();
     }
 
@@ -61,54 +75,19 @@ public class QueryLeafNodeHelper implements NodeBeamHelper {
         return output;
     }
 
-
-    private static class MongoDocumentTransform extends PTransform< PCollection<Document>, PCollection<GenericRecord> >{
-
-        @NonNull
-        Schema schema;
-        MongoDocumentTransform(Schema schema){
-            this.schema = schema;
+    private PCollection<GenericRecord> doSqlQuery(Pipeline pipeline, QueryLeafNode queryLeafNode){
+        PCollection<GenericRecord> output=null;
+        if (!(queryLeafNode.getQueryAble() instanceof SqlQueryFunction)){
+            throw new IllegalArgumentException("Queryable interface should be SQL");
         }
+        SqlQueryFunction sqlQueryFunction = (SqlQueryFunction)queryLeafNode.getQueryAble();
+        //Reference : https://beam.apache.org/releases/javadoc/2.0.0/org/apache/beam/sdk/io/jdbc/JdbcIO.html
 
-        @Override
-        public PCollection<GenericRecord> expand(PCollection<Document> mongoDocuments) {
-            AvroCoder coder = AvroCoder.of(GenericRecord.class, schema);
-            PCollection<GenericRecord> genericRecords = mongoDocuments.apply(
-                    ParDo.of(new ConversionFunction(this.schema))
-            ).setCoder(coder);
-
-            return genericRecords;
-        }
-
-        private static class ConversionFunction extends DoFn<Document, GenericRecord>{
-            Schema schema;
-            ConversionFunction(Schema schema){
-                this.schema = schema;
-            }
-            @ProcessElement
-            public void processElement(@Element Document document, OutputReceiver<GenericRecord > out) throws IOException {
-                DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(schema);
-                String jsonString = document.toJson();
-                GenericRecord genericRecord = null;
-
-                JsonDecoder jsonDecoder = DecoderFactory.get().jsonDecoder(schema, jsonString);
-                try {
-                    genericRecord = datumReader.read(null, jsonDecoder);
-                }catch(Throwable ex){
-                    log.error(ex.getMessage());
-                    log.error(jsonString);
-                    throw new IllegalArgumentException(String.format("Failed to parse:%s", jsonString));
-                }
-                /*
-                    log.error(ex.getMessage());
-                    throw new IllegalStateException(ex.getMessage());
-                }*/
-                out.output(genericRecord);
-            }
-        }
-
-
+        Schema schema = queryLeafNode.getAvroSchemaObj();
+        output = pipeline.apply(
+                JDBCReadTransform.getJDBCRead(sqlQueryFunction, schema)
+        );
+        return output;
     }
-
 
 }

@@ -31,7 +31,7 @@
         }
       ],
       "keys": [ {"left":0, "right":1 ,"on":[{"left": "asset.securityId","right": "isin_code"}] ,
-                "labels":  {"left":"bondtrade", "right":"bondstatic"}} ]
+        "labels":  {"left":"bondtrade", "right":"bondstatic"}} ]
     },
     {
       "name": "Join10YData",
@@ -60,7 +60,7 @@
         }
       ],
       "keys": [ {"left":0, "right":1 ,"on":[{"left": "asset.securityId","right": "isin_code"}],
-                "labels":  {"left":"bondtrade", "right":"bondstatic"} } ]
+        "labels":  {"left":"bondtrade", "right":"bondstatic"} } ]
     }
   ]
 }

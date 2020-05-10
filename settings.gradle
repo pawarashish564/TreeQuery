@@ -7,4 +7,5 @@ include 'TreeQueryStatic'
 include 'TreeQueryServiceProxy'
 include 'ServiceDiscoveryServer'
 include 'ZuulProxyGateway'
+include 'TreeQueryDiscoveryServiceStatic'
 

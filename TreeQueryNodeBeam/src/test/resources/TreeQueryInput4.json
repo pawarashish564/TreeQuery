@@ -1,0 +1,10 @@
+
+
+{
+  "name": "LoadBondPrice",
+  "description": "Load Bond Price",
+  "action": "LOAD",
+  "cluster": "A",
+  "source": "${WORKDIR}/BondPrice.avro",
+  "avro_schema": "{\"name\":\"BondMktData\",\"type\":\"record\",\"namespace\":\"org.treequery.security.model.avro\",\"fields\":[{\"name\":\"AsOfDate\",\"type\":\"string\"},{\"name\":\"Tenor\",\"type\":\"string\"},{\"name\":\"Price\",\"type\":\"double\"}]}"
+}

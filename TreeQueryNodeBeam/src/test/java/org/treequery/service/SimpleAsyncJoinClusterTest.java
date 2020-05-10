@@ -7,23 +7,26 @@ import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
-import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
-import org.treequery.model.CacheTypeEnum;
-import org.treequery.model.Node;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.exception.CacheNotFoundException;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
+import org.treequery.model.CacheTypeEnum;
+import org.treequery.model.Node;
 import org.treequery.utils.*;
-import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
+import org.treequery.beam.cache.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,8 +49,7 @@ public class SimpleAsyncJoinClusterTest {
 
     @BeforeAll
     public static void staticinit(){
-//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
     }
 
     @BeforeEach
@@ -59,8 +61,8 @@ public class SimpleAsyncJoinClusterTest {
 
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-//        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-//        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
 
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
 
@@ -100,18 +102,18 @@ public class SimpleAsyncJoinClusterTest {
     @RepeatedTest(1)
     public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
         String AvroTree = "SimpleJoin.json";
-        this.runTest(AvroTree);
+        this.runTest(AvroTree, checkSimpleJoinCriteria(treeQuerySetting));
     }
     @RepeatedTest(1)
     public void SimpleAsyncJoinTestWithDiffCluster() throws Exception{
         String AvroTree = "SimpleJoinB.json";
-        this.runTest(AvroTree);
+        this.runTest(AvroTree,checkSimpleJoinCriteria(treeQuerySetting));
     }
 
     @Test
     public void SimpleAsyncJoinTestWithMixedCluster() throws Exception{
         String AvroTree = "SimpleJoinCluster.json";
-        this.runTest(AvroTree);
+        this.runTest(AvroTree, checkSimpleJoinCriteria(treeQuerySetting));
     }
 
     @Disabled
@@ -127,8 +129,36 @@ public class SimpleAsyncJoinClusterTest {
         assertNotEquals(rootNode.getIdentifier(), rootNode2.getIdentifier());
     }
 
+    private static Consumer<Node> checkSimpleJoinCriteria(TreeQuerySetting treeQuerySetting){
+        return (rootNode)->{
+            long pageSize = 10000;
+            long page = 1;
+            AtomicInteger counter = new AtomicInteger();
+            Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+            try {
+                Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
+                        treeQuerySetting,
+                        rootNode.getIdentifier(), pageSize, page,
+                        (record) -> {
+                            assertThat(record).isNotNull();
+                            counter.incrementAndGet();
+                            String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
+                            String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondstatic.isin_code");
+                            assertThat(genericRecordSet).doesNotContain(record);
+                            assertEquals(isinBondTrade, isinSecCode);
+                            assertThat(isinBondTrade.length()).isGreaterThan(5);
+                            genericRecordSet.add(record);
+                        });
+            }catch (CacheNotFoundException che){
+                che.printStackTrace();
+                throw new IllegalStateException(che.getMessage());
+            }
 
-    private void runTest(String AvroTree) throws Exception{
+            assertEquals(1000, counter.get());
+        };
+    }
+
+    private void runTest(String AvroTree, Consumer<Node> testValidation) throws Exception{
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         assertThat(rootNode).isInstanceOf(JoinNode.class);
@@ -147,7 +177,7 @@ public class SimpleAsyncJoinClusterTest {
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.create();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             log.debug(status.toString());
 
@@ -178,24 +208,6 @@ public class SimpleAsyncJoinClusterTest {
                 .isEqualTo(rootNode.getCluster());
 
 
-        long pageSize = 10000;
-        long page = 1;
-        AtomicInteger counter = new AtomicInteger();
-        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
-                treeQuerySetting,
-                rootNode.getIdentifier(),pageSize,page,
-                (record)->{
-                    assertThat(record).isNotNull();
-                    counter.incrementAndGet();
-                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
-                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
-                    assertThat(genericRecordSet).doesNotContain(record);
-                    assertEquals(isinBondTrade, isinSecCode);
-                    assertThat(isinBondTrade.length()).isGreaterThan(5);
-                    genericRecordSet.add(record);
-                });
-
-        assertEquals(1000, counter.get());
+        testValidation.accept(rootNode);
     }
 }

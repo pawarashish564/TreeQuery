@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 }
 
 group 'org.treequery'
@@ -24,8 +23,9 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
     compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    compile "org.springframework.cloud:spring-cloud-commons:2.2.1.RELEASE"
 
+
+//    compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
 
@@ -34,6 +34,8 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
 
 }
+
+
 
 test {
     useJUnitPlatform {

@@ -1,24 +1,7 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.9'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.2'
-    }
-}
-
-plugins {
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-}
-
 apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'com.google.protobuf'
-//apply plugin: 'com.github.johnrengelman.shadow'
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
@@ -28,25 +11,38 @@ targetCompatibility = 1.8
 mainClassName = "org.treequery.grpc.server.Main"
 repositories {
     mavenCentral()
-    jcenter()
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    ext{
+        shadowjarVersion = '4.0.3'
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.9'
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadowjarVersion"
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
 
 ext{
     grpcVersion = '1.21.0' // CURRENT_GRPC_VERSION
     protobufVersion = '3.8.0'
     protocVersion = protobufVersion
     commonscompressVersion = '1.18'
-    springCloudVersion = 'Hoxton.SR1'
 }
 
 dependencies {
-    compile project(':TreeQueryNodeBeam'), project(':TreeQueryNodeProto')
-
-    // Spring Boot Eureka Client
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile project(':TreeQueryNodeBeam')
+    compile project(':TreeQueryNodeProto')
+    compile project(':TreeQueryDiscoveryServiceStatic')
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
@@ -65,20 +61,13 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
-configurations {
-    all*.exclude module : 'spring-boot-starter-logging'
-}
-/*
 shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
     zip64 true
     mergeServiceFiles()
-
-}*/
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
+    with jar
 }
 
 startScripts.enabled = false

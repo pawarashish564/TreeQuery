@@ -10,6 +10,7 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.exception.TimeOutException;
+import org.treequery.grpc.exception.NodeNotMatchingGrpcServiceClusterException;
 import org.treequery.service.*;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroIOHelper;
@@ -28,8 +29,6 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     TreeQueryClusterService treeQueryClusterService;
     @NonNull
     BeamCacheOutputBuilder beamCacheOutputBuilder;
-
-    CacheTypeEnum cacheTypeEnum;
     @NonNull
     AvroSchemaHelper avroSchemaHelper;
     @NonNull
@@ -42,13 +41,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     CacheInputInterface cacheInputInterface;
 
     @Builder
-    public TreeQueryBeamServiceHelper(CacheTypeEnum cacheTypeEnum,
-                                      AvroSchemaHelper avroSchemaHelper,
+    public TreeQueryBeamServiceHelper(AvroSchemaHelper avroSchemaHelper,
                                       DiscoveryServiceInterface discoveryServiceInterface,
                                       TreeQuerySetting treeQuerySetting,
                                       TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface,
                                       CacheInputInterface cacheInputInterface){
-        this.cacheTypeEnum = cacheTypeEnum;
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
@@ -84,6 +81,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
         }catch(Exception je){
             throw new IllegalArgumentException(String.format("Not able to parse:%s", jsonInput));
         }
+        if (!rootNode.getCluster().equals(treeQuerySetting.getCluster())){
+            NodeNotMatchingGrpcServiceClusterException runtimeException = new NodeNotMatchingGrpcServiceClusterException(rootNode.getCluster(), treeQuerySetting);
+            log.error(runtimeException.getMessage());
+            throw runtimeException;
+        }
         return PreprocessInput.builder()
                 .node(rootNode)
                 .outputSchema(outputSchema)
@@ -117,7 +119,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
                         .dataSchema(schema)
                         .build();
             }catch(CacheNotFoundException che){
-                log.info(String.format("Cache %s not found, need to rerun", identifier));
+                log.info(String.format("Cluster:%s Node:%s from cluster %s identifier %s not found, need to rerun",
+                        treeQuerySetting.getCluster().toString(),
+                        preprocessInput.getNode().getName(),
+                        preprocessInput.getNode().getCluster(),
+                        identifier));
                 return this.runQuery(preprocessInput.getNode(), pageSize, page, dataConsumer);
             }
         }
@@ -125,7 +131,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     }
 
     private ReturnResult runQuery(Node rootNode, long pageSize, long page, Consumer<GenericRecord> dataConsumer){
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.of();
+        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.create();
         final String hashCode = rootNode.getIdentifier();
         treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
             asyncRunHelper.continueRun(status);
@@ -134,7 +140,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
 
         try {
             StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
-            if(statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+            if(asyncRunHelper.isError()){
                 log.error("Failure run with status code:"+statusTreeQueryCluster.getStatus());
                 return ReturnResult.builder()
                         .hashCode(hashCode)

@@ -1,6 +1,7 @@
 package org.treequery.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import org.treequery.Transform.function.NoJoinAbleFunction;
 import org.treequery.cluster.Cluster;
 import lombok.Getter;
 import lombok.NonNull;
-import org.apache.beam.vendor.grpc.v1p21p0.com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -77,16 +77,23 @@ public abstract class Node implements Serializable {
     }
 
     public String toJson(){
-        Gson gson = new Gson();
-        return gson.toJson(this);
+        return Optional.ofNullable(this.jNode).map(
+                jsonNode -> jsonNode.toString()
+        ).orElse(
+                new Gson().toJson(this)
+        );
     }
 
     public String getIdentifier(){
         return this.getSHA256();
     }
     private String getSHA256(){
+        String sha256hex = getHash(this.toJson());
+        return sha256hex;
+    }
+    public static String getHash(String identifier){
         String sha256hex = Hashing.sha256()
-                .hashString(this.toJson(), StandardCharsets.UTF_8)
+                .hashString(identifier, StandardCharsets.UTF_8)
                 .toString();
         return sha256hex;
     }

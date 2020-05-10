@@ -5,15 +5,13 @@ import lombok.Getter;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
@@ -36,8 +34,9 @@ import java.util.function.Consumer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("integration")
 public class ClusterTreeQueryBeamServiceHelperTest {
-    final static int PORT = 8005;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static int PORT = 9009;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     String jsonString;
     static DiscoveryServiceInterface discoveryServiceInterface = null;
@@ -50,8 +49,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
     @BeforeAll
     public static void staticinit(){
-//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
     }
 
     @BeforeEach
@@ -65,8 +63,8 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-//        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-//        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
         cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
@@ -98,7 +96,6 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                 )
                 .build();
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(cacheTypeEnum)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
@@ -111,7 +108,6 @@ public class ClusterTreeQueryBeamServiceHelperTest {
     @Test
     void throwIllegalArugmentExceptionIfBlankProxy(){
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
-                .cacheTypeEnum(CacheTypeEnum.FILE)
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .cacheInputInterface(cacheInputInterface)
@@ -134,6 +130,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         assertEquals(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR,returnResult.getStatusTreeQueryCluster().getStatus());
 
     }
+
     @Test
     void happyPathRunBeamJoinLocally() throws Exception{
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
