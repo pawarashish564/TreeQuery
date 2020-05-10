@@ -4,7 +4,7 @@ include 'TreeQueryNodeGrpc'
 include 'TreeQueryNodeProto'
 include 'TreeQueryDiscoveryService'
 include 'TreeQueryStatic'
-include 'TreeQueryServiceProxy'DiscoveryServiceProxyImpl
+include 'TreeQueryServiceProxy'
 include 'ServiceDiscoveryServer'
 include 'ZuulProxyGateway'
 include 'TreeQueryDiscoveryServiceStatic'
