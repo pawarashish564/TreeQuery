@@ -2,6 +2,7 @@ package org.treequery.grpc.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
+import org.assertj.core.data.Offset;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +21,7 @@ import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
+import org.treequery.model.Node;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
@@ -27,12 +29,14 @@ import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
+import org.treequery.utils.GenericRecordSchemaHelper;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -156,7 +160,12 @@ class TreeQueryWebServerTest {
     @Test
     void happyPathSimpleJoin(){
         String AvroTree = "SimpleJoin.json";
-        run2Layers(AvroTree);
+        runLayers(AvroTree, 1000,
+                genericRecord -> {
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+                }
+        );
     }
     @Test
     void throwErrorWhenSendingQueryToWrongClusterPathSimpleClusterJoin(){
@@ -176,7 +185,13 @@ class TreeQueryWebServerTest {
                 Cluster.builder().clusterName("B").build(),
                 treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
         String AvroTree = "SimpleJoinCluster.json";
-        run2Layers(AvroTree);
+        runLayers(AvroTree, 1000,
+                genericRecord -> {
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+                }
+        );
+
     }
 
     @Test
@@ -185,10 +200,46 @@ class TreeQueryWebServerTest {
                 Cluster.builder().clusterName("B").build(),
                 treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
         String AvroTree = "TreeQueryInput3.new.json";
-        run3Layers(AvroTree);
+        //run3Layers(AvroTree);
+        runLayers(AvroTree, 3000,
+                genericRecord -> {
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+                }
+                );
     }
 
-    void run3Layers(String AvroTree){
+    @Test
+    void happyPathTreeQuery4layers(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        String AvroTree = "TreeQueryInput4.json";
+        runLayers(AvroTree, 3000,
+                record -> {
+                    assertThat(record).isNotNull();
+                    assertThat(record).isNotNull();
+                    String bondTradeTenor = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade_bondstatic.bondstatic.original_maturity");
+                    String bondMarketDataTenor = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondprice.Tenor");
+                    assertEquals(bondTradeTenor, bondMarketDataTenor);
+                    GenericRecordSchemaHelper.DoubleField doubleField = new GenericRecordSchemaHelper.DoubleField();
+                    GenericRecordSchemaHelper.getValue(record, "bondprice.Price", doubleField);
+                    double refPrice=0;
+                    if (bondTradeTenor.equals("10Y")){
+                        refPrice = 0.72;
+                    }else if(bondMarketDataTenor.equals("15Y")){
+                        refPrice = 0.78;
+                    }else if(bondMarketDataTenor.equals("5Y")){
+                        refPrice = 0.6;
+                    }else if(bondMarketDataTenor.equals("3Y")){
+                        refPrice = 0.62;
+                    }
+                    assertThat(doubleField.getValue()).isCloseTo(refPrice, Offset.offset(0.0001));
+                }
+        );
+    }
+
+    void runLayers(String AvroTree, int numberOfRecord,  Consumer<GenericRecord> testValidation){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -212,8 +263,7 @@ class TreeQueryWebServerTest {
             List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
             genericRecordList.forEach(
                     genericRecord -> {
-                        assertThat(genericRecord).isNotNull();
-                        assertThat(genericRecord.get("bondtrade")).isNotNull();
+                        testValidation.accept(genericRecord);
                         assertThat(genericRecordSet).doesNotContain(genericRecord);
                         counter.incrementAndGet();
                         genericRecordSet.add(genericRecord);
@@ -221,46 +271,9 @@ class TreeQueryWebServerTest {
             );
             page++;
         }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
-        assertEquals(3000, counter.get());
+        assertEquals(numberOfRecord, counter.get());
+        assertThat(genericRecordSet).hasSize(numberOfRecord);
     }
-
-    void run2Layers(String AvroTree){
-        String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
-
-        boolean renewCache = false;
-        int pageSize = 100;
-        int page = 1;
-        TreeQueryResult treeQueryResult = null;
-        AtomicLong counter = new AtomicLong(0);
-        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        do {
-            treeQueryResult = treeQueryClient.query(TreeQueryRequest.RunMode.DIRECT,
-                    jsonString,
-                    renewCache,
-                    pageSize,
-                    page
-            );
-            assertTrue(treeQueryResult.getHeader().isSuccess());
-            assertEquals(0, treeQueryResult.getHeader().getErr_code());
-            TreeQueryResult.TreeQueryResponseResult treeQueryResponseResult = treeQueryResult.getResult();
-
-            List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
-            genericRecordList.forEach(
-                    genericRecord -> {
-                        assertThat(genericRecord).isNotNull();
-                        assertThat(genericRecord.get("bondtrade")).isNotNull();
-                        assertThat(genericRecordSet).doesNotContain(genericRecord);
-                        counter.incrementAndGet();
-                        genericRecordSet.add(genericRecord);
-                    }
-            );
-            page++;
-        }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
-        assertEquals(1000, counter.get());
-        assertThat(genericRecordSet).hasSize(1000);
-    }
-
     private static CacheInputInterface prepareCacheInputInterface(TreeQuerySetting treeQuerySetting,
                                                                   DiscoveryServiceInterface discoveryServiceInterface){
         return new GrpcCacheInputInterfaceProxyFactory()

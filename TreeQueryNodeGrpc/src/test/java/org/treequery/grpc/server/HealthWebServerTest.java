@@ -6,10 +6,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.treequery.grpc.client.HealthWebClient;
-import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
+import org.treequery.grpc.controller.HealthCheckGrpcController;
 
 import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
@@ -19,7 +18,7 @@ class HealthWebServerTest {
     final static String HOSTNAME = "localhost";
     @BeforeAll
     static void init() throws Exception{
-        BindableService[] bindableServices = {new SyncHealthCheckGrpcController()};
+        BindableService[] bindableServices = {new HealthCheckGrpcController()};
 
         webServer = new WebServer(PORT, Arrays.asList(bindableServices));
         webServer.start();

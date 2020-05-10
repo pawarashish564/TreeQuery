@@ -8,7 +8,7 @@ import org.treequery.proto.HealthCheckServiceGrpc;
 import org.treequery.proto.TreeQueryServiceGrpc;
 
 @Slf4j
-public class SyncHealthCheckGrpcController extends HealthCheckServiceGrpc.HealthCheckServiceImplBase{
+public class HealthCheckGrpcController extends HealthCheckServiceGrpc.HealthCheckServiceImplBase{
     @Override
     public void check(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
         log.info(String.format("health check request %s",request.toString()));
