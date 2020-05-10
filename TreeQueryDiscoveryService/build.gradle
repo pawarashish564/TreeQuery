@@ -3,7 +3,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'org.treequery'
-version '1.0-SNAPSHOT'
+version "$TREEQUERY_VERSION"
 archivesBaseName = "TreeQueryDiscoveryService"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
