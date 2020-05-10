@@ -4,7 +4,7 @@ plugins {
 
 group 'org.treequery'
 version "$TREEQUERY_VERSION"
-
+archivesBaseName = "TreeQueryStatic"
 sourceCompatibility = 1.8
 
 repositories {
@@ -60,4 +60,9 @@ task integrationTest(type: Test) {
     testLogging {
         events "passed", "skipped", "failed"
     }
+}
+
+
+if(project.hasProperty('nexus')){
+    apply from: rootProject.file('gradle/uploadNexus.gradle');
 }

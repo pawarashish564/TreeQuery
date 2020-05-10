@@ -34,3 +34,9 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
+
+
+
+if(project.hasProperty('nexus')){
+    apply from: rootProject.file('gradle/uploadNexus.gradle');
+}

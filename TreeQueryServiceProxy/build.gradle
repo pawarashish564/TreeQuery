@@ -4,7 +4,7 @@ plugins {
 
 group 'org.treequery'
 version "$TREEQUERY_VERSION"
-
+archivesBaseName = "TreeQueryServiceProxy"
 sourceCompatibility = 1.8
 
 repositories {
@@ -29,4 +29,9 @@ dependencies {
     compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
+}
+
+
+if(project.hasProperty('nexus')){
+    apply from: rootProject.file('gradle/uploadNexus.gradle');
 }
