@@ -19,3 +19,17 @@ create table DailyGovBondPrice(
 ``````
 gradlew -Pnexus uploadArchives
 ``````
+
+#### Execute server
+TreeQueryNodeServerExecutable
+java -jar TreeQueryNodeServerExecutable-1.0-SNAPSHOT.jar < file name of treeQuery.yaml>
+```
+Sample of treeQuery.yaml
+for cacheFilePath, you would put absolute path 
+or put ${TMPDIR} for system temporary directory.
+---
+servicehostname: "localhost"
+servicePort: 9002
+cacheFilePath: "${TMPDIR}"
+cluster: "A"
+```
