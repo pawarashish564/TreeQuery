@@ -15,7 +15,7 @@ import org.treequery.service.CacheResult;
 import java.util.Optional;
 
 @Builder
-public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.TreeQueryCacheServiceImplBase {
+public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.TreeQueryCacheServiceImplBase {
 
     private final TreeQueryCacheService treeQueryCacheService;
 

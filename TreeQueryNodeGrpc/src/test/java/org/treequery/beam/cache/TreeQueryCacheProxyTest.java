@@ -1,19 +1,17 @@
 package org.treequery.beam.cache;
 
 import io.grpc.BindableService;
-import io.grpc.StatusRuntimeException;
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.Any;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.model.Location;
 import org.treequery.exception.CacheNotFoundException;
-import org.treequery.grpc.controller.SyncHealthCheckGrpcController;
-import org.treequery.grpc.controller.SyncTreeQueryCacheGrpcController;
+import org.treequery.grpc.controller.HealthCheckGrpcController;
+import org.treequery.grpc.controller.TreeQueryCacheGrpcController;
 import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.server.WebServer;
 import org.treequery.grpc.service.TreeQueryCacheService;
@@ -21,10 +19,8 @@ import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryCacheRequest;
-import org.treequery.proto.TreeQueryCacheResponse;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +35,7 @@ class TreeQueryCacheProxyTest {
     static String avroSampleFile = identifier+".avro";
     static TreeQuerySetting treeQuerySetting;
     static TreeQueryCacheService treeQueryCacheService;
-    static SyncTreeQueryCacheGrpcController syncTreeQueryCacheGrpcController = null;
+    static TreeQueryCacheGrpcController treeQueryCacheGrpcController = null;
     static String HOSTNAME = "localhost";
     static int PORT = 9010;
     static WebServer webServer = null;
@@ -61,10 +57,10 @@ class TreeQueryCacheProxyTest {
                 .treeQuerySetting(treeQuerySetting)
                 .build();
 
-        syncTreeQueryCacheGrpcController = SyncTreeQueryCacheGrpcController.builder()
+        treeQueryCacheGrpcController = TreeQueryCacheGrpcController.builder()
                 .treeQueryCacheService(treeQueryCacheService)
                 .build();
-        BindableService[] bindableServices = {new SyncHealthCheckGrpcController(),  syncTreeQueryCacheGrpcController};
+        BindableService[] bindableServices = {new HealthCheckGrpcController(), treeQueryCacheGrpcController};
         webServer = new WebServer(PORT, Arrays.asList(bindableServices));
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         webServer.start();

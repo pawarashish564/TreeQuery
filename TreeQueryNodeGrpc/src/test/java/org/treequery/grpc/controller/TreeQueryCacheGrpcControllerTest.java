@@ -14,23 +14,21 @@ import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryCacheRequest;
 import org.treequery.proto.TreeQueryCacheResponse;
-import org.treequery.proto.TreeQueryResponse;
 import org.treequery.service.CacheResult;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
-class SyncTreeQueryCacheGrpcControllerTest {
+class TreeQueryCacheGrpcControllerTest {
     TreeQueryCacheRequest treeQueryCacheRequest = null;
     String identifier = "BondTradeJoinBondStatic";
     String avroSampleFile = identifier+".avro";
     TreeQuerySetting treeQuerySetting;
     TreeQueryCacheService treeQueryCacheService;
-    SyncTreeQueryCacheGrpcController syncTreeQueryCacheGrpcController = null;
+    TreeQueryCacheGrpcController treeQueryCacheGrpcController = null;
     String HOSTNAME = "localhost";
     int PORT = 9001;
 
@@ -50,7 +48,7 @@ class SyncTreeQueryCacheGrpcControllerTest {
                 .treeQuerySetting(treeQuerySetting)
                 .build();
 
-        syncTreeQueryCacheGrpcController = SyncTreeQueryCacheGrpcController.builder()
+        treeQueryCacheGrpcController = TreeQueryCacheGrpcController.builder()
                                             .treeQueryCacheService(treeQueryCacheService)
                                             .build();
         treeQueryCacheRequest = TreeQueryCacheRequest.newBuilder()
@@ -64,8 +62,8 @@ class SyncTreeQueryCacheGrpcControllerTest {
     void failToGetSchemaFromIncorrectSchemaString() {
         boolean throwException = false;
         try {
-            syncTreeQueryCacheGrpcController.getSchemaFromString("xys", treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
-        }catch(SyncTreeQueryCacheGrpcController.SchemaGetException sge){
+            treeQueryCacheGrpcController.getSchemaFromString("xys", treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
+        }catch(TreeQueryCacheGrpcController.SchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder = sge.getTreeQueryCacheResponseBuilder();
             TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheResponseBuilder.build();
             assertNotNull(treeQueryCacheResponse);
@@ -78,8 +76,8 @@ class SyncTreeQueryCacheGrpcControllerTest {
     void failToGetSchemaFromWrongIdentifier() {
         boolean throwException = false;
         try {
-            syncTreeQueryCacheGrpcController.getSchemaFromString(treeQueryCacheRequest.getAvroSchema(), "xyz", treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
-        }catch(SyncTreeQueryCacheGrpcController.SchemaGetException sge){
+            treeQueryCacheGrpcController.getSchemaFromString(treeQueryCacheRequest.getAvroSchema(), "xyz", treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
+        }catch(TreeQueryCacheGrpcController.SchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder = sge.getTreeQueryCacheResponseBuilder();
             TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheResponseBuilder.build();
             assertNotNull(treeQueryCacheResponse);
@@ -92,14 +90,14 @@ class SyncTreeQueryCacheGrpcControllerTest {
     void HappyPathToGetSchema() {
         boolean throwException = false;
         try {
-            Schema schema = syncTreeQueryCacheGrpcController.getSchemaFromString(treeQueryCacheRequest.getAvroSchema(), treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
+            Schema schema = treeQueryCacheGrpcController.getSchemaFromString(treeQueryCacheRequest.getAvroSchema(), treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
             assertNotNull(schema);
 
             String schemaStr = schema.toString();
             Schema.Parser parser= new Schema.Parser();
             Schema schema1 = parser.parse(schemaStr);
             assertEquals(schema, schema1);
-        }catch(SyncTreeQueryCacheGrpcController.SchemaGetException sge){
+        }catch(TreeQueryCacheGrpcController.SchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder = sge.getTreeQueryCacheResponseBuilder();
             TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheResponseBuilder.build();
             assertNotNull(treeQueryCacheResponse);
@@ -150,7 +148,7 @@ class SyncTreeQueryCacheGrpcControllerTest {
                 public void onCompleted() {
                 }
             };
-            syncTreeQueryCacheGrpcController.get(treeQueryCacheRequest, responseObserver);
+            treeQueryCacheGrpcController.get(treeQueryCacheRequest, responseObserver);
             if (counter.get() == inx){
                 break;
             }
