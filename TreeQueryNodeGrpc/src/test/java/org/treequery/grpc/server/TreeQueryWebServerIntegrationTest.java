@@ -2,6 +2,7 @@ package org.treequery.grpc.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
+import org.assertj.core.data.Offset;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,12 +29,14 @@ import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
+import org.treequery.utils.GenericRecordSchemaHelper;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -130,10 +133,45 @@ class TreeQueryWebServerIntegrationTest {
                 Cluster.builder().clusterName("B").build(),
                 treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
         String AvroTree = "TreeQueryInput3.integration.json";
-        run3Layers(AvroTree);
+        //run3Layers(AvroTree);
+        runLayers(AvroTree, 3000,
+                genericRecord -> {
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+                }
+        );
     }
 
-    void run3Layers(String AvroTree){
+    @Test
+    void happyPathTreeQuery4layers(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        String AvroTree = "TreeQueryInput4.integration.jdbc.json";
+        runLayers(AvroTree, 3000,
+                record -> {
+                    assertThat(record).isNotNull();
+                    assertThat(record).isNotNull();
+                    String bondTradeTenor = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade_bondstatic.bondstatic.original_maturity");
+                    String bondMarketDataTenor = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondprice.Tenor");
+                    assertEquals(bondTradeTenor, bondMarketDataTenor);
+                    GenericRecordSchemaHelper.DoubleField doubleField = new GenericRecordSchemaHelper.DoubleField();
+                    GenericRecordSchemaHelper.getValue(record, "bondprice.Price", doubleField);
+                    double refPrice=0;
+                    if (bondTradeTenor.equals("10Y")){
+                        refPrice = 0.72;
+                    }else if(bondMarketDataTenor.equals("15Y")){
+                        refPrice = 0.78;
+                    }else if(bondMarketDataTenor.equals("5Y")){
+                        refPrice = 0.6;
+                    }else if(bondMarketDataTenor.equals("3Y")){
+                        refPrice = 0.62;
+                    }
+                    assertThat(doubleField.getValue()).isCloseTo(refPrice, Offset.offset(0.0001));
+                }
+        );
+    }
+    void runLayers(String AvroTree, int numberOfRecord,  Consumer<GenericRecord> testValidation){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -157,8 +195,7 @@ class TreeQueryWebServerIntegrationTest {
             List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
             genericRecordList.forEach(
                     genericRecord -> {
-                        assertThat(genericRecord).isNotNull();
-                        assertThat(genericRecord.get("bondtrade")).isNotNull();
+                        testValidation.accept(genericRecord);
                         assertThat(genericRecordSet).doesNotContain(genericRecord);
                         counter.incrementAndGet();
                         genericRecordSet.add(genericRecord);
@@ -166,9 +203,8 @@ class TreeQueryWebServerIntegrationTest {
             );
             page++;
         }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
-
-        assertEquals(3000, counter.get());
-        assertEquals(3000, genericRecordSet.size());
+        assertEquals(numberOfRecord, counter.get());
+        assertThat(genericRecordSet).hasSize(numberOfRecord);
     }
 
 
