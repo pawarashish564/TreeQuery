@@ -11,7 +11,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.exception.FailConnectionException;
@@ -20,11 +20,11 @@ import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
+import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 @Slf4j
 class TreeQueryWebServerTest {
@@ -58,7 +57,7 @@ class TreeQueryWebServerTest {
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         discoveryServiceInterface.registerCluster(

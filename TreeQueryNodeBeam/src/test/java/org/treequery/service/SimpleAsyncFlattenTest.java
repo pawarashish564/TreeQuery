@@ -6,7 +6,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.treequery.Transform.FlattenNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
@@ -14,7 +13,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.model.Node;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
@@ -47,7 +46,7 @@ public class SimpleAsyncFlattenTest {
 
     @BeforeAll
     public static void staticinit(){
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
         List<String> fileList = Arrays.asList(new String[]{"bondtrade1.avro","bondtrade2.avro","bondtrade3.avro"});
         fileList.forEach(
                 fileName-> {

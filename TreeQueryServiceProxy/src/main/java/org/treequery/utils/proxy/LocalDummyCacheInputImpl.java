@@ -1,10 +1,11 @@
 package org.treequery.utils.proxy;
 
-import jdk.internal.jline.internal.Nullable;
+
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.reflect.Nullable;
 import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;

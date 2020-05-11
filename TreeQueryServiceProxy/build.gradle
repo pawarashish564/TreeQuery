@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':TreeQueryDiscoveryServiceStatic')
+    compile project(':TreeQueryDiscoveryService')
     compile project(':TreeQueryNodeProto')
 
     compile "org.slf4j:slf4j-api:$slf4jVersion"

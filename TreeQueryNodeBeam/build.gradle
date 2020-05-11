@@ -15,7 +15,7 @@ repositories {
 dependencies {
     compile project(':TreeQueryStatic')
     compile project (':TreeQueryServiceProxy')
-    compile project(':TreeQueryDiscoveryServiceStatic')
+    compile project(':TreeQueryDiscoveryService')
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
@@ -63,18 +63,18 @@ test {
 }
 
 
-task integrationTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'integration'
-    }
-    check.dependsOn it
-    shouldRunAfter test
-    testLogging.showStandardStreams = true
-
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-}
+//task integrationTest(type: Test) {
+//    useJUnitPlatform {
+//        includeTags 'integration'
+//    }
+//    check.dependsOn it
+//    shouldRunAfter test
+//    testLogging.showStandardStreams = true
+//
+//    testLogging {
+//        events "passed", "skipped", "failed"
+//    }
+//}
 
 apply from: rootProject.file('gradle/profile.gradle')
 

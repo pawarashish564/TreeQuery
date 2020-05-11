@@ -30,6 +30,6 @@ public class TreeQueryClientFactory {
         }
 
         return new TreeQueryClient(location.getAddress(),
-                                    location.getPort());
+                location.getPort());
     }
 }

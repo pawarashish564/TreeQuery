@@ -8,9 +8,10 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
-import org.springframework.web.client.RestTemplate;
+//import org.springframework.web.client.RestTemplate;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.model.Location;
 
 import java.util.HashMap;
@@ -25,13 +26,13 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
-        final Map<String, Object> clusterMap = new HashMap<String, Object>();
-        clusterMap.put("cluster", cluster);
+//        final Map<String, Object> clusterMap = new HashMap<String, Object>();
+//        clusterMap.put("cluster", cluster);
 
         try {
             System.out.println("Adding a new item...");
             PutItemOutcome outcome = table
-                    .putItem(new Item().withPrimaryKey("avro", hashId).withMap("info", clusterMap));
+                    .putItem(new Item().withPrimaryKey("avro", hashId).withString("cluster", cluster.getClusterName()));
             System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult());
         } catch (Exception e) {
             System.err.println("Unable to add item: " + hashId);
@@ -49,7 +50,7 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             Item outcome = table.getItem(spec);
             System.out.println("GetItem succeeded: " + outcome);
             cluster = Cluster.builder()
-                    .clusterName(outcome.getString("name"))
+                    .clusterName(outcome.getString("cluster"))
                     .build();
         } catch (Exception e) {
             System.err.println("Unable to read item: " + hashId + " ");
@@ -60,13 +61,14 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
     @Override
     public void registerCluster(Cluster cluster, String address, int port) {
-        throw new NoSuchMethodError("This DiscoveryService implementation not support registerCluster");
+        throw new InterfaceMethodNotUsedException("registerCluster");
     }
 
     @Override
     public Location getClusterLocation(Cluster cluster) {
-        RestTemplate restTemplate = new RestTemplate();
-        String serviceUrl = "http://localhost:8762/" + cluster.getClusterName() + "/location";
-        return restTemplate.getForObject(serviceUrl, Location.class);
+        return null;
+//        RestTemplate restTemplate = new RestTemplate();
+//        String serviceUrl = "http://localhost:8762/" + cluster.getClusterName() + "/location";
+//        return restTemplate.getForObject(serviceUrl, Location.class);
     }
 }
