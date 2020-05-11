@@ -12,6 +12,7 @@ import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.exception.FailConnectionException;
@@ -57,7 +58,8 @@ class TreeQueryWebServerTest {
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         discoveryServiceInterface.registerCluster(

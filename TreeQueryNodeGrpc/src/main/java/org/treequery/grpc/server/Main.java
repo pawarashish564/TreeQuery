@@ -1,7 +1,6 @@
 package org.treequery.grpc.server;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
@@ -14,7 +13,6 @@ import org.treequery.utils.TreeQuerySettingHelper;
 import java.io.IOException;
 
 @Slf4j
-@SpringBootApplication
 public class Main {
     static TreeQueryRequest.RunMode RUNMODE = TreeQueryRequest.RunMode.DIRECT;
     static boolean RENEW_CACHE = false;

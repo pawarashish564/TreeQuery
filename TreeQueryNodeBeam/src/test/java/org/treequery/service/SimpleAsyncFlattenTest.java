@@ -14,6 +14,7 @@ import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.model.Node;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
@@ -46,7 +47,8 @@ public class SimpleAsyncFlattenTest {
 
     @BeforeAll
     public static void staticinit(){
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         List<String> fileList = Arrays.asList(new String[]{"bondtrade1.avro","bondtrade2.avro","bondtrade3.avro"});
         fileList.forEach(
                 fileName-> {
