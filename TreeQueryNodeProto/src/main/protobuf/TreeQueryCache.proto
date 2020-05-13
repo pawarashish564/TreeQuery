@@ -9,6 +9,7 @@ option objc_class_prefix = "HC";
 package treequery;
 service TreeQueryCacheService {
     rpc get (TreeQueryCacheRequest) returns (TreeQueryCacheResponse);
+    rpc streamGet(CacheStreamRequest) returns (stream CacheStreamResponse);
 }
 
 message TreeQueryCacheRequest {
@@ -22,4 +23,12 @@ message TreeQueryCacheResponse{
     string requestIdentifier = 1;
     TreeQueryResponseHeader header = 2;
     TreeQueryResponseResult result = 3;
+}
+
+message CacheStreamRequest{
+    string identifier = 1;
+    string avroSchema = 2; //With AvroSchema provided, query run faster
+}
+message CacheStreamResponse{
+    bytes avroLoad = 1;
 }
