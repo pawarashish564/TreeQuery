@@ -10,7 +10,6 @@ targetCompatibility = 1.11
 
 ext {
     mockitoVersion = "2.23.0"
-    set('springCloudVersion', "Hoxton.SR1")
 }
 
 repositories {

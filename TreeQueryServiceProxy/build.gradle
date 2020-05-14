@@ -1,6 +1,4 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
 }
 
@@ -11,10 +9,6 @@ sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
-}
-
-ext {
-    set('springCloudVersion', "Hoxton.SR1")
 }
 
 dependencies {
@@ -35,10 +29,4 @@ dependencies {
     compile group: 'org.yaml', name: 'snakeyaml', version: "${snakeymlVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
 }

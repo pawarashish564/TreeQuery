@@ -1,6 +1,4 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
     id 'maven'
 }
@@ -12,10 +10,6 @@ sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
-}
-
-ext {
-    set('springCloudVersion', "Hoxton.SR1")
 }
 
 dependencies {
@@ -51,9 +45,6 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
-
-
-
 }
 
 test {
@@ -84,11 +75,6 @@ task integrationTest(type: Test) {
 
 apply from: rootProject.file('gradle/profile.gradle')
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
-}
 
 if(project.hasProperty('nexus')){
     apply from: rootProject.file('gradle/uploadNexus.gradle')
