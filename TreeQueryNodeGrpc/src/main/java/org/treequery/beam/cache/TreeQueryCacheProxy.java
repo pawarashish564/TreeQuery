@@ -8,7 +8,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
-import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.model.Location;

@@ -13,7 +13,6 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.model.Node;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;

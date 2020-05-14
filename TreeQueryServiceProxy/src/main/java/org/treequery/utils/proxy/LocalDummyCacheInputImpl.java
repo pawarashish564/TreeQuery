@@ -14,7 +14,6 @@ import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.utils.AvroIOHelper;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 @Slf4j

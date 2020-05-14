@@ -1,12 +1,10 @@
 package org.treequery.beam.cache;
 
 import io.grpc.BindableService;
-import io.grpc.StatusRuntimeException;
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.Any;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
@@ -21,10 +19,8 @@ import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryCacheRequest;
-import org.treequery.proto.TreeQueryCacheResponse;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;

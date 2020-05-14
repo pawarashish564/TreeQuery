@@ -13,7 +13,6 @@ import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
-import org.treequery.service.TreeQueryClusterRunner;
 
 import java.util.Map;
 import java.util.Optional;

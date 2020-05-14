@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaParseException;
+import org.lognet.springboot.grpc.GRpcService;
 import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
@@ -15,6 +16,7 @@ import org.treequery.service.CacheResult;
 import java.util.Optional;
 
 @Builder
+@GRpcService
 public class SyncTreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.TreeQueryCacheServiceImplBase {
 
     private final TreeQueryCacheService treeQueryCacheService;

@@ -12,7 +12,6 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;

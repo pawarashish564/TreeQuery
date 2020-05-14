@@ -15,7 +15,6 @@ import org.treequery.service.*;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.AvroIOHelper;
 import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.utils.AsyncRunHelper;

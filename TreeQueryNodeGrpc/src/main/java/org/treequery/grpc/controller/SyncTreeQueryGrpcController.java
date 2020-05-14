@@ -11,6 +11,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
+import org.lognet.springboot.grpc.GRpcService;
 import org.treequery.grpc.service.TreeQueryBeamService;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
 import org.treequery.model.Node;
@@ -27,6 +28,7 @@ import java.util.function.Consumer;
 //Reference: https://www.programcreek.com/java-api-examples/?api=org.apache.avro.io.BinaryEncoder
 @Slf4j
 @Builder
+@GRpcService
 public class SyncTreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServiceImplBase {
     private static TreeQueryRequest.RunMode RUNMODE= TreeQueryRequest.RunMode.DIRECT;
     private final TreeQueryBeamService treeQueryBeamService;
