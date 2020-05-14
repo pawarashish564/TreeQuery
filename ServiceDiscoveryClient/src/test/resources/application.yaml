@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: EurekaClient
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+server:
+  port: 8082
+eureka:
+  client:
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}

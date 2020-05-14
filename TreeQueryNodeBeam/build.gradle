@@ -1,16 +1,22 @@
-apply plugin: 'java'
-apply plugin: 'maven'
-
+plugins {
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+    id 'maven'
+}
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
 archivesBaseName = "TreeQueryNodeBeam"
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    set('springCloudVersion', "Hoxton.SR1")
+}
 
 dependencies {
     compile project(':TreeQueryStatic')
@@ -78,9 +84,12 @@ test {
 
 apply from: rootProject.file('gradle/profile.gradle')
 
-
-
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
 
 if(project.hasProperty('nexus')){
-    apply from: rootProject.file('gradle/uploadNexus.gradle');
+    apply from: rootProject.file('gradle/uploadNexus.gradle')
 }

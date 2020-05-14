@@ -6,6 +6,7 @@ import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.model.Location;
 
+
 import java.util.Map;
 
 @ToString
@@ -15,6 +16,7 @@ public class LocalDummyDiscoveryServiceProxy implements DiscoveryServiceInterfac
 
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
+
         synchronized (cacheResultMap) {
             cacheResultMap.put(hashId, cluster);
         }
@@ -27,7 +29,6 @@ public class LocalDummyDiscoveryServiceProxy implements DiscoveryServiceInterfac
         }
     }
 
-    @Override
     public void registerCluster(Cluster cluster, String address, int port) {
         clusterLocationMap.put(
                 cluster,

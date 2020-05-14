@@ -6,7 +6,6 @@ plugins {
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
-archivesBaseName = "TreeQueryDiscoveryService"
 sourceCompatibility = 1.11
 targetCompatibility = 1.11
 
@@ -20,11 +19,15 @@ repositories {
 }
 
 dependencies {
-    compile project(':TreeQueryStatic')
+    compile project(':TreeQueryDiscoveryService')
 
-    // AWS SDK
-    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.769')
-    implementation 'com.amazonaws:aws-java-sdk-dynamodb'
+    // Spring Boot + Eureka
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    testCompile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    testCompile ('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
@@ -36,8 +39,6 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitoVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitoVersion"
-
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
 }
 
 test {

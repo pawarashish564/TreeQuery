@@ -8,27 +8,29 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
-//import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.model.Location;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
+@Slf4j
 public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
-    AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+    HttpClient client = HttpClient.newHttpClient();
+    AmazonDynamoDB dbClient = AmazonDynamoDBClientBuilder.standard()
             .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "ap-east-1"))
             .build();
-    DynamoDB dynamoDB = new DynamoDB(client);
+    DynamoDB dynamoDB = new DynamoDB(dbClient);
     Table table = dynamoDB.getTable("ServiceMapping");
 
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
-//        final Map<String, Object> clusterMap = new HashMap<String, Object>();
-//        clusterMap.put("cluster", cluster);
-
         try {
             System.out.println("Adding a new item...");
             PutItemOutcome outcome = table
@@ -66,9 +68,21 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
     @Override
     public Location getClusterLocation(Cluster cluster) {
-        return null;
-//        RestTemplate restTemplate = new RestTemplate();
-//        String serviceUrl = "http://localhost:8762/" + cluster.getClusterName() + "/location";
-//        return restTemplate.getForObject(serviceUrl, Location.class);
+        Location location = null;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(String.format("http://localhost:8082/service-instances/%s", cluster.getClusterName().toUpperCase())))
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            location = objectMapper.readValue(response.body(), Location.class);
+        } catch (Exception ex) {
+            log.error("Exception in getClusterLocation(): ", ex);
+        }
+        return location;
     }
 }
