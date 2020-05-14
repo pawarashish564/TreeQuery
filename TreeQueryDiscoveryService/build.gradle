@@ -40,7 +40,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
 }
 
-test {
+task integrationTest(type: Test) {
     useJUnitPlatform()
 
     testLogging.showStandardStreams = true

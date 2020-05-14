@@ -41,7 +41,7 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitoVersion"
 }
 
-test {
+task integrationTest(type: Test) {
     useJUnitPlatform()
 
     testLogging.showStandardStreams = true

@@ -32,8 +32,9 @@ dependencyManagement {
     }
 }
 
-test {
+task integrationTest(type: Test) {
     useJUnitPlatform()
+
     testLogging.showStandardStreams = true
 
     testLogging {

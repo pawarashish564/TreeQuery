@@ -49,15 +49,15 @@ test {
     }
 }
 
-//task integrationTest(type: Test) {
-//    useJUnitPlatform {
-//        includeTags 'integration'
-//    }
-//    check.dependsOn it
-//    shouldRunAfter test
-//    testLogging.showStandardStreams = true
-//
-//    testLogging {
-//        events "passed", "skipped", "failed"
-//    }
-//}
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    check.dependsOn it
+    shouldRunAfter test
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}

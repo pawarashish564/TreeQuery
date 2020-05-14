@@ -1,4 +1,3 @@
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.treequery.serviceDiscoveyServer.EurekaServerApplication;
 
 import static org.assertj.core.api.BDDAssertions.then;
-
 
 @SpringBootTest(classes = EurekaServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EurekaServerTest {
