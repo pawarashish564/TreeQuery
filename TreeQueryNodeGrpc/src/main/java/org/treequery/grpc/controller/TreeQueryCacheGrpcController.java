@@ -5,9 +5,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaParseException;
 import org.treequery.grpc.service.TreeQueryCacheService;
-import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
 import org.treequery.proto.*;
 import org.treequery.service.CacheResult;
@@ -46,7 +44,7 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
         }
         DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(avroSchema);
 
-        CacheResult cacheResult = treeQueryCacheService.get(identifier, pageSize, page, dataConsumerIntoByteArray);
+        CacheResult cacheResult = treeQueryCacheService.getPage(identifier, pageSize, page, dataConsumerIntoByteArray);
 
         TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder =  TreeQueryCacheResponse.newBuilder();
         treeQueryCacheResponseBuilder.setRequestIdentifier(identifier);

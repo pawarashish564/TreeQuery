@@ -6,7 +6,6 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.service.CacheResult;
-import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,7 +46,7 @@ class TreeQueryCacheServiceHelperTest {
         int page = 1;
         do {
             int inx = counter.get();
-            cacheResult = treeQueryCacheService.get(identifier, pageSize , page, (record)->{
+            cacheResult = treeQueryCacheService.getPage(identifier, pageSize , page, (record)->{
                 counter.incrementAndGet();
                 assertNotNull(record);
             });
@@ -67,7 +66,7 @@ class TreeQueryCacheServiceHelperTest {
         int pageSize = 1000;
         int page = 1;
 
-        cacheResult = treeQueryCacheService.get("XXX", pageSize , page, (record)->{
+        cacheResult = treeQueryCacheService.getPage("XXX", pageSize , page, (record)->{
                 counter.incrementAndGet();
                 assertNotNull(record);});
 

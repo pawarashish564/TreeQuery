@@ -1,5 +1,6 @@
 package org.treequery.utils;
 
+import apple.laf.JRSUIUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
@@ -47,11 +48,14 @@ public class AvroIOHelper {
     }
 
 
+    private static String getReadFileNameFromIdentifier(TreeQuerySetting treeQuerySetting, String identifier){
+        return String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
+    }
 
     public static Schema getPageRecordFromAvroCache(TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException{
         try {
             if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
-                String readFileName = String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
+                String readFileName = getReadFileNameFromIdentifier(treeQuerySetting, identifier);
                 return AvroIOHelper.getPageRecordFromAvroFile(readFileName, pageSize, page, dataConsumer);
             }
         }catch(IOException ioe){
@@ -104,7 +108,7 @@ public class AvroIOHelper {
     public static Schema getSchemaFromAvroCache(TreeQuerySetting treeQuerySetting, String identifier) throws CacheNotFoundException{
         try {
             if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
-                String readFileName = String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
+                String readFileName = getReadFileNameFromIdentifier(treeQuerySetting, identifier);
                 return AvroIOHelper.getSchemaFromAvroFile(readFileName);
             }
         }catch(IOException ioe){
