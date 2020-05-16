@@ -46,6 +46,8 @@ public class AvroIOHelper {
         }
     }
 
+
+
     public static Schema getPageRecordFromAvroCache(TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException{
         try {
             if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
@@ -54,7 +56,7 @@ public class AvroIOHelper {
             }
         }catch(IOException ioe){
             log.error(ioe.getMessage());
-            throw new IllegalStateException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString()));
+            throw new CacheNotFoundException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString()));
         }catch(CacheNotFoundException ce){
             log.info(ce.getMessage());
             throw new CacheNotFoundException(String.format("Cache %s not found", identifier));
@@ -97,5 +99,25 @@ public class AvroIOHelper {
             }
         }
         return schema;
+    }
+
+    public static Schema getSchemaFromAvroCache(TreeQuerySetting treeQuerySetting, String identifier) throws CacheNotFoundException{
+        try {
+            if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
+                String readFileName = String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
+                return AvroIOHelper.getSchemaFromAvroFile(readFileName);
+            }
+        }catch(IOException ioe){
+            log.error(ioe.getMessage());
+            throw new CacheNotFoundException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString()));
+        }
+        throw new NoSuchMethodError("Only File Cache implemented");
+    }
+
+    public static Schema getSchemaFromAvroFile(String avroFileName) throws IOException{
+        DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
+        String readFileName = avroFileName;
+        DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
+        return dataFileReader.getSchema();
     }
 }

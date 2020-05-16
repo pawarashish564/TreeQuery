@@ -19,6 +19,12 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
     private final TreeQueryCacheService treeQueryCacheService;
 
+
+    @Override
+    public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
+        super.streamGet(request, responseObserver);
+    }
+
     @Override
     public void get(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {
         String identifier = request.getIdentifier();
@@ -63,11 +69,10 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
     Schema getSchemaFromString (String schemaString, String identifier,long pageSize, long page) throws SchemaGetException{
         if (schemaString==null || schemaString.length()==0 ){
-            CacheResult cacheResult = treeQueryCacheService.get(identifier, 1, 1, (record)->{});
-            if (cacheResult.getQueryTypeEnum()== CacheResult.QueryTypeEnum.SUCCESS) {
-                return cacheResult.getDataSchema();
-            }else{
-                throw new SchemaGetException(cacheResult, pageSize, page);
+            try {
+                return treeQueryCacheService.getSchemaOnly(identifier);
+            }catch(Throwable t){
+                throw new SchemaGetException(identifier, t, pageSize, page);
             }
         }
         Schema.Parser parser = new Schema.Parser();

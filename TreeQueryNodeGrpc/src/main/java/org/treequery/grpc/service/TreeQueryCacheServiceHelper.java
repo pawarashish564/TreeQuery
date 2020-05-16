@@ -41,4 +41,11 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
         }
         return cacheResultBuilder.build();
     }
+
+    @Override
+    public Schema getSchemaOnly(String identifier) {
+        Schema schema = null;
+        schema = AvroIOHelper.getSchemaFromAvroCache(treeQuerySetting, identifier);
+        return schema;
+    }
 }
