@@ -1,6 +1,5 @@
 package org.treequery.utils;
 
-import apple.laf.JRSUIUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
