@@ -43,7 +43,7 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
     }
 
     @Override
-    public void getStream(String identifier, Consumer<GenericRecord> dataConsumer) {
+    public void get(String identifier, Consumer<GenericRecord> dataConsumer) {
         throw new NoSuchMethodError("Not yet implemented");
     }
 

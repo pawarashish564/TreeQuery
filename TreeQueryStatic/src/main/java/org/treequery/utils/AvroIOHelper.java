@@ -67,22 +67,36 @@ public class AvroIOHelper {
         throw new NoSuchMethodError("Only File Cache implemented");
     }
 
-    public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException, CacheNotFoundException {
-        Schema schema;
+    private static DataFileReader<GenericRecord> getDataFileReader(String avroFileName)throws IOException, CacheNotFoundException {
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
         String readFileName = avroFileName;
+        Path filepath = Paths.get(readFileName);
+        if (!(Files.exists(filepath) && Files.isReadable(filepath) )){
+            throw new CacheNotFoundException(String.format("Cache not found for %s", avroFileName));
+        }
+        DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
+        return dataFileReader;
+    }
+
+    //Warning: the output GenericRecord reusing the same instance without duplication from source
+    public static void getFromAvroFile(String avroFileName, Consumer<GenericRecord> dataConsumer) throws IOException, CacheNotFoundException {
+        DataFileReader<GenericRecord> dataFileReader = getDataFileReader(avroFileName);
+        GenericRecord recordPt = null;
+        while (dataFileReader.hasNext()) {
+            recordPt  = dataFileReader.next(recordPt);
+            dataConsumer.accept(recordPt);
+        }
+    }
+
+    public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException, CacheNotFoundException {
+        Schema schema;
         if (page < 1) {
             throw new IllegalArgumentException(String.format("page should be> 1 but received %d", page));
         }
         if (pageSize < 1) {
             throw new IllegalArgumentException(String.format("pageSize should be> 1 but received %d", page));
         }
-
-        Path filepath = Paths.get(readFileName);
-        if (!(Files.exists(filepath) && Files.isReadable(filepath) )){
-            throw new CacheNotFoundException(String.format("Cache not found for %s", avroFileName));
-        }
-        DataFileReader<GenericRecord> dataFileReader = new DataFileReader<>(new File(readFileName), datumReader);
+        DataFileReader<GenericRecord> dataFileReader =  getDataFileReader(avroFileName);
         schema = dataFileReader.getSchema();
         GenericRecord recordPt = null;
         long counter = 0;
