@@ -33,8 +33,8 @@ public class DynamoCRUDTest {
                 new String[]{"-inMemory", "-port", port});
         server.start();
         dynamoDB = new DynamoClient("http://localhost:8000").getDynamoDB();
-        serviceProxy = new DiscoveryServiceProxyImpl(dynamoDB);
         createTestTable();
+        serviceProxy = new DiscoveryServiceProxyImpl(dynamoDB);
     }
 
     @AfterAll
