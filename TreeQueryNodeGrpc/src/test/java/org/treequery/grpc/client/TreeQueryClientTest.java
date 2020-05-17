@@ -1,5 +1,6 @@
 package org.treequery.grpc.client;
 
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
+import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -27,9 +30,14 @@ class TreeQueryClientTest {
 
     @BeforeEach
     void init(){
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
-        discoveryServiceInterface.registerCluster(Cluster.builder()
-                .clusterName("A").build(), "localhost", 9002);
+        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+        try {
+            discoveryServiceInterface.registerCluster(Cluster.builder()
+                    .clusterName("A").build(), "localhost", 9002);
+        } catch (InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
     }
 
     @Test

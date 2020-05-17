@@ -1,11 +1,14 @@
 package org.treequery.grpc.server;
 
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
+import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.proto.TreeQueryRequest;
@@ -25,8 +28,8 @@ public class Main {
 
     private static DiscoveryServiceInterface getDiscoveryServiceProxy() {
 //        DiscoveryServiceInterface discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-        DiscoveryServiceInterface discoveryServiceInterface = new DiscoveryServiceProxyImpl();
-
+        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+        DiscoveryServiceInterface discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
         return discoveryServiceInterface;
     }
 
@@ -44,15 +47,19 @@ public class Main {
         DiscoveryServiceInterface discoveryServiceInterface = getDiscoveryServiceProxy();
         TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface = createRemoteProxy(discoveryServiceInterface);
 
-
         WebServer webServer = WebServerFactory.createWebServer(
                 treeQuerySetting,
                 discoveryServiceInterface,
                 treeQueryClusterRunnerProxyInterface
         );
-//        discoveryServiceInterface.registerCluster(treeQuerySetting.getCluster(),
-//                treeQuerySetting.getServicehostname(),
-//                treeQuerySetting.getServicePort());
+
+        try {
+            discoveryServiceInterface.registerCluster(treeQuerySetting.getCluster(),
+                    treeQuerySetting.getServicehostname(),
+                    treeQuerySetting.getServicePort());
+        } catch (InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
 
         return webServer;
     }

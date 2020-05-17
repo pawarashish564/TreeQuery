@@ -1,5 +1,6 @@
 package org.treequery.service;
 
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
@@ -10,6 +11,9 @@ import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
+import org.treequery.discoveryservice.client.DynamoClient;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
@@ -49,8 +53,9 @@ public class SimpleAsyncJoinClusterTest {
 
     @BeforeAll
     public static void staticinit() {
-//        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
     }
 
     @BeforeEach
@@ -62,8 +67,13 @@ public class SimpleAsyncJoinClusterTest {
 
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+
+        try {
+            discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+            discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        } catch (InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
 
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
 

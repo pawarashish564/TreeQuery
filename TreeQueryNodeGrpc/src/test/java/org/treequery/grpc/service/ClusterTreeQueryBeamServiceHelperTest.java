@@ -14,6 +14,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.model.CacheTypeEnum;
@@ -51,7 +52,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
     CacheInputInterface cacheInputInterface;
 
     @BeforeAll
-    public static void staticinit(){
+    public static void staticinit() {
         discoveryServiceInterface = new DiscoveryServiceProxyImpl();
     }
 
@@ -66,8 +67,12 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        try {
+            discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+            discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        } catch (InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
         cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
@@ -76,7 +81,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                 .treeQuerySetting(treeQuerySetting)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
-                        (_Cluster)-> {
+                        (_Cluster) -> {
                             TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
                                     _Cluster.getClusterName(),
                                     treeQuerySetting.getServicehostname(),
@@ -108,8 +113,9 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
 
     }
+
     @Test
-    void throwIllegalArugmentExceptionIfBlankProxy(){
+    void throwIllegalArugmentExceptionIfBlankProxy() {
         treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
@@ -130,12 +136,12 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                 genericRecordConsumer);
         //}
         //);
-        assertEquals(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR,returnResult.getStatusTreeQueryCluster().getStatus());
+        assertEquals(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR, returnResult.getStatusTreeQueryCluster().getStatus());
 
     }
 
     @Test
-    void happyPathRunBeamJoinLocally() throws Exception{
+    void happyPathRunBeamJoinLocally() throws Exception {
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
         int pageSize = 3;
         DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
@@ -164,12 +170,12 @@ public class ClusterTreeQueryBeamServiceHelperTest {
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
         Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
-                preprocessInput.getNode().getIdentifier(),pageSize,page,
-                (record)->{
+                preprocessInput.getNode().getIdentifier(), pageSize, page,
+                (record) -> {
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
                     String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
-                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
+                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondstatic.isin_code");
                     assertThat(genericRecordSet).doesNotContain(record);
                     assertEquals(isinBondTrade, isinSecCode);
                     assertThat(isinBondTrade.length()).isGreaterThan(5);
@@ -183,14 +189,17 @@ public class ClusterTreeQueryBeamServiceHelperTest {
     private static class DataConsumer2LinkedList implements Consumer<GenericRecord> {
         @Getter
         List<GenericRecord> genericRecordList = Lists.newLinkedList();
+
         @Override
         public void accept(GenericRecord genericRecord) {
             genericRecordList.add(genericRecord);
         }
     }
-    private static class DataConsumer2Set implements Consumer<GenericRecord>{
+
+    private static class DataConsumer2Set implements Consumer<GenericRecord> {
         @Getter
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
+
         @Override
         public void accept(GenericRecord genericRecord) {
             genericRecordSet.add(genericRecord);

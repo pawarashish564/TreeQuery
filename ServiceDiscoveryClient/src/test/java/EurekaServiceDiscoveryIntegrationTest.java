@@ -13,7 +13,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.serviceDiscoveryClient.EurekaClientApplication;
 
 import static org.assertj.core.api.BDDAssertions.then;
@@ -23,7 +22,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 public class EurekaServiceDiscoveryIntegrationTest {
 
     static ConfigurableApplicationContext eurekaServer;
-    static DiscoveryServiceInterface serviceProxy;
 
     @BeforeAll
     public static void init() {
@@ -51,7 +49,7 @@ public class EurekaServiceDiscoveryIntegrationTest {
 
     @Test
     public void shouldRegisterClientInEurekaServer() {
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity("http://localhost:" + this.port + "/service-instances/EurekaClient", String.class);
+        ResponseEntity<String> response = testRestTemplate.getForEntity("http://localhost:" + this.port + "/service-instances/EurekaClient", String.class);
         then(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

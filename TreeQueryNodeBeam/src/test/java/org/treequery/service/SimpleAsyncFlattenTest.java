@@ -1,5 +1,6 @@
 package org.treequery.service;
 
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
@@ -13,6 +14,9 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
+import org.treequery.discoveryservice.client.DynamoClient;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.model.Node;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
@@ -32,6 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Slf4j
 public class SimpleAsyncFlattenTest {
     TreeQueryClusterService treeQueryClusterService = null;
@@ -45,12 +50,13 @@ public class SimpleAsyncFlattenTest {
     static AtomicLong NumberOfTradeSamples = new AtomicLong(0);
 
     @BeforeAll
-    public static void staticinit(){
-//        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-        List<String> fileList = Arrays.asList(new String[]{"bondtrade1.avro","bondtrade2.avro","bondtrade3.avro"});
+    public static void staticinit() {
+        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+        List<String> fileList = Arrays.asList(new String[]{"bondtrade1.avro", "bondtrade2.avro", "bondtrade3.avro"});
         fileList.forEach(
-                fileName-> {
+                fileName -> {
                     File file = getWorkDirectory(fileName);
                     try {
                         AvroIOHelper.readAvroGenericRecordFile(
@@ -59,7 +65,7 @@ public class SimpleAsyncFlattenTest {
                                     NumberOfTradeSamples.incrementAndGet();
                                 })
                         );
-                    }catch(Exception ex){
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -67,18 +73,25 @@ public class SimpleAsyncFlattenTest {
         log.debug(String.format("Number of records %d", NumberOfTradeSamples.get()));
 
     }
-    static File getWorkDirectory(String jsonFileName){
+
+    static File getWorkDirectory(String jsonFileName) {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         return new File(classLoader.getResource(jsonFileName).getFile());
     }
+
     @BeforeEach
     public void init() throws IOException {
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
-        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        try {
+            discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
+            discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        } catch (
+                InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
 
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
         cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
@@ -87,35 +100,36 @@ public class SimpleAsyncFlattenTest {
     }
 
     @RepeatedTest(1)
-    public void SimpleAsyncJoinTestWithSameCluster() throws Exception{
+    public void SimpleAsyncJoinTestWithSameCluster() throws Exception {
         String AvroTree = "TreeQueryInputFlattenOnly.json";
         this.runTest(AvroTree);
     }
 
     @RepeatedTest(1)
-    public void SimpleAsyncJoinTestWithDiffCluster() throws Exception{
+    public void SimpleAsyncJoinTestWithDiffCluster() throws Exception {
         String AvroTree = "TreeQueryInputFlattenClusterOnly.json";
         this.runTest(AvroTree);
     }
+
     @RepeatedTest(1)
-    public void SimpleAsyncJoinTestWithDiffCluster2() throws Exception{
+    public void SimpleAsyncJoinTestWithDiffCluster2() throws Exception {
         String AvroTree = "TreeQueryInputFlattenClusterOnly2.json";
         this.runTest(AvroTree);
     }
 
     @RepeatedTest(2)
-    public void SimpleAsyncJoinTest2layers() throws Exception{
+    public void SimpleAsyncJoinTest2layers() throws Exception {
         String AvroTree = "TreeQueryInput3.new.json";
         this.runTest(AvroTree);
     }
 
-    private void runTest(String AvroTree) throws Exception{
+    private void runTest(String AvroTree) throws Exception {
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         assertThat(rootNode).isInstanceOf(FlattenNode.class);
-        log.debug("Run for data Identifier:"+ rootNode.getIdentifier());
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
-                .treeQueryClusterRunnerFactory(()->{
+        log.debug("Run for data Identifier:" + rootNode.getIdentifier());
+        treeQueryClusterService = AsyncTreeQueryClusterService.builder()
+                .treeQueryClusterRunnerFactory(() -> {
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
                                     .treeQuerySetting(this.treeQuerySetting)
@@ -128,31 +142,31 @@ public class SimpleAsyncFlattenTest {
                             .build();
                 })
                 .build();
-        final AsyncRunHelper asyncRunHelper =  AsyncRunHelper.create();
-        treeQueryClusterService.runQueryTreeNetwork(rootNode, (status)->{
+        final AsyncRunHelper asyncRunHelper = AsyncRunHelper.create();
+        treeQueryClusterService.runQueryTreeNetwork(rootNode, (status) -> {
             log.debug(status.toString());
 
-            boolean IsIssue = status.status!= StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
+            boolean IsIssue = status.status != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS;
 
             if (IsIssue || status.getNode().getIdentifier().equals(rootNode.getIdentifier()))
                 asyncRunHelper.continueRun(status);
 
-            if(IsIssue)
+            if (IsIssue)
                 throw new IllegalStateException(status.toString());
 
         });
         StatusTreeQueryCluster statusTreeQueryCluster = asyncRunHelper.waitFor();
-        if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+        if (statusTreeQueryCluster.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS) {
             throw new RuntimeException(statusTreeQueryCluster.getDescription());
         }
 
         log.debug("Retrieve result now");
         //Check the avro file
         String identifier = rootNode.getIdentifier();
-        log.debug("Look for data Identifier:"+identifier+"from:"+discoveryServiceInterface.toString());
+        log.debug("Look for data Identifier:" + identifier + "from:" + discoveryServiceInterface.toString());
         Cluster getCluster = Optional.ofNullable(discoveryServiceInterface.getCacheResultCluster(identifier))
-                .orElseThrow(()->{
-                    return new RuntimeException("No cluster found for "+identifier+" map: "+discoveryServiceInterface.toString());
+                .orElseThrow(() -> {
+                    return new RuntimeException("No cluster found for " + identifier + " map: " + discoveryServiceInterface.toString());
                 });
 
         assertThat(getCluster)
@@ -165,23 +179,23 @@ public class SimpleAsyncFlattenTest {
         Set<GenericRecord> genericRecordSet = Sets.newHashSet();
         Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
                 treeQuerySetting,
-                rootNode.getIdentifier(),pageSize,page,
-                (record)->{
+                rootNode.getIdentifier(), pageSize, page,
+                (record) -> {
                     assertThat(record).isNotNull();
                     counter.incrementAndGet();
                     genericRecordSet.add(record);
                 });
 
         assertEquals(NumberOfTradeSamples.get(), counter.get());
-        assertThat(genericRecordSet).hasSize((int)NumberOfTradeSamples.get());
+        assertThat(genericRecordSet).hasSize((int) NumberOfTradeSamples.get());
     }
 
-    private  TreeQueryClusterRunnerProxyInterface createLocalRunProxy(){
+    private TreeQueryClusterRunnerProxyInterface createLocalRunProxy() {
         return LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
-                        (_Cluster)-> {
+                        (_Cluster) -> {
 
                             TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
                                     _Cluster.getClusterName(),

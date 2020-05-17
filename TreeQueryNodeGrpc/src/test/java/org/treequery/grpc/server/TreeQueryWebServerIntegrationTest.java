@@ -1,5 +1,6 @@
 package org.treequery.grpc.server;
 
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
@@ -12,6 +13,8 @@ import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
+import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.model.TreeQueryResult;
@@ -52,16 +55,23 @@ class TreeQueryWebServerIntegrationTest {
     static boolean RENEW_CACHE = false;
 
     @BeforeAll
-    static void init() throws Exception{
+    static void init() throws Exception {
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
-        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl();
+        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml", false);
+
+        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        discoveryServiceInterface.registerCluster(
-                Cluster.builder().clusterName("A").build(),
-                treeQuerySettingA.getServicehostname(), treeQuerySettingA.getServicePort());
+
+        try {
+            discoveryServiceInterface.registerCluster(
+                    Cluster.builder().clusterName("A").build(),
+                    treeQuerySettingA.getServicehostname(), treeQuerySettingA.getServicePort());
+        } catch (InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
 
 
         cacheInputInterface = prepareCacheInputInterface(treeQuerySettingA, discoveryServiceInterface);
@@ -83,7 +93,7 @@ class TreeQueryWebServerIntegrationTest {
         //webServerA.blockUntilShutdown();
     }
 
-    private static TreeQueryClusterRunnerProxyInterface createRemoteProxy(){
+    private static TreeQueryClusterRunnerProxyInterface createRemoteProxy() {
         return GrpcTreeQueryClusterRunnerProxy.builder()
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .runMode(RUNMODE)
@@ -91,12 +101,12 @@ class TreeQueryWebServerIntegrationTest {
                 .build();
     }
 
-    private static TreeQueryClusterRunnerProxyInterface createLocalRunProxy(){
+    private static TreeQueryClusterRunnerProxyInterface createLocalRunProxy() {
         return LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySettingA)
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
-                        (_Cluster)-> {
+                        (_Cluster) -> {
 
                             TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
                                     _Cluster.getClusterName(),
@@ -122,15 +132,19 @@ class TreeQueryWebServerIntegrationTest {
 
 
     @Test
-    void happyPathTreeQuery3layers(){
-        discoveryServiceInterface.registerCluster(
-                Cluster.builder().clusterName("B").build(),
-                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+    void happyPathTreeQuery3layers() {
+        try {
+            discoveryServiceInterface.registerCluster(
+                    Cluster.builder().clusterName("B").build(),
+                    treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        } catch (InterfaceMethodNotUsedException ex) {
+            System.err.println(ex.getMessage());
+        }
         String AvroTree = "TreeQueryInput3.integration.json";
         run3Layers(AvroTree);
     }
 
-    void run3Layers(String AvroTree){
+    void run3Layers(String AvroTree) {
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 
@@ -162,7 +176,7 @@ class TreeQueryWebServerIntegrationTest {
                     }
             );
             page++;
-        }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
+        } while (treeQueryResult != null && treeQueryResult.getResult().getDatasize() != 0);
 
         assertEquals(3000, counter.get());
         assertEquals(3000, genericRecordSet.size());
@@ -170,20 +184,20 @@ class TreeQueryWebServerIntegrationTest {
 
 
     private static CacheInputInterface prepareCacheInputInterface(TreeQuerySetting treeQuerySetting,
-                                                                  DiscoveryServiceInterface discoveryServiceInterface){
+                                                                  DiscoveryServiceInterface discoveryServiceInterface) {
         return new GrpcCacheInputInterfaceProxyFactory()
                 .getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
     }
 
 
     @AfterAll
-    static void finish() throws Exception{
+    static void finish() throws Exception {
         log.info("All testing finish");
         webServerA.stop();
         webServerB.stop();
     }
 
-    TreeQueryResult runException(String AvroTree){
+    TreeQueryResult runException(String AvroTree) {
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
 

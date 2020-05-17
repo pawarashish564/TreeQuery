@@ -30,13 +30,23 @@ dependencies {
     compile project(':TreeQueryNodeBeam')
     compile project(':TreeQueryNodeProto')
     compile project(':TreeQueryDiscoveryService')
+    compile project(':ServiceDiscoveryClient')
+    compile project(':ServiceDiscoveryServer')
+
     compile "org.slf4j:slf4j-api:$slf4jVersion"
     compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
     compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
 
+    // AWS SDK
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.769')
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb'
+
     // Spring Boot + GRPC + Eureka
     compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
     compile 'io.github.lognet:grpc-spring-boot-starter:3.5.3'
+    testCompile ('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")

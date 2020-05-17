@@ -68,7 +68,7 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
     @Override
     public void registerCluster(Cluster cluster, String address, int port) {
-        throw new InterfaceMethodNotUsedException("registerCluster");
+        throw new InterfaceMethodNotUsedException("DiscoveryServiceProxyImpl.class registerCluster()");
     }
 
     @Override
@@ -83,8 +83,6 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            String test = response.body();
             location = objectMapper.readValue(response.body(), Location.class);
         } catch (Exception ex) {
             log.error("Exception in getClusterLocation(): ", ex);
