@@ -16,6 +16,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
@@ -60,8 +61,9 @@ class TreeQueryWebServerIntegrationTest {
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml", false);
 
-        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+//        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
 

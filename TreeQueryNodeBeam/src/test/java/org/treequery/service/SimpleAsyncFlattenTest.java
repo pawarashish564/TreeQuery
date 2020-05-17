@@ -51,9 +51,9 @@ public class SimpleAsyncFlattenTest {
 
     @BeforeAll
     public static void staticinit() {
-        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
-//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+//        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         List<String> fileList = Arrays.asList(new String[]{"bondtrade1.avro", "bondtrade2.avro", "bondtrade3.avro"});
         fileList.forEach(
                 fileName -> {

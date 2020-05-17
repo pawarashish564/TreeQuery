@@ -10,6 +10,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;

@@ -53,9 +53,9 @@ public class SimpleAsyncJoinClusterTest {
 
     @BeforeAll
     public static void staticinit() {
-        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
-//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+//        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
     }
 
     @BeforeEach

@@ -11,6 +11,7 @@ import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.Exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.proto.TreeQueryRequest;
@@ -29,9 +30,10 @@ class TreeQueryClientTest {
     static DiscoveryServiceInterface discoveryServiceInterface;
 
     @BeforeEach
-    void init(){
-        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+    void init() {
+//        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         try {
             discoveryServiceInterface.registerCluster(Cluster.builder()
                     .clusterName("A").build(), "localhost", 9002);
@@ -41,12 +43,12 @@ class TreeQueryClientTest {
     }
 
     @Test
-    void happyPathSimpleJoin(){
+    void happyPathSimpleJoin() {
         String AvroTree = "SimpleJoin.json";
         run(AvroTree, discoveryServiceInterface);
     }
 
-    private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface){
+    private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface) {
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = TreeQueryClientFactory.
                 createTreeQueryClientFromJsonInput(
@@ -81,7 +83,7 @@ class TreeQueryClientTest {
                     }
             );
             page++;
-        }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
+        } while (treeQueryResult != null && treeQueryResult.getResult().getDatasize() != 0);
         assertEquals(1000, counter.get());
         assertThat(genericRecordSet).hasSize(1000);
     }

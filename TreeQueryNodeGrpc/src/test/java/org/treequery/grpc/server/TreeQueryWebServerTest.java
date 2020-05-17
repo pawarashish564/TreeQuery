@@ -61,9 +61,9 @@ class TreeQueryWebServerTest {
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml", false);
-        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
-        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
-//        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+//        DynamoDB dynamoDB = new DynamoClient("https://dynamodb.us-west-2.amazonaws.com").getDynamoDB();
+//        discoveryServiceInterface = new DiscoveryServiceProxyImpl(dynamoDB);
+        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
 
