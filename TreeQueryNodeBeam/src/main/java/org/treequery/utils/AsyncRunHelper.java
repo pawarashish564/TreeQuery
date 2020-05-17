@@ -1,5 +1,6 @@
 package org.treequery.utils;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.Duration;
@@ -7,11 +8,13 @@ import org.joda.time.Duration;
 import org.treequery.exception.TimeOutException;
 import org.treequery.service.StatusTreeQueryCluster;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class AsyncRunHelper {
     private final Object __object;
-    private final AtomicInteger count;
+    private final CountDownLatch countDownLatch;
     private final long WAIT_MS = Duration.standardHours(1).getMillis();
     private StatusTreeQueryCluster status;
 
@@ -20,7 +23,8 @@ public class AsyncRunHelper {
 
     private AsyncRunHelper(Object object){
         __object = object;
-        count = new AtomicInteger(0);
+        countDownLatch = new CountDownLatch(1);
+
         isError = false;
     }
 
@@ -33,7 +37,6 @@ public class AsyncRunHelper {
     }*/
 
     public  void continueRun(StatusTreeQueryCluster __status){
-        synchronized (__object){
 
             if (__status.getStatus() != StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
                 isError = true;
@@ -41,9 +44,7 @@ public class AsyncRunHelper {
             }else if (!isError) {
                 status = __status;
             }
-            __object.notifyAll();
-            count.incrementAndGet();
-        }
+            countDownLatch.countDown();
     }
 
     public StatusTreeQueryCluster waitFor() throws TimeOutException {
@@ -51,19 +52,10 @@ public class AsyncRunHelper {
     }
 
     public StatusTreeQueryCluster waitFor(long milliseconds )throws TimeOutException{
-        synchronized (__object){
-            try {
-                __object.wait(milliseconds);
-            }catch(InterruptedException ie){
-                log.error(ie.getMessage());
-                throw new IllegalStateException(ie.getMessage());
-            }
-            if (count.get()==0){
-                log.error("Time out");
-                throw new TimeOutException(String.format("Timeout of run:%s",__object.toString()));
-            }
-            return this.status;
+        if (!Uninterruptibles.awaitUninterruptibly(countDownLatch, milliseconds, TimeUnit.MILLISECONDS)) {
+            throw new TimeOutException(String.format("Timeout of run:%s",__object.toString()));
         }
+        return this.status;
     }
 
 }

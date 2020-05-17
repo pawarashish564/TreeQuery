@@ -27,6 +27,7 @@ import java.util.List;
 @Slf4j
 public class TreeQueryClient {
     private final TreeQueryServiceGrpc.TreeQueryServiceBlockingStub blockingStub;
+    private final TreeQueryServiceGrpc.TreeQueryServiceStub stub;
 
     private GrpcClientChannel grpcClientChannel;
     @Getter
@@ -39,6 +40,7 @@ public class TreeQueryClient {
         this.port = port;
         grpcClientChannel = new GrpcClientChannel(host, port);
         this.blockingStub = TreeQueryServiceGrpc.newBlockingStub(grpcClientChannel.getChannel());
+        this.stub = TreeQueryServiceGrpc.newStub(grpcClientChannel.getChannel());
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

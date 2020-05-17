@@ -31,6 +31,14 @@ class HealthWebServerTest {
         assertTrue(checkStatus);
         log.info(String.format("Web client health check %b", checkStatus));
     }
+
+    @Test
+    void checkAsyncClient(){
+        HealthWebClient healthWebClient = new HealthWebClient(HOSTNAME, PORT);
+        boolean checkStatus = healthWebClient.asyncHealthCheck();
+        assertTrue(checkStatus);
+        log.info(String.format("Web client health check %b", checkStatus));
+    }
     @AfterAll
     static void finish() throws Exception{
         log.info("All testing finish");
