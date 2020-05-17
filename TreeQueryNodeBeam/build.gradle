@@ -25,6 +25,10 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 
+    // AWS SDK
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.769')
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb'
+
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
 
