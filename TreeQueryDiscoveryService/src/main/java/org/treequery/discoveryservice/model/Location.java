@@ -1,15 +1,14 @@
 package org.treequery.discoveryservice.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @ToString
 public class Location implements Serializable {
-    private final String address;
-    private final int port;
+    private String address;
+    private int port;
 }

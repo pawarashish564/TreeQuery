@@ -14,32 +14,68 @@ ext {
 
 repositories {
     mavenCentral()
+    maven {
+        name "DynamoDB Local Release Repository"
+        url "https://s3-us-west-2.amazonaws.com/dynamodb-local/release"
+    }
 }
 
 dependencies {
-    compile project(':TreeQueryStatic')
+    implementation project(':TreeQueryStatic')
 
     // AWS SDK
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.769')
     implementation 'com.amazonaws:aws-java-sdk-dynamodb'
+    testImplementation 'com.amazonaws:DynamoDBLocal:1.11.86'
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
-    testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitoVersion"
-    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitoVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: "$mockitoVersion"
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitoVersion"
+    testImplementation ('org.mock-server:mockserver-netty:3.10.8') {
+        exclude group: 'xerces', module: 'xercesImpl'
+    }
+    testImplementation ('org.mock-server:mockserver-client-java:3.10.8') {
+        exclude group: 'xerces', module: 'xercesImpl'
+    }
 
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+}
+
+task copyNativeDeps(type: Copy) {
+    from (configurations.testCompile) {
+        include "*.dylib"
+        include "*.so"
+        include "*.dll"
+    }
+    into 'src/test/resources/libs'
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    dependsOn copyNativeDeps
+    systemProperty 'java.library.path', 'src/test/resources/libs/'
 }
 
 task integrationTest(type: Test) {
-    useJUnitPlatform()
-
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    check.dependsOn it
+    shouldRunAfter test
     testLogging.showStandardStreams = true
 
     testLogging {

@@ -1,3 +1,7 @@
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -13,21 +17,43 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.treequery.cluster.Cluster;
+import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservice.model.Location;
+import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
 import org.treequery.serviceDiscoveryClient.EurekaClientApplication;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("integration")
 @SpringBootTest(classes = EurekaClientApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class EurekaClientIntegrationTest {
+public class EurekaServiceDiscoveryIntegrationTest {
 
     static ConfigurableApplicationContext eurekaServer;
+    static DiscoveryServiceInterface serviceProxy;
 
     @BeforeAll
-    public static void startEureka() {
+    public static void init() {
         eurekaServer = SpringApplication.run(EurekaServer.class,
                 "--server.port=8761",
                 "--eureka.instance.leaseRenewalIntervalInSeconds=1");
+        serviceProxy = new DiscoveryServiceProxyImpl(createAmazonDynamoDBClient());
+
+    }
+
+    private static DynamoDB createAmazonDynamoDBClient() {
+        AmazonDynamoDB amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
+                .withEndpointConfiguration(
+                        new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-west-2")
+                ).build();
+        return new DynamoDB(amazonDynamoDB);
+    }
+
+    @Configuration
+    @EnableAutoConfiguration
+    @EnableEurekaServer
+    static class EurekaServer {
     }
 
     @AfterAll
@@ -45,11 +71,5 @@ public class EurekaClientIntegrationTest {
     public void shouldRegisterClientInEurekaServer() {
         ResponseEntity<String> response = this.testRestTemplate.getForEntity("http://localhost:" + this.port + "/service-instances/EurekaClient", String.class);
         then(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableEurekaServer
-    static class EurekaServer {
     }
 }

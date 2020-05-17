@@ -1,14 +1,14 @@
 package org.treequery.discoveryservice.proxy;
 
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
@@ -21,20 +21,25 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Slf4j
+@NoArgsConstructor
 public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
-    HttpClient client = HttpClient.newHttpClient();
-    AmazonDynamoDB dbClient = AmazonDynamoDBClientBuilder.standard()
-            .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "ap-east-1"))
-            .build();
-    DynamoDB dynamoDB = new DynamoDB(dbClient);
-    Table table = dynamoDB.getTable("ServiceMapping");
+    private HttpClient client;
+    private Table table;
+
+    public DiscoveryServiceProxyImpl(DynamoDB dynamoDB) {
+        this.table = dynamoDB.getTable("ServiceMapping");
+        this.client = HttpClient.newHttpClient();
+    }
 
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
         try {
             System.out.println("Adding a new item...");
+            PutItemSpec putItemSpec = new PutItemSpec()
+                    .withItem(new Item().withPrimaryKey("avro", hashId).withString("cluster", cluster.getClusterName()))
+                    .withReturnValues(ReturnValue.ALL_OLD);
             PutItemOutcome outcome = table
-                    .putItem(new Item().withPrimaryKey("avro", hashId).withString("cluster", cluster.getClusterName()));
+                    .putItem(putItemSpec);
             System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult());
         } catch (Exception e) {
             System.err.println("Unable to add item: " + hashId);
@@ -79,6 +84,7 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
+            String test = response.body();
             location = objectMapper.readValue(response.body(), Location.class);
         } catch (Exception ex) {
             log.error("Exception in getClusterLocation(): ", ex);

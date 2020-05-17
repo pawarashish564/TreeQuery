@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     compile project(':TreeQueryDiscoveryService')
+    testImplementation project(':TreeQueryStatic')
 
     // Spring Boot + Eureka
     compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -41,9 +42,21 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitoVersion"
 }
 
-task integrationTest(type: Test) {
+test {
     useJUnitPlatform()
+    testLogging.showStandardStreams = true
 
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    check.dependsOn it
+    shouldRunAfter test
     testLogging.showStandardStreams = true
 
     testLogging {
