@@ -14,9 +14,7 @@ import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
-import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
-import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -32,7 +30,6 @@ import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.GenericRecordSchemaHelper;
 import org.treequery.utils.TreeQuerySettingHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;

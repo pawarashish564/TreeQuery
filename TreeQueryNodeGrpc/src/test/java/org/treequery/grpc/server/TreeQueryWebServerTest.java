@@ -21,7 +21,6 @@ import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
-import org.treequery.model.Node;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;

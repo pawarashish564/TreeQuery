@@ -6,7 +6,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.treequery.Transform.FlattenNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;

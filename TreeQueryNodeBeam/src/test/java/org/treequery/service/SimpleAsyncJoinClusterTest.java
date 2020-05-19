@@ -6,7 +6,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.data.Offset;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
-import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
