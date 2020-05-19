@@ -66,9 +66,7 @@ task copyNativeDeps(type: Copy) {
 }
 
 test {
-    useJUnitPlatform {
-        excludeTags 'integration'
-    }
+    useJUnitPlatform ()
 
     testLogging.showStandardStreams = true
 
@@ -78,17 +76,4 @@ test {
 
     dependsOn copyNativeDeps
     systemProperty 'java.library.path', 'build/libs'
-}
-
-task integrationTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'integration'
-    }
-    check.dependsOn it
-    shouldRunAfter test
-    testLogging.showStandardStreams = true
-
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
 }
