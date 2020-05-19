@@ -58,9 +58,7 @@ task copyNativeDeps(type: Copy) {
 }
 
 test {
-    useJUnitPlatform {
-        excludeTags 'integration'
-    }
+    useJUnitPlatform()
 
     testLogging.showStandardStreams = true
 
