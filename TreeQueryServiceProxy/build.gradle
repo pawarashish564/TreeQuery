@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':TreeQueryDiscoveryService')
+    compile project(':TreeQueryDiscoveryServiceStatic')
     compile project(':TreeQueryNodeProto')
     compile project(':TreeQueryStatic')
 

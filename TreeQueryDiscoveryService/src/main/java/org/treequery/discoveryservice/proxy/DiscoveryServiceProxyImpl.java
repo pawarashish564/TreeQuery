@@ -11,10 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
 import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.exception.InterfaceMethodNotUsedException;
-import org.treequery.discoveryservice.model.Location;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.model.Location;
 
 import java.net.URI;
 import java.net.http.HttpClient;

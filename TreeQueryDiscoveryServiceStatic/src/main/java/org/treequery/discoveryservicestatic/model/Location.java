@@ -1,4 +1,4 @@
-package org.treequery.discoveryservice.model;
+package org.treequery.discoveryservicestatic.model;
 
 import lombok.*;
 

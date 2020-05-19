@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'org.treequery'
+version '1.0-SNAPSHOT'
+archivesBaseName = "TreeQueryDiscoveryServiceStatic"
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':TreeQueryStatic')
+
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+}

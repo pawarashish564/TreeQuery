@@ -2,8 +2,9 @@ package org.treequery.grpc.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;

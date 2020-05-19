@@ -7,7 +7,7 @@ import org.treequery.cluster.ClusterDependencyGraph;
 import org.treequery.cluster.NodeFactory;
 import org.treequery.cluster.NodeTreeFactory;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodeTraverser;
 import org.treequery.utils.AvroSchemaHelper;

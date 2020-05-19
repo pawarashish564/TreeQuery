@@ -6,4 +6,5 @@ include 'TreeQueryDiscoveryService'
 include 'TreeQueryStatic'
 include 'TreeQueryServiceProxy'
 include 'TreeQueryNodeServerExecutable'
+include 'TreeQueryDiscoveryServiceStatic'
 

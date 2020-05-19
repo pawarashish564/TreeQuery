@@ -7,7 +7,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.utils.AvroIOHelper;

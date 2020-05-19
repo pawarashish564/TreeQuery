@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.treequery.Transform.JoinNode;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
