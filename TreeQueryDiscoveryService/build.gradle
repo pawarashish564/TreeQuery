@@ -20,6 +20,12 @@ repositories {
     }
 }
 
+configurations{
+    testImplementation{
+        canBeResolved=true
+    }
+}
+
 dependencies {
     implementation project(':TreeQueryStatic')
     implementation project(':TreeQueryDiscoveryServiceStatic')
@@ -28,6 +34,7 @@ dependencies {
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.769')
     implementation 'com.amazonaws:aws-java-sdk-dynamodb'
     testImplementation 'com.amazonaws:DynamoDBLocal:1.11.86'
+    testImplementation 'com.almworks.sqlite4java:sqlite4java:1.0.392'
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
@@ -50,12 +57,12 @@ dependencies {
 }
 
 task copyNativeDeps(type: Copy) {
-    from (configurations.testCompile) {
+    from (configurations.testImplementation) {
         include "*.dylib"
         include "*.so"
         include "*.dll"
     }
-    into 'src/test/resources/libs'
+    into 'build/libs'
 }
 
 test {
@@ -70,7 +77,7 @@ test {
     }
 
     dependsOn copyNativeDeps
-    systemProperty 'java.library.path', 'src/test/resources/libs/'
+    systemProperty 'java.library.path', 'build/libs'
 }
 
 task integrationTest(type: Test) {
