@@ -8,6 +8,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
@@ -26,9 +27,11 @@ import java.net.http.HttpResponse;
 public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
     private HttpClient client;
     private Table table;
+    @Getter
+    private DynamoDB dynamoDB;
 
     public DiscoveryServiceProxyImpl(String endpoint) {
-        DynamoDB dynamoDB = new DynamoClient(endpoint).getDynamoDB();
+        this.dynamoDB = new DynamoClient(endpoint).getDynamoDB();
         this.table = dynamoDB.getTable("ServiceMapping");
         this.client = HttpClient.newHttpClient();
     }

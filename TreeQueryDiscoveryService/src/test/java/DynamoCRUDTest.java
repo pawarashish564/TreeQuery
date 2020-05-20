@@ -3,13 +3,9 @@ import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import com.amazonaws.services.dynamodbv2.model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
-
-import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
-import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 
 import java.util.Arrays;
 
@@ -17,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DynamoCRUDTest {
     private static DynamoDBProxyServer server;
-    private static DiscoveryServiceInterface serviceProxy;
+    private static DiscoveryServiceProxyImpl serviceProxy;
     private final static String tableName = "ServiceMapping";
     private final static String endpoint = "http://localhost:8000";
 
@@ -27,8 +23,8 @@ public class DynamoCRUDTest {
         server = ServerRunner.createServerFromCommandLineArgs(
                 new String[]{"-inMemory", "-port", port});
         server.start();
-        createTestTable();
         serviceProxy = new DiscoveryServiceProxyImpl(endpoint);
+        createTestTable();
     }
 
     @AfterAll
@@ -37,7 +33,7 @@ public class DynamoCRUDTest {
     }
 
     private static void createTestTable() {
-        new DynamoClient(endpoint).getDynamoDB().createTable(tableName,
+        serviceProxy.getDynamoDB().createTable(tableName,
                 Arrays.asList(new KeySchemaElement("avro", KeyType.HASH)),
                 Arrays.asList(new AttributeDefinition("avro", ScalarAttributeType.S)),
                 new ProvisionedThroughput(10L, 10L));
