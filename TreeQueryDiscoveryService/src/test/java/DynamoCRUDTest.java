@@ -3,6 +3,7 @@ import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import com.amazonaws.services.dynamodbv2.model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("integration")
 public class DynamoCRUDTest {
     private static DynamoDBProxyServer server;
     private static DiscoveryServiceProxyImpl serviceProxy;
