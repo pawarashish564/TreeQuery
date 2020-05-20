@@ -15,7 +15,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;

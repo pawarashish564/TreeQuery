@@ -1,7 +1,8 @@
-package org.treequery.discoveryservice;
+package org.treequery.discoveryservicestatic;
 
 import org.treequery.cluster.Cluster;
-import org.treequery.discoveryservice.model.Location;
+import org.treequery.discoveryservicestatic.model.Location;
+
 
 public interface DiscoveryServiceInterface {
     public void registerCacheResult(String identifier, Cluster clusterName);

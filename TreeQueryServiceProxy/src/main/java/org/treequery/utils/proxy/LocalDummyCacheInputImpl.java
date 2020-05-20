@@ -1,6 +1,5 @@
 package org.treequery.utils.proxy;
 
-import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -8,12 +7,12 @@ import org.apache.avro.generic.GenericRecord;
 import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.utils.AvroIOHelper;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 @Slf4j
