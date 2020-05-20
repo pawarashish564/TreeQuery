@@ -5,7 +5,7 @@ apply plugin: 'maven'
 group 'org.treequery'
 version "$TREEQUERY_VERSION"
 archivesBaseName = "TreeQueryNodeBeam"
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()

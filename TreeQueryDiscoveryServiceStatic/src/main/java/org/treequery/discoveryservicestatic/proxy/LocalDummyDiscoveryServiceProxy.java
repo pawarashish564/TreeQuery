@@ -1,10 +1,11 @@
-package org.treequery.discoveryservice.proxy;
+package org.treequery.discoveryservicestatic.proxy;
 
 import com.google.common.collect.Maps;
 import lombok.ToString;
 import org.treequery.cluster.Cluster;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.model.Location;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.model.Location;
+
 
 import java.util.Map;
 

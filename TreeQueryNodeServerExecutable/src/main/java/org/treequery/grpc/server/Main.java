@@ -1,22 +1,17 @@
 package org.treequery.grpc.server;
 
 import lombok.extern.slf4j.Slf4j;
-import org.treequery.beam.cache.CacheInputInterface;
-import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.proxy.LocalDummyDiscoveryServiceProxy;
+
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.utils.WebServerFactory;
-import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 public class Main {

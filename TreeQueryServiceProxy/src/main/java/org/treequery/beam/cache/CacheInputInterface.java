@@ -3,8 +3,7 @@ package org.treequery.beam.cache;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.treequery.cluster.Cluster;
-import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheTypeEnum;
 
