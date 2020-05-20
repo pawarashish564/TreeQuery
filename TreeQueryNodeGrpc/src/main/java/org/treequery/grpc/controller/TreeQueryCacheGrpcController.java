@@ -5,9 +5,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaParseException;
 import org.treequery.grpc.service.TreeQueryCacheService;
-import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
 import org.treequery.proto.*;
 import org.treequery.service.CacheResult;
@@ -18,6 +16,12 @@ import java.util.Optional;
 public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.TreeQueryCacheServiceImplBase {
 
     private final TreeQueryCacheService treeQueryCacheService;
+
+
+    @Override
+    public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
+        super.streamGet(request, responseObserver);
+    }
 
     @Override
     public void get(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {
@@ -40,7 +44,7 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
         }
         DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(avroSchema);
 
-        CacheResult cacheResult = treeQueryCacheService.get(identifier, pageSize, page, dataConsumerIntoByteArray);
+        CacheResult cacheResult = treeQueryCacheService.getPage(identifier, pageSize, page, dataConsumerIntoByteArray);
 
         TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder =  TreeQueryCacheResponse.newBuilder();
         treeQueryCacheResponseBuilder.setRequestIdentifier(identifier);
@@ -63,11 +67,10 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
     Schema getSchemaFromString (String schemaString, String identifier,long pageSize, long page) throws SchemaGetException{
         if (schemaString==null || schemaString.length()==0 ){
-            CacheResult cacheResult = treeQueryCacheService.get(identifier, 1, 1, (record)->{});
-            if (cacheResult.getQueryTypeEnum()== CacheResult.QueryTypeEnum.SUCCESS) {
-                return cacheResult.getDataSchema();
-            }else{
-                throw new SchemaGetException(cacheResult, pageSize, page);
+            try {
+                return treeQueryCacheService.getSchemaOnly(identifier);
+            }catch(Throwable t){
+                throw new SchemaGetException(identifier, t, pageSize, page);
             }
         }
         Schema.Parser parser = new Schema.Parser();

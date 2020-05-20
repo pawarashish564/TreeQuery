@@ -16,7 +16,7 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
     private final TreeQuerySetting treeQuerySetting;
 
     @Override
-    public CacheResult get(String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
+    public CacheResult getPage(String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) {
         Schema schema = null;
         CacheResult.CacheResultBuilder cacheResultBuilder = CacheResult.builder();
         cacheResultBuilder.identifier(identifier);
@@ -40,5 +40,17 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
             cacheResultBuilder.queryTypeEnum(CacheResult.QueryTypeEnum.SYSTEMERROR);
         }
         return cacheResultBuilder.build();
+    }
+
+    @Override
+    public void get(String identifier, Consumer<GenericRecord> dataConsumer) {
+        throw new NoSuchMethodError("Not yet implemented");
+    }
+
+    @Override
+    public Schema getSchemaOnly(String identifier) {
+        Schema schema = null;
+        schema = AvroIOHelper.getSchemaFromAvroCache(treeQuerySetting, identifier);
+        return schema;
     }
 }
