@@ -19,6 +19,7 @@ public class DynamoCRUDTest {
 
     @BeforeAll
     public static void setupClass() throws Exception {
+        System.setProperty("sqlite4java.library.path", "build/libs/");
         String port = "8000";
         server = ServerRunner.createServerFromCommandLineArgs(
                 new String[]{"-inMemory", "-port", port});
