@@ -75,4 +75,5 @@ test {
     }
 
     dependsOn copyNativeDeps
+    systemProperty 'java.library.path', 'build/libs'
 }
