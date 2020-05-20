@@ -3,25 +3,20 @@ plugins {
 }
 
 group 'org.treequery'
-version "$TREEQUERY_VERSION"
+version '1.0-SNAPSHOT'
 archivesBaseName = "TreeQueryDiscoveryServiceStatic"
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile project(':TreeQueryStatic')
+    implementation project(':TreeQueryStatic')
+
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-
-
-if(project.hasProperty('nexus')){
-    apply from: rootProject.file('gradle/uploadNexus.gradle');
 }

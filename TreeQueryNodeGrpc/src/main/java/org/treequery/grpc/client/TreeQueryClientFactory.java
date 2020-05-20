@@ -2,8 +2,8 @@ package org.treequery.grpc.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.treequery.cluster.Cluster;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.model.Location;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.model.Location;
 import org.treequery.grpc.exception.NoLocationFoundForClusterException;
 import org.treequery.model.Node;
 import org.treequery.utils.JsonInstructionHelper;

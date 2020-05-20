@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
-import org.treequery.discoveryservice.model.Location;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.model.Location;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.exception.NoLocationFoundForClusterException;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.model.Node;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.StatusTreeQueryCluster;
-import org.treequery.service.TreeQueryClusterRunner;
 
 import java.util.Map;
 import java.util.Optional;

@@ -5,7 +5,7 @@ apply plugin: 'com.google.protobuf'
 group 'org.treequery'
 version "$TREEQUERY_VERSION"
 archivesBaseName = "TreeQueryNodeProto"
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()

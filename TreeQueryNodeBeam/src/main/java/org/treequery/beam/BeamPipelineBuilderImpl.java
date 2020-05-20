@@ -10,7 +10,7 @@ import org.treequery.Transform.QueryLeafNode;
 import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.beam.transform.*;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.exception.NotAllChildBeamReadyToAttach;
 import org.treequery.execute.PipelineBuilderInterface;
 import org.treequery.model.CacheNode;

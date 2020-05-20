@@ -2,7 +2,7 @@ package org.treequery.grpc.utils;
 
 import io.grpc.BindableService;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.grpc.controller.HealthCheckGrpcController;
 import org.treequery.grpc.controller.TreeQueryCacheGrpcController;
 import org.treequery.grpc.controller.TreeQueryGrpcController;

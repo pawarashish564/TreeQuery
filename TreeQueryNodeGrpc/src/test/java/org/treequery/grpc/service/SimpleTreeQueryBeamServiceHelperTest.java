@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;

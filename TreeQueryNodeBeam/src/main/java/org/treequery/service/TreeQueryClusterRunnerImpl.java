@@ -11,7 +11,7 @@ import org.treequery.beam.cache.BeamCacheOutputInterface;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
 import org.treequery.config.TreeQuerySetting;
-import org.treequery.discoveryservice.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.execute.GraphNodePipeline;
 import org.treequery.execute.NodePipeline;
 import org.treequery.execute.NodeTraverser;
