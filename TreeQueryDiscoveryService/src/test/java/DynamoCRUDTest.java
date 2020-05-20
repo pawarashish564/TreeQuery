@@ -15,7 +15,6 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag("integration")
 public class DynamoCRUDTest {
     private static DynamoDBProxyServer server;
     private static DiscoveryServiceInterface serviceProxy;
