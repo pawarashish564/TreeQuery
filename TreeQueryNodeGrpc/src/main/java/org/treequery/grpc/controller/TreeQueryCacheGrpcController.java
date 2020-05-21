@@ -5,6 +5,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.avro.Schema;
+import org.treequery.grpc.exception.SchemaGetException;
 import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
 import org.treequery.proto.*;
@@ -20,6 +21,9 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
     @Override
     public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
+        String identifier = request.getIdentifier();
+        String avroSchemaString = request.getAvroSchema();
+
         super.streamGet(request, responseObserver);
     }
 
@@ -35,8 +39,8 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
         Schema avroSchema = null;
         try{
-            avroSchema = getSchemaFromString(avroSchemaString, identifier, pageSize, page);
-        }catch(SchemaGetException sge){
+            avroSchema = getPageSchema(avroSchemaString, identifier, pageSize, page);
+        }catch(PageSchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponse = sge.getTreeQueryCacheResponseBuilder();
             responseObserver.onNext(treeQueryCacheResponse.build());
             responseObserver.onCompleted();
@@ -65,12 +69,12 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
     }
 
-    Schema getSchemaFromString (String schemaString, String identifier,long pageSize, long page) throws SchemaGetException{
+    Schema getSchema(String schemaString, String identifier) throws SchemaGetException {
         if (schemaString==null || schemaString.length()==0 ){
             try {
                 return treeQueryCacheService.getSchemaOnly(identifier);
             }catch(Throwable t){
-                throw new SchemaGetException(identifier, t, pageSize, page);
+                throw new SchemaGetException(t.getMessage());
             }
         }
         Schema.Parser parser = new Schema.Parser();
@@ -78,11 +82,16 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
             Schema schema = parser.parse(schemaString);
             return schema;
         }catch(Throwable t){
-            throw new SchemaGetException(identifier, t, pageSize, page);
+            throw new SchemaGetException(t.getMessage());
         }
     }
-
-
+    Schema getPageSchema(String schemaString, String identifier, long pageSize, long page) throws PageSchemaGetException {
+        try {
+            return getSchema(schemaString, identifier);
+        }catch(Throwable t){
+            throw new PageSchemaGetException(identifier, t, pageSize, page);
+        }
+    }
 
     static TreeQueryCacheResponse.Builder prepareHeaderResponse(CacheResult cacheResult){
         TreeQueryCacheResponse.Builder treeQueryCacheResponse =  TreeQueryCacheResponse.newBuilder();
@@ -98,14 +107,14 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
         return treeQueryCacheResponse;
     }
 
-    static class SchemaGetException extends Exception{
+    static class PageSchemaGetException extends Exception{
         @Getter
         TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder= null;
-        SchemaGetException( CacheResult cacheResult,long pageSize, long page){
+        PageSchemaGetException(CacheResult cacheResult, long pageSize, long page){
             treeQueryCacheResponseBuilder = prepareHeaderResponse(cacheResult);
-            treeQueryCacheResponseBuilder.setResult(setNullResponse(pageSize, page).build());
+            treeQueryCacheResponseBuilder.setResult(setNullPageResponse(pageSize, page).build());
         }
-        SchemaGetException( String identifier, Throwable throwable,long pageSize, long page){
+        PageSchemaGetException(String identifier, Throwable throwable, long pageSize, long page){
             treeQueryCacheResponseBuilder =  TreeQueryCacheResponse.newBuilder();
             treeQueryCacheResponseBuilder.setRequestIdentifier(identifier);
             TreeQueryResponseHeader.Builder headerBuilder = TreeQueryResponseHeader.newBuilder();
@@ -113,12 +122,12 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
             headerBuilder.setErrMsg(throwable.getMessage());
             headerBuilder.setSuccess(false);
             treeQueryCacheResponseBuilder.setHeader(headerBuilder.build());
-            treeQueryCacheResponseBuilder.setResult(setNullResponse(pageSize, page).build());
+            treeQueryCacheResponseBuilder.setResult(setNullPageResponse(pageSize, page).build());
         }
 
     }
 
-    static TreeQueryResponseResult.Builder setNullResponse(long pageSize, long page){
+    static TreeQueryResponseResult.Builder setNullPageResponse(long pageSize, long page){
         TreeQueryResponseResult.Builder treeQueryResponseResultBuilder = TreeQueryResponseResult.newBuilder();
         treeQueryResponseResultBuilder.setPageSize(pageSize);
         treeQueryResponseResultBuilder.setPage(page);
