@@ -31,7 +31,11 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
     private DynamoDB dynamoDB;
 
     public DiscoveryServiceProxyImpl(String endpoint) {
-        this.dynamoDB = new DynamoClient(endpoint).getDynamoDB();
+        this(new DynamoClient(endpoint).getDynamoDB());
+    }
+
+    public DiscoveryServiceProxyImpl(DynamoDB dynamoDB){
+        this.dynamoDB = dynamoDB;
         this.table = dynamoDB.getTable("ServiceMapping");
         this.client = HttpClient.newHttpClient();
     }
