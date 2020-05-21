@@ -24,13 +24,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 @Slf4j
-public class TreeQueryCacheProxy implements CacheInputInterface {
+public class PageCacheProxy implements CacheInputInterface {
     private volatile Map<Cluster, TreeQueryCacheServiceGrpc.TreeQueryCacheServiceBlockingStub> clusterGrpcClientChannelMap = Maps.newConcurrentMap();
     @NonNull
     private final DiscoveryServiceInterface discoveryServiceInterface;
 
     @Builder
-    TreeQueryCacheProxy(DiscoveryServiceInterface discoveryServiceInterface){
+    PageCacheProxy(DiscoveryServiceInterface discoveryServiceInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
     }
 

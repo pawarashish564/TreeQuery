@@ -23,6 +23,12 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
     public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
         String identifier = request.getIdentifier();
         String avroSchemaString = request.getAvroSchema();
+        Schema avroSchema = null;
+        try{
+            avroSchema = getSchema(avroSchemaString, identifier);
+        }catch(SchemaGetException sge){
+            responseObserver.onError(sge);
+        }
 
         super.streamGet(request, responseObserver);
     }
