@@ -62,8 +62,8 @@ class TreeQueryCacheGrpcControllerTest {
     void failToGetSchemaFromIncorrectSchemaString() {
         boolean throwException = false;
         try {
-            treeQueryCacheGrpcController.getSchemaFromString("xys", treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
-        }catch(TreeQueryCacheGrpcController.SchemaGetException sge){
+            treeQueryCacheGrpcController.getPageSchema("xys", treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
+        }catch(TreeQueryCacheGrpcController.PageSchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder = sge.getTreeQueryCacheResponseBuilder();
             TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheResponseBuilder.build();
             assertNotNull(treeQueryCacheResponse);
@@ -76,8 +76,8 @@ class TreeQueryCacheGrpcControllerTest {
     void failToGetSchemaFromWrongIdentifier() {
         boolean throwException = false;
         try {
-            treeQueryCacheGrpcController.getSchemaFromString(treeQueryCacheRequest.getAvroSchema(), "xyz", treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
-        }catch(TreeQueryCacheGrpcController.SchemaGetException sge){
+            treeQueryCacheGrpcController.getPageSchema(treeQueryCacheRequest.getAvroSchema(), "xyz", treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
+        }catch(TreeQueryCacheGrpcController.PageSchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder = sge.getTreeQueryCacheResponseBuilder();
             TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheResponseBuilder.build();
             assertNotNull(treeQueryCacheResponse);
@@ -90,14 +90,14 @@ class TreeQueryCacheGrpcControllerTest {
     void HappyPathToGetSchema() {
         boolean throwException = false;
         try {
-            Schema schema = treeQueryCacheGrpcController.getSchemaFromString(treeQueryCacheRequest.getAvroSchema(), treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
+            Schema schema = treeQueryCacheGrpcController.getPageSchema(treeQueryCacheRequest.getAvroSchema(), treeQueryCacheRequest.getIdentifier(), treeQueryCacheRequest.getPageSize(), treeQueryCacheRequest.getPage());
             assertNotNull(schema);
 
             String schemaStr = schema.toString();
             Schema.Parser parser= new Schema.Parser();
             Schema schema1 = parser.parse(schemaStr);
             assertEquals(schema, schema1);
-        }catch(TreeQueryCacheGrpcController.SchemaGetException sge){
+        }catch(TreeQueryCacheGrpcController.PageSchemaGetException sge){
             TreeQueryCacheResponse.Builder treeQueryCacheResponseBuilder = sge.getTreeQueryCacheResponseBuilder();
             TreeQueryCacheResponse treeQueryCacheResponse = treeQueryCacheResponseBuilder.build();
             assertNotNull(treeQueryCacheResponse);
