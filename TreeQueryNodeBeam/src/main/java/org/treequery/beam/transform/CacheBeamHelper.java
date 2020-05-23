@@ -28,15 +28,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class CacheBeamHelper implements NodeBeamHelper {
-    private final DiscoveryServiceInterface discoveryServiceInterface;
+
     private final CacheInputInterface cacheInputInterface;
     private final TreeQuerySetting treeQuerySetting;
 
     @Builder
     CacheBeamHelper(TreeQuerySetting treeQuerySetting,
-                    DiscoveryServiceInterface discoveryServiceInterface,
                     CacheInputInterface cacheInputInterface){
-        this.discoveryServiceInterface = discoveryServiceInterface;
         this.treeQuerySetting = treeQuerySetting;
         this.cacheInputInterface = cacheInputInterface;
     }

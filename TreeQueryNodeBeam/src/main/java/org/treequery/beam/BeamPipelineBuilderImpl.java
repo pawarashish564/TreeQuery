@@ -75,7 +75,7 @@ public class BeamPipelineBuilderImpl implements PipelineBuilderInterface {
             nodeBeamHelper =  CacheBeamHelper.builder()
                     .treeQuerySetting(this.treeQuerySetting)
                     .cacheInputInterface(cacheInputInterface)
-                    .discoveryServiceInterface(discoveryServiceInterface).build();
+                    .build();
         }
         else if (node instanceof FlattenNode){
             nodeBeamHelper = new FlattenNodeHelper();
