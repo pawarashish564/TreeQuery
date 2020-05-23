@@ -24,6 +24,7 @@ import org.treequery.discoveryservicestatic.model.Location;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.grpc.client.GrpcClientChannel;
 import org.treequery.grpc.exception.GrpcServiceException;
+import org.treequery.grpc.exception.SchemaGetException;
 import org.treequery.grpc.utils.GenericRecordReader;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.*;
@@ -46,6 +47,7 @@ public class StreamCacheProxy implements CacheInputInterface {
         this.discoveryServiceInterface = discoveryServiceInterface;
     }
 
+    @SneakyThrows
     private static Schema getRemoteSchema(Channel channel, String identifier){
         Schema schema = null;
         TreeQueryCacheServiceGrpc.TreeQueryCacheServiceBlockingStub treeQueryCacheServiceBlockingStub
@@ -59,7 +61,7 @@ public class StreamCacheProxy implements CacheInputInterface {
             throw se;
         } catch(Exception ex){
             Status status = Status.fromThrowable(ex);
-            throw new RuntimeException(status.getDescription());
+            throw new SchemaGetException(status.getDescription());
         }
         return schema;
     }

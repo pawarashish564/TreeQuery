@@ -11,6 +11,7 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.exception.CacheNotFoundException;
+import org.treequery.grpc.exception.SchemaGetException;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
@@ -75,13 +76,19 @@ public class CacheWebServerTest {
         String identifer = "ABCD";
         StreamCacheProxy streamCacheProxy = new StreamCacheProxy(discoveryServiceInterface);
 
-        assertThrows(RuntimeException.class, ()->{
-            streamCacheProxy.getStreamRecordFromAvroCache(
-                    treeQuerySetting.getCluster(),
-                    identifer,
-                    (record)->{},
-                    null
-            );
+        assertThrows(SchemaGetException.class, ()->{
+            try {
+                streamCacheProxy.getStreamRecordFromAvroCache(
+                        treeQuerySetting.getCluster(),
+                        identifer,
+                        (record) -> {
+                        },
+                        null
+                );
+            }catch(Throwable th){
+                log.error(th.toString());
+                throw th;
+            }
         });
     }
     @Test
