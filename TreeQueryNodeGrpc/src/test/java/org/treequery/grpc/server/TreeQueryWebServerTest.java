@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 @Slf4j
 class TreeQueryWebServerTest {
     static WebServer webServerA, webServerB;
-    final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
+    final static int PORT = 9010;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     static String jsonString;
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
