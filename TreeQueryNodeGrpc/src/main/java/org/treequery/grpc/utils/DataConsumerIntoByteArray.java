@@ -25,7 +25,6 @@ public class DataConsumerIntoByteArray implements Consumer<GenericRecord> {
         binaryEncoder = EncoderFactory.get().binaryEncoder(byteArrayOutputStream, null);
     }
 
-
     @Override
     public void accept(GenericRecord genericRecord) {
         try {

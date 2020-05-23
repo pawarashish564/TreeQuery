@@ -13,6 +13,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaParseException;
@@ -108,11 +109,11 @@ public class StreamCacheProxy implements CacheInputInterface {
         private final AtomicInteger countError = new AtomicInteger(0);
         private final List<Throwable> errorStack = Lists.newLinkedList();
 
+        @SneakyThrows
         @Override
         public void onNext(CacheStreamResponse value) {
             ByteString avroLoad = value.getAvroLoad();
-
-            //GenericRecordReader.readGenericRecordFromProtoByteString(avroLoad, outputSchema, dataConsumer);
+            GenericRecordReader.readGenericRecordFromProtoByteString(avroLoad, outputSchema, dataConsumer);
         }
 
         @Override

@@ -43,8 +43,8 @@ public class TreeQueryCacheServiceHelper implements TreeQueryCacheService{
     }
 
     @Override
-    public void get(String identifier, Consumer<GenericRecord> dataConsumer) {
-        throw new NoSuchMethodError("Not yet implemented");
+    public void getAsync(String identifier, Consumer<GenericRecord> dataConsumer, Consumer<Throwable> finishCallback) {
+        AvroIOHelper.getStreamRecordFromAvroCache(treeQuerySetting, identifier, dataConsumer, finishCallback);
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.exception.CacheNotFoundException;
+import org.treequery.exception.NoException;
 import org.treequery.model.CacheTypeEnum;
 
 import java.io.File;
@@ -51,6 +52,25 @@ public class AvroIOHelper {
         return String.format("%s/%s.avro", treeQuerySetting.getCacheFilePath(), identifier);
     }
 
+    public static void getStreamRecordFromAvroCache(TreeQuerySetting treeQuerySetting,
+                                                    String identifier,
+                                                    Consumer<GenericRecord> dataConsumer,
+                                                    Consumer<Throwable> finishCallback) throws CacheNotFoundException{
+        try {
+            if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
+                String readFileName = getReadFileNameFromIdentifier(treeQuerySetting, identifier);
+                AvroIOHelper.getFromAvroFile(readFileName, dataConsumer, finishCallback);
+            }
+            return;
+        }catch(IOException ioe){
+            log.error(ioe.getMessage());
+            finishCallback.accept( new CacheNotFoundException(String.format("Not able to fetch cache %s from %s",identifier, treeQuerySetting.toString())));
+        }catch(CacheNotFoundException ce){
+            log.info(ce.getMessage());
+            finishCallback.accept( new CacheNotFoundException(String.format("Cache %s not found", identifier)));
+        }
+        finishCallback.accept( new NoSuchMethodError("Only File Cache implemented"));
+    }
     public static Schema getPageRecordFromAvroCache(TreeQuerySetting treeQuerySetting, String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws CacheNotFoundException{
         try {
             if (treeQuerySetting.getCacheTypeEnum() == CacheTypeEnum.FILE) {
@@ -79,13 +99,16 @@ public class AvroIOHelper {
     }
 
     //Warning: the output GenericRecord reusing the same instance without duplication from source
-    public static void getFromAvroFile(String avroFileName, Consumer<GenericRecord> dataConsumer) throws IOException, CacheNotFoundException {
+    public static void getFromAvroFile(String avroFileName,
+                                       Consumer<GenericRecord> dataConsumer,
+                                       Consumer<Throwable> finishCallback) throws IOException, CacheNotFoundException {
         DataFileReader<GenericRecord> dataFileReader = getDataFileReader(avroFileName);
         GenericRecord recordPt = null;
         while (dataFileReader.hasNext()) {
             recordPt  = dataFileReader.next(recordPt);
             dataConsumer.accept(recordPt);
         }
+        finishCallback.accept(new NoException());
     }
 
     public static Schema getPageRecordFromAvroFile(String avroFileName, long pageSize, long page, Consumer<GenericRecord> dataConsumer) throws IOException, CacheNotFoundException {

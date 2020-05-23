@@ -22,7 +22,10 @@ import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
@@ -84,13 +87,17 @@ public class CacheWebServerTest {
     @Test
     void queryExistIdentifier(){
         StreamCacheProxy streamCacheProxy = new StreamCacheProxy(discoveryServiceInterface);
-        assertThrows(CacheNotFoundException.class, ()->{
+        AtomicInteger countRecord = new AtomicInteger(0);
         streamCacheProxy.getStreamRecordFromAvroCache(
                 treeQuerySetting.getCluster(),
                 identifer,
-                (record)->{},
+                (record)->{
+                    //log.debug(record.toString());
+                    countRecord.incrementAndGet();
+                },
                 null
-        );});
+        );
+        assertEquals(1000, countRecord.get());
     }
 
 
