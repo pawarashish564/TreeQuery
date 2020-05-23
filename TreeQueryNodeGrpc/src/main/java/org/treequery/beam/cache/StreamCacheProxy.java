@@ -41,10 +41,15 @@ import java.util.function.Consumer;
 public class StreamCacheProxy implements CacheInputInterface {
     private volatile Map<Cluster,
             Channel> ChannelMap = Maps.newConcurrentMap();
+
+    private final PageCacheProxy pageCacheProxy;
+
     @NonNull
     private final DiscoveryServiceInterface discoveryServiceInterface;
+    @Builder
     public StreamCacheProxy(DiscoveryServiceInterface discoveryServiceInterface){
         this.discoveryServiceInterface = discoveryServiceInterface;
+        pageCacheProxy = new PageCacheProxy(this.discoveryServiceInterface);
     }
 
     @SneakyThrows
@@ -101,7 +106,8 @@ public class StreamCacheProxy implements CacheInputInterface {
                                              Consumer<GenericRecord> dataConsumer,
                                              @Nullable Schema schema) throws CacheNotFoundException {
 
-        throw new NoSuchMethodError("Not implemented");
+        return pageCacheProxy.getPageRecordFromAvroCache(cluster, identifier, pageSize, page,
+                dataConsumer, schema);
     }
     @RequiredArgsConstructor
     private class CacheStreamObserver implements StreamObserver<CacheStreamResponse> {
