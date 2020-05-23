@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TreeQueryCacheProxyTest {
+class PageCacheProxyTest {
 
     static TreeQueryCacheRequest treeQueryCacheRequest = null;
     static String identifier = "BondTradeJoinBondStatic";
@@ -70,12 +70,11 @@ class TreeQueryCacheProxyTest {
         long page = 1;
         long pageSize = 100;
         Schema schema = null;
-        CacheInputInterface cacheInputInterface = TreeQueryCacheProxy.builder()
+        CacheInputInterface cacheInputInterface = PageCacheProxy.builder()
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .build();
         assertThrows( CacheNotFoundException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {}, schema);
@@ -84,7 +83,6 @@ class TreeQueryCacheProxyTest {
                 .thenReturn(Cluster.builder().clusterName("A").build());
         assertThrows( CacheNotFoundException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {}, schema);
@@ -96,7 +94,6 @@ class TreeQueryCacheProxyTest {
                 .thenReturn(new Location(HOSTNAME, PORT+10));
         assertThrows( FailConnectionException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {}, schema);
@@ -117,11 +114,10 @@ class TreeQueryCacheProxyTest {
         Schema schema = null;
         while (true) {
             long inx = counter.get();
-            CacheInputInterface cacheInputInterface = TreeQueryCacheProxy.builder()
+            CacheInputInterface cacheInputInterface = PageCacheProxy.builder()
                     .discoveryServiceInterface(discoveryServiceInterface)
                     .build();
             schema = cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {

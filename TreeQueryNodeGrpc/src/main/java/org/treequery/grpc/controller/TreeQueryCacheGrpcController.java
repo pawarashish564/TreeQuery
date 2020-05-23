@@ -1,10 +1,15 @@
 package org.treequery.grpc.controller;
 
 import com.google.protobuf.ByteString;
+import com.google.rpc.Code;
+import com.google.rpc.Status;
+import io.grpc.protobuf.StatusProto;
 import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.treequery.exception.NoException;
 import org.treequery.grpc.exception.SchemaGetException;
 import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.utils.DataConsumerIntoByteArray;
@@ -14,18 +19,62 @@ import org.treequery.service.CacheResult;
 import java.util.Optional;
 
 @Builder
+@Slf4j
 public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.TreeQueryCacheServiceImplBase {
 
     private final TreeQueryCacheService treeQueryCacheService;
 
 
     @Override
+    public void getSchema(SchemaRequest request, StreamObserver<SchemaResponse> responseObserver) {
+        String identifier = request.getIdentifier();
+        Schema avroSchema = null;
+        try{
+            avroSchema = getSchema(null, identifier);
+            SchemaResponse.Builder schemaResponseBuilder = SchemaResponse.newBuilder();
+            schemaResponseBuilder.setAvroSchema(avroSchema.toString());
+            responseObserver.onNext(
+                    schemaResponseBuilder.build()
+            );
+            responseObserver.onCompleted();
+        }catch(SchemaGetException sge){
+            responseObserver.onError(
+                    StatusProto.toStatusRuntimeException(Status.newBuilder()
+                            .setCode(Code.NOT_FOUND.getNumber())
+                            .setMessage(sge.toString())
+                            .build())
+            );
+        }
+    }
+
+    @Override
     public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
         String identifier = request.getIdentifier();
-        String avroSchemaString = request.getAvroSchema();
-
-        super.streamGet(request, responseObserver);
+            treeQueryCacheService.getAsync(identifier, (record)->{
+                Schema avroSchema = record.getSchema();
+                DataConsumerIntoByteArray dataConsumerIntoByteArray = new DataConsumerIntoByteArray(avroSchema);
+                dataConsumerIntoByteArray.accept(record);
+                responseObserver.onNext(
+                        CacheStreamResponse.newBuilder()
+                                .setAvroLoad(ByteString.copyFrom(dataConsumerIntoByteArray.toArrayOutput()))
+                                .build()
+                );
+            },(th)->{
+                if (th instanceof NoException){
+                    responseObserver.onCompleted();
+                }else{
+                    log.error(th.toString());
+                    responseObserver.onError(
+                            StatusProto.toStatusRuntimeException(Status.newBuilder()
+                                    .setCode(Code.NOT_FOUND.getNumber())
+                                    .setMessage(th.toString())
+                                    .build())
+                    );
+                }
+            });
     }
+
+
 
     @Override
     public void get(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {

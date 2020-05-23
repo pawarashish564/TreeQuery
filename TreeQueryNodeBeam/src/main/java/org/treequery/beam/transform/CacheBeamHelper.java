@@ -28,15 +28,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class CacheBeamHelper implements NodeBeamHelper {
-    private final DiscoveryServiceInterface discoveryServiceInterface;
+
     private final CacheInputInterface cacheInputInterface;
     private final TreeQuerySetting treeQuerySetting;
 
     @Builder
     CacheBeamHelper(TreeQuerySetting treeQuerySetting,
-                    DiscoveryServiceInterface discoveryServiceInterface,
                     CacheInputInterface cacheInputInterface){
-        this.discoveryServiceInterface = discoveryServiceInterface;
         this.treeQuerySetting = treeQuerySetting;
         this.cacheInputInterface = cacheInputInterface;
     }
@@ -52,7 +50,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
             log.debug(String.format("Get cache Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
             //Get the Schema first
             schema = cacheInputInterface
-                    .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {
+                    .getPageRecordFromAvroCache(null,  identifier, 1, 1, (data) -> {
                     }, ((CacheNode) node).getAvroSchemaObj());
         }catch(CacheNotFoundException che){
             log.error(che.getMessage());
@@ -110,7 +108,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     long lastCount = counter.get();
                     Schema schema = null;
                     schema = cacheInputInterface.getPageRecordFromAvroCache(null,
-                            CacheTypeEnum.FILE, identifier, pageSize, page, (record) -> {
+                             identifier, pageSize, page, (record) -> {
                         counter.incrementAndGet();
                         out.output(record);
                     }, schema);

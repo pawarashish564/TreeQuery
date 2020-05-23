@@ -35,15 +35,8 @@ class TreeQueryCacheGrpcControllerTest {
     @BeforeEach
     void init(){
         CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
-        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = new TreeQuerySetting.TreeQuerySettingBuilder(
-                "A",
-                HOSTNAME,
-                PORT,
-                TestDataAgent.getTestResourceDirectory(avroSampleFile),
-                "",0
-        );
-        treeQuerySetting = treeQuerySettingBuilder.build();
-
+        treeQuerySetting = TestDataAgent
+                .getTreeQuerySettingBackedByResources(HOSTNAME, PORT, avroSampleFile);
         treeQueryCacheService = TreeQueryCacheServiceHelper.builder()
                 .treeQuerySetting(treeQuerySetting)
                 .build();
@@ -157,4 +150,5 @@ class TreeQueryCacheGrpcControllerTest {
         assertEquals(1000, counter.get());
 
     }
+
 }

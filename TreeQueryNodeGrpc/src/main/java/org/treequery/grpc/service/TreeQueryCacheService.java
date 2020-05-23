@@ -8,6 +8,6 @@ import java.util.function.Consumer;
 
 public interface TreeQueryCacheService {
     public CacheResult getPage(String identifier, long pageSize, long page, Consumer<GenericRecord> dataConsumer);
-    public void get(String identifier, Consumer<GenericRecord> dataConsumer);
+    public void getAsync(String identifier, Consumer<GenericRecord> dataConsumer, Consumer<Throwable> finishCallback);
     public Schema getSchemaOnly(String identifier);
 }
