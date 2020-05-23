@@ -1,5 +1,7 @@
 package org.treequery.discoveryservice.client;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -11,11 +13,21 @@ public class DynamoClient {
     private DynamoDB dynamoDB;
     private AmazonDynamoDB amazonDynamoDB;
 
-    public DynamoClient(String endpoint){
-        this.amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
+    static AmazonDynamoDBClientBuilder getBuilder(String endpoint, String region){
+        return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(
-                        new AwsClientBuilder.EndpointConfiguration(endpoint, "us-west-2")
-                ).build();
+                        new AwsClientBuilder.EndpointConfiguration(endpoint, region)
+                );
+    }
+
+    public DynamoClient(String endpoint, String region, BasicAWSCredentials basicAWSCredentials){
+        this.amazonDynamoDB = getBuilder(endpoint, region)
+                .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
+                .build();
+        this.dynamoDB = new DynamoDB(amazonDynamoDB);
+    }
+    public DynamoClient(String endpoint){
+        this.amazonDynamoDB = getBuilder(endpoint, "us-west-2").build();
         this.dynamoDB = new DynamoDB(amazonDynamoDB);
     }
 }
