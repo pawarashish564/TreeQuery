@@ -10,6 +10,7 @@ package treequery;
 service TreeQueryCacheService {
     rpc get (TreeQueryCacheRequest) returns (TreeQueryCacheResponse);
     rpc streamGet(CacheStreamRequest) returns (stream CacheStreamResponse);
+    rpc getSchema(SchemaRequest) returns (SchemaResponse);
 }
 
 message TreeQueryCacheRequest {
@@ -27,8 +28,14 @@ message TreeQueryCacheResponse{
 
 message CacheStreamRequest{
     string identifier = 1;
-    string avroSchema = 2; //With AvroSchema provided, query run faster
 }
 message CacheStreamResponse{
     bytes avroLoad = 1;
+}
+
+message SchemaRequest{
+    string identifier = 1;
+}
+message SchemaResponse{
+    string avroSchema = 1;
 }

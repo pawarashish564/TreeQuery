@@ -75,7 +75,6 @@ class PageCacheProxyTest {
                 .build();
         assertThrows( CacheNotFoundException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {}, schema);
@@ -84,7 +83,6 @@ class PageCacheProxyTest {
                 .thenReturn(Cluster.builder().clusterName("A").build());
         assertThrows( CacheNotFoundException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {}, schema);
@@ -96,7 +94,6 @@ class PageCacheProxyTest {
                 .thenReturn(new Location(HOSTNAME, PORT+10));
         assertThrows( FailConnectionException.class,()->{
             cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {}, schema);
@@ -121,7 +118,6 @@ class PageCacheProxyTest {
                     .discoveryServiceInterface(discoveryServiceInterface)
                     .build();
             schema = cacheInputInterface.getPageRecordFromAvroCache(null,
-                    CacheTypeEnum.NOTCARE,
                     identifier,
                     pageSize,
                     page, (record) -> {

@@ -1,6 +1,9 @@
 package org.treequery.grpc.controller;
 
 import com.google.protobuf.ByteString;
+import com.google.rpc.Code;
+import com.google.rpc.Status;
+import io.grpc.protobuf.StatusProto;
 import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,18 +23,41 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
 
     @Override
-    public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
+    public void getSchema(SchemaRequest request, StreamObserver<SchemaResponse> responseObserver) {
         String identifier = request.getIdentifier();
-        String avroSchemaString = request.getAvroSchema();
         Schema avroSchema = null;
         try{
-            avroSchema = getSchema(avroSchemaString, identifier);
+            avroSchema = getSchema(null, identifier);
+            SchemaResponse.Builder schemaResponseBuilder = SchemaResponse.newBuilder();
+            schemaResponseBuilder.setAvroSchema(avroSchema.toString());
+            responseObserver.onNext(
+                    schemaResponseBuilder.build()
+            );
+            responseObserver.onCompleted();
         }catch(SchemaGetException sge){
-            responseObserver.onError(sge);
+            responseObserver.onError(
+                    StatusProto.toStatusRuntimeException(Status.newBuilder()
+                            .setCode(Code.NOT_FOUND.getNumber())
+                            .setMessage(sge.toString())
+                            .build())
+            );
         }
-
-        super.streamGet(request, responseObserver);
     }
+
+    @Override
+    public void streamGet(CacheStreamRequest request, StreamObserver<CacheStreamResponse> responseObserver) {
+        String identifier = request.getIdentifier();
+
+            responseObserver.onError(
+                    StatusProto.toStatusRuntimeException(Status.newBuilder()
+                            .setCode(Code.NOT_FOUND.getNumber())
+                            .setMessage("Not implemented")
+                            .build())
+            );
+
+    }
+
+
 
     @Override
     public void get(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {

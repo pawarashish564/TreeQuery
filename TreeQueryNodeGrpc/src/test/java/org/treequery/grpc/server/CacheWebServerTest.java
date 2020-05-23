@@ -1,15 +1,20 @@
 package org.treequery.grpc.server;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.treequery.beam.cache.CacheInputInterface;
+import org.treequery.beam.cache.StreamCacheProxy;
 import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
+import org.treequery.exception.CacheNotFoundException;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
+import org.treequery.model.CacheTypeEnum;
 import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
@@ -17,8 +22,12 @@ import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.utils.BasicAvroSchemaHelperImpl;
 import org.treequery.utils.TreeQuerySettingHelper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@Slf4j
 public class CacheWebServerTest {
-    static WebServer webServerA, webServerB;
+    static WebServer webServer;
     final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     static TreeQuerySetting treeQuerySetting;
@@ -28,11 +37,13 @@ public class CacheWebServerTest {
     static TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     static TreeQueryRequest.RunMode RUNMODE = TreeQueryRequest.RunMode.DIRECT;
     static boolean RENEW_CACHE = false;
+    static String identifer = "BondTradeJoinBondStatic";
 
     @BeforeAll
     static void init() throws Exception{
-        String AvroTree = "SimpleJoin.json";
-        treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        String avroSampleFile = String.format("%s.avro", identifer);
+        treeQuerySetting = TestDataAgent
+                .getTreeQuerySettingBackedByResources(HOSTNAME, PORT, avroSampleFile);
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
 
@@ -47,25 +58,47 @@ public class CacheWebServerTest {
         cacheInputInterface = prepareCacheInputInterface(treeQuerySetting, discoveryServiceInterface);
 
         treeQueryClusterRunnerProxyInterface = createRemoteProxy();//createLocalRunProxy();//
-        webServerA = WebServerFactory.createWebServer(
+        webServer = WebServerFactory.createWebServer(
                 treeQuerySetting,
                 discoveryServiceInterface,
                 treeQueryClusterRunnerProxyInterface
         );
-        webServerA.start();
+        webServer.start();
 
     }
 
     @Test
     void queryNonExistIdentifier_throwException(){
         String identifer = "ABCD";
-        String avroSchema = null;
+        StreamCacheProxy streamCacheProxy = new StreamCacheProxy(discoveryServiceInterface);
 
-
-
+        assertThrows(RuntimeException.class, ()->{
+            streamCacheProxy.getStreamRecordFromAvroCache(
+                    treeQuerySetting.getCluster(),
+                    identifer,
+                    (record)->{},
+                    null
+            );
+        });
+    }
+    @Test
+    void queryExistIdentifier(){
+        StreamCacheProxy streamCacheProxy = new StreamCacheProxy(discoveryServiceInterface);
+        assertThrows(CacheNotFoundException.class, ()->{
+        streamCacheProxy.getStreamRecordFromAvroCache(
+                treeQuerySetting.getCluster(),
+                identifer,
+                (record)->{},
+                null
+        );});
     }
 
 
+    @AfterAll
+    static void finish() throws Exception{
+        log.info("All testing finish");
+        webServer.stop();
+    }
     private static TreeQueryClusterRunnerProxyInterface createRemoteProxy(){
         return GrpcTreeQueryClusterRunnerProxy.builder()
                 .discoveryServiceInterface(discoveryServiceInterface)

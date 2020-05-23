@@ -51,8 +51,12 @@ public class PageCacheProxy implements CacheInputInterface {
     }
 
     @Override
+    public void getStreamRecordFromAvroCache(@Nullable Cluster cluster, String identifier, Consumer<GenericRecord> dataConsumer, @Nullable Schema schema) throws CacheNotFoundException {
+        throw new NoSuchMethodError("Not supported");
+    }
+
+    @Override
     public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster,
-                                             CacheTypeEnum cacheTypeEnum,
                                              String identifier,
                                              long pageSize,
                                              long page,
