@@ -101,6 +101,15 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     log.error("Failed to find CacheInputInterface instance for this run");
                     throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
                 }
+
+                cacheInputInterface.getStreamRecordFromAvroCache(
+                        null, identifier,(record)->{
+                            out.output(record);
+                            counter.incrementAndGet();
+                        }, null
+                );
+
+                /*
                 int page = 1;
                 int pageSize = 100;
 
@@ -116,7 +125,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     if (counter.get() == lastCount){
                         break;
                     }
-                }
+                }*/
             }
         }
     }
