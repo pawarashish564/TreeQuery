@@ -56,6 +56,11 @@ public class PageCacheProxy implements CacheInputInterface {
     }
 
     @Override
+    public Schema getSchema(@Nullable Cluster cluster, String identifier) {
+        throw new NoSuchMethodError("Not supported");
+    }
+
+    @Override
     public Schema getPageRecordFromAvroCache(@Nullable Cluster cluster,
                                              String identifier,
                                              long pageSize,

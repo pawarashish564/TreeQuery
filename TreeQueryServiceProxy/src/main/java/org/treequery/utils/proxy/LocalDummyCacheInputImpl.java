@@ -38,4 +38,9 @@ public class LocalDummyCacheInputImpl implements CacheInputInterface {
         log.debug("Retrieve record from cluster:", clusterStore.toString());
         return AvroIOHelper.getPageRecordFromAvroCache(treeQuerySetting, identifier, pageSize, page, dataConsumer);
     }
+
+    @Override
+    public Schema getSchema(@Nullable Cluster cluster, String identifier) {
+        return AvroIOHelper.getSchemaFromAvroCache(treeQuerySetting, identifier);
+    }
 }

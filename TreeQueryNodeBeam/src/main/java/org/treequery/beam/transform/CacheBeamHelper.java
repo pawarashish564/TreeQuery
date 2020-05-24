@@ -51,12 +51,10 @@ public class CacheBeamHelper implements NodeBeamHelper {
         try {
             log.debug(String.format("Get cache Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
             //Get the Schema first
-            schema = cacheInputInterface
-                    .getPageRecordFromAvroCache(null,  identifier, 1, 1, (data) -> {
-                    }, ((CacheNode) node).getAvroSchemaObj());
+            schema = cacheInputInterface.getSchema(null, identifier);
         }catch(CacheNotFoundException che){
             log.error(che.getMessage());
-            throw new IllegalStateException(String.format("Failed to retrieve cache for %s(%s)", node.getName() ,identifier));
+            throw new CacheNotFoundException(String.format("Failed to retrieve cache for %s(%s)", node.getName() ,identifier));
         }
         PCollection<String> identifierCollection = pipeline.apply(Create.of(identifier));
         PCollection<GenericRecord> genericRecordPCollection = identifierCollection.apply(
