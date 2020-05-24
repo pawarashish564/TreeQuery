@@ -4,7 +4,9 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.metrics.Counter;
@@ -101,6 +103,17 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     log.error("Failed to find CacheInputInterface instance for this run");
                     throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
                 }
+
+                cacheInputInterface.getStreamRecordFromAvroCache(
+                        null, identifier,(recordPt)->{
+                            GenericData.Record data = (GenericData.Record) recordPt;
+                            GenericRecordBuilder genericRecordBuilder = new GenericRecordBuilder(data);
+                            out.output(genericRecordBuilder.build());
+                            counter.incrementAndGet();
+                        }, null
+                );
+
+                /*
                 int page = 1;
                 int pageSize = 100;
 
@@ -116,7 +129,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     if (counter.get() == lastCount){
                         break;
                     }
-                }
+                }*/
             }
         }
     }
