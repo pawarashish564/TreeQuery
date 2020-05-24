@@ -23,7 +23,11 @@ public class LocalDummyCacheInputImpl implements CacheInputInterface {
 
     @Override
     public void getStreamRecordFromAvroCache(@Nullable Cluster cluster, String identifier, Consumer<GenericRecord> dataConsumer, @Nullable Schema schema) throws CacheNotFoundException {
-        throw new NoSuchMethodError("Not implemented");
+        //throw new NoSuchMethodError("Not implemented");
+        AvroIOHelper.getStreamRecordFromAvroCache(
+                treeQuerySetting, identifier, dataConsumer,
+                (throwable)->{}
+        );
     }
 
     private final DiscoveryServiceInterface discoveryServiceInterface;

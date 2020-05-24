@@ -4,7 +4,9 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.metrics.Counter;
@@ -103,8 +105,10 @@ public class CacheBeamHelper implements NodeBeamHelper {
                 }
 
                 cacheInputInterface.getStreamRecordFromAvroCache(
-                        null, identifier,(record)->{
-                            out.output(record);
+                        null, identifier,(recordPt)->{
+                            GenericData.Record data = (GenericData.Record) recordPt;
+                            GenericRecordBuilder genericRecordBuilder = new GenericRecordBuilder(data);
+                            out.output(genericRecordBuilder.build());
                             counter.incrementAndGet();
                         }, null
                 );
