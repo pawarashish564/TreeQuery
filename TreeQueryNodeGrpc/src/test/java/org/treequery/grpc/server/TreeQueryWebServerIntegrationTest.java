@@ -170,7 +170,7 @@ class TreeQueryWebServerIntegrationTest {
     }
     void runLayers(String AvroTree, int numberOfRecord,  Consumer<GenericRecord> testValidation){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, treeQuerySettingA.getServicePort());
 
         boolean renewCache = false;
         int pageSize = 100;
@@ -221,7 +221,7 @@ class TreeQueryWebServerIntegrationTest {
 
     TreeQueryResult runException(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, treeQuerySettingA.getServicePort());
 
         boolean renewCache = false;
         int pageSize = 100;
