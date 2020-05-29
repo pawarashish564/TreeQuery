@@ -76,7 +76,7 @@ class TreeQueryClientTest {
                     genericRecord -> {
                         checking.accept(genericRecord);
                         assertThat(genericRecordSet).doesNotContain(genericRecord);
-                        counter.incrementAndGet();
+                        TransformNodeFactoryTest           counter.incrementAndGet();
                         genericRecordSet.add(genericRecord);
                     }
             );

@@ -8,6 +8,7 @@ import org.treequery.model.ActionTypeEnum;
 import org.treequery.model.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.utils.DatabaseSettingHelper;
 
 import java.io.File;
 import java.util.List;
@@ -31,6 +32,7 @@ class TransformNodeFactoryTest {
 
     @BeforeEach
     void init(){
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
         nodeFactory = new TransformNodeFactory();
         nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
