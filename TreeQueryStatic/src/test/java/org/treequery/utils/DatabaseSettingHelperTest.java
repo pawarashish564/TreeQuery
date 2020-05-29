@@ -10,8 +10,7 @@ import java.io.File;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
 @Slf4j
@@ -28,7 +27,7 @@ class DatabaseSettingHelperTest {
     @Test
     void checkMongoConnectionString() {
         databaseConnectionConfig = "DatabaseConnection2.yaml";
-        databaseSettingHelper = new DatabaseSettingHelper(databaseConnectionConfig, false);
+        databaseSettingHelper =  DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, true);
         // Loading the YAML file from the /resources folder
         String mongoString = databaseSettingHelper.getMongoConnectionString();
         log.debug(mongoString);
@@ -38,7 +37,7 @@ class DatabaseSettingHelperTest {
     @Test
     void checkMySqlConnectionString(){
         databaseConnectionConfig = "DatabaseConnection2.yaml";
-        databaseSettingHelper = new DatabaseSettingHelper(databaseConnectionConfig, false);
+        databaseSettingHelper =  DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, true);
         String jdbcConnString = databaseSettingHelper.getJDBCConnectionString();
         assertEquals("jdbc:mysql://localhost:3306/ppmtcourse", jdbcConnString);
         String jdbcDriver = databaseSettingHelper.getJDBCDriver();
@@ -51,7 +50,7 @@ class DatabaseSettingHelperTest {
     @Test
     void checkMySqlConnectionString_injectedbyEnvVar() {
         databaseConnectionConfig = "DatabaseConnection.yaml";
-        databaseSettingHelper = new DatabaseSettingHelper(databaseConnectionConfig, false);
+        databaseSettingHelper =  DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, true);
         String jdbcConnString = databaseSettingHelper.getJDBCConnectionString();
         assertEquals("jdbc:mysql://localhost:3306/ppmtcourse", jdbcConnString);
         String jdbcDriver = databaseSettingHelper.getJDBCDriver();
@@ -64,11 +63,25 @@ class DatabaseSettingHelperTest {
     @Test
     void checkMongoConnectionString_injectedbyEnvVar() {
         databaseConnectionConfig = "DatabaseConnection.yaml";
-        databaseSettingHelper = new DatabaseSettingHelper(databaseConnectionConfig, false);
+        databaseSettingHelper =  DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, true);
         // Loading the YAML file from the /resources folder
         String mongoString = databaseSettingHelper.getMongoConnectionString();
         log.debug(mongoString);
         assertNotNull(mongoString);
         assertEquals("mongodb://mongoadmin:secret@localhost:27017", mongoString);
     }
+    @Test
+    void shouldGetSameInstanceAfterInit() {
+        databaseConnectionConfig = "DatabaseConnection.yaml";
+        DatabaseSettingHelper orgdatabaseSettingHelper =  DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, true);
+        DatabaseSettingHelper databaseSettingHelper = DatabaseSettingHelper.getDatabaseSettingHelper();
+        assertEquals(orgdatabaseSettingHelper, databaseSettingHelper);
+        databaseConnectionConfig = "DatabaseConnection2.yaml";
+        databaseSettingHelper = DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, false);
+        assertEquals(orgdatabaseSettingHelper, databaseSettingHelper);
+        databaseSettingHelper = DatabaseSettingHelper.initDatabaseSettingHelper(databaseConnectionConfig, false, true);
+        assertNotEquals(orgdatabaseSettingHelper, databaseSettingHelper);
+
+    }
+
 }

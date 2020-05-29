@@ -25,10 +25,7 @@ import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
-import org.treequery.utils.GenericRecordSchemaHelper;
-import org.treequery.utils.TreeQuerySettingHelper;
+import org.treequery.utils.*;
 
 import java.util.List;
 import java.util.Set;
@@ -56,6 +53,7 @@ class TreeQueryWebServerIntegrationTest {
 
     @BeforeAll
     static void init() throws Exception{
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection.yaml", false, true);
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);

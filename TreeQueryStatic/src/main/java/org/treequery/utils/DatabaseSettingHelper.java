@@ -23,7 +23,28 @@ public class DatabaseSettingHelper {
     private static final String envRegex = "^\\$\\{(\\w+)\\}$";
     private static Pattern envEnvPattern;
 
-    public  DatabaseSettingHelper (String fileName, boolean realPath){
+    private static DatabaseSettingHelper databaseSettingHelper = null;
+
+    public static DatabaseSettingHelper initDatabaseSettingHelper(String fileName, boolean realPath, boolean force){
+        synchronized (DatabaseSettingHelper.class){
+            if (databaseSettingHelper != null && !force){
+                return databaseSettingHelper;
+            }
+            databaseSettingHelper = new DatabaseSettingHelper(fileName, realPath);
+            return databaseSettingHelper;
+        }
+    }
+
+    public static DatabaseSettingHelper getDatabaseSettingHelper(){
+        synchronized (DatabaseSettingHelper.class){
+            if (databaseSettingHelper == null){
+                throw new IllegalStateException("DatabaseSettingHelper not yet initialized");
+            }
+            return databaseSettingHelper;
+        }
+    }
+
+    private  DatabaseSettingHelper (String fileName, boolean realPath){
         if (!realPath){
             realPathName = getClassLoaderPath(fileName);
         }else{
