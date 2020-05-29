@@ -33,7 +33,7 @@ dependencies {
     // AWS SDK
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.769')
     implementation 'com.amazonaws:aws-java-sdk-dynamodb'
-    testImplementation 'com.amazonaws:DynamoDBLocal:1.11.86'
+    testImplementation 'com.amazonaws:DynamoDBLocal:[1.12,2.0)'
     testImplementation 'com.almworks.sqlite4java:sqlite4java:1.0.392'
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
@@ -91,4 +91,7 @@ task integrationTest(type: Test) {
     testLogging {
         events "passed", "skipped", "failed"
     }
+
+    dependsOn copyNativeDeps
+    systemProperty 'java.library.path', 'build/libs'
 }
