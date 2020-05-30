@@ -8,6 +8,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @ToString
+@Builder
 public class Location implements Serializable {
     private String address;
     private int port;
