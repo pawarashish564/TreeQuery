@@ -1,5 +1,6 @@
 package org.treequery.grpc.utils;
 
+import org.treequery.config.TreeQuerySetting;
 import org.treequery.utils.JsonInstructionHelper;
 
 import java.io.File;
@@ -19,5 +20,16 @@ public class TestDataAgent {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File resourceFile = new File(classLoader.getResource(filename).getFile());
         return resourceFile.getParent();
+    }
+
+    public static TreeQuerySetting getTreeQuerySettingBackedByResources(String HOSTNAME, int PORT, String avroSampleFile){
+        TreeQuerySetting.TreeQuerySettingBuilder treeQuerySettingBuilder = new TreeQuerySetting.TreeQuerySettingBuilder(
+                "A",
+                HOSTNAME,
+                PORT,
+                TestDataAgent.getTestResourceDirectory(avroSampleFile),
+                "",0
+        );
+        return treeQuerySettingBuilder.build();
     }
 }

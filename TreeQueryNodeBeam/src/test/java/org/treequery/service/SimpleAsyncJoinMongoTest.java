@@ -37,6 +37,7 @@ public class SimpleAsyncJoinMongoTest {
     CacheInputInterface cacheInputInterface;
     @BeforeEach
     public void init() throws IOException {
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
         cacheTypeEnum = CacheTypeEnum.FILE;
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         discoveryServiceInterface = mock(DiscoveryServiceInterface.class);

@@ -7,15 +7,12 @@ import org.treequery.cluster.NodeFactory;
 import org.treequery.model.Node;
 import org.treequery.model.QueryAble;
 import org.treequery.model.QueryTypeEnum;
+import org.treequery.utils.DatabaseSettingHelper;
 
 import java.util.Optional;
 
 public class QueryableDataSourceFactory implements NodeFactory {
-    private static String MongDBConnString = "mongodb://mongoadmin:secret@localhost:27017";
-
-    private static String SQLDBConnString = "jdbc:mysql://localhost:3306/ppmtcourse";
-    private static String SQLDriverClassName = "com.mysql.jdbc.Driver";
-
+    private DatabaseSettingHelper databaseSettingHelper = DatabaseSettingHelper.getDatabaseSettingHelper();
 
     @Override
     public Node nodeFactoryMethod(JsonNode jNode) {
@@ -52,7 +49,7 @@ public class QueryableDataSourceFactory implements NodeFactory {
         mongoFunctionBuilder.database(Optional.ofNullable(jNode.get("database")).orElseThrow(()->new IllegalArgumentException("Mongo database missing")).asText());
         mongoFunctionBuilder.collection(Optional.ofNullable(jNode.get("collection")).orElseThrow(()->new IllegalArgumentException("Mongo collection missing")).asText());
         mongoFunctionBuilder.query(Optional.ofNullable(jNode.get("query")).map(q->q.asText()).orElse("{}"));
-        mongoFunctionBuilder.mongoConnString(MongDBConnString);
+        mongoFunctionBuilder.mongoConnString(this.databaseSettingHelper.getMongoConnectionString());
 
         MongoQueryFunction mongoQueryFunction = mongoFunctionBuilder.build();
 
@@ -60,8 +57,6 @@ public class QueryableDataSourceFactory implements NodeFactory {
     }
 
     private QueryAble createSqlLeadNode(JsonNode jNode){
-        final String username = "root";
-        final String password = "example";
         SqlQueryFunction.SqlQueryFunctionBuilder sqlQueryFunctionBuilder = SqlQueryFunction.builder();
         sqlQueryFunctionBuilder.database(Optional.ofNullable(
                 jNode.get("database"))
@@ -72,10 +67,10 @@ public class QueryableDataSourceFactory implements NodeFactory {
                 .orElseThrow(()->new IllegalArgumentException("SQL query missing"))
                 .asText());
         sqlQueryFunctionBuilder
-                .username(username)
-                .password(password)
-                .sqlConnString(SQLDBConnString)
-                .driverClassName(SQLDriverClassName);
+                .username(this.databaseSettingHelper.getJDBCUser())
+                .password(this.databaseSettingHelper.getJDBCPassword())
+                .sqlConnString(this.databaseSettingHelper.getJDBCConnectionString())
+                .driverClassName(this.databaseSettingHelper.getJDBCDriver());
         return sqlQueryFunctionBuilder.build();
     }
 }

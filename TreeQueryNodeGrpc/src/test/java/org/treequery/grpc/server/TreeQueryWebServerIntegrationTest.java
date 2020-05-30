@@ -25,10 +25,7 @@ import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.GrpcTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.utils.BasicAvroSchemaHelperImpl;
-import org.treequery.utils.GenericRecordSchemaHelper;
-import org.treequery.utils.TreeQuerySettingHelper;
+import org.treequery.utils.*;
 
 import java.util.List;
 import java.util.Set;
@@ -56,6 +53,7 @@ class TreeQueryWebServerIntegrationTest {
 
     @BeforeAll
     static void init() throws Exception{
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection.yaml", false, true);
         String AvroTree = "SimpleJoin.json";
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
@@ -170,7 +168,7 @@ class TreeQueryWebServerIntegrationTest {
     }
     void runLayers(String AvroTree, int numberOfRecord,  Consumer<GenericRecord> testValidation){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, treeQuerySettingA.getServicePort());
 
         boolean renewCache = false;
         int pageSize = 100;
@@ -221,7 +219,7 @@ class TreeQueryWebServerIntegrationTest {
 
     TreeQueryResult runException(String AvroTree){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, PORT);
+        TreeQueryClient treeQueryClient = new TreeQueryClient(HOSTNAME, treeQuerySettingA.getServicePort());
 
         boolean renewCache = false;
         int pageSize = 100;

@@ -4,7 +4,9 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.metrics.Counter;
@@ -28,15 +30,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class CacheBeamHelper implements NodeBeamHelper {
-    private final DiscoveryServiceInterface discoveryServiceInterface;
+
     private final CacheInputInterface cacheInputInterface;
     private final TreeQuerySetting treeQuerySetting;
 
     @Builder
     CacheBeamHelper(TreeQuerySetting treeQuerySetting,
-                    DiscoveryServiceInterface discoveryServiceInterface,
                     CacheInputInterface cacheInputInterface){
-        this.discoveryServiceInterface = discoveryServiceInterface;
         this.treeQuerySetting = treeQuerySetting;
         this.cacheInputInterface = cacheInputInterface;
     }
@@ -51,12 +51,10 @@ public class CacheBeamHelper implements NodeBeamHelper {
         try {
             log.debug(String.format("Get cache Node: %s with identifier %s : %s", node.getName(), node.getIdentifier(),node.toJson()));
             //Get the Schema first
-            schema = cacheInputInterface
-                    .getPageRecordFromAvroCache(null, CacheTypeEnum.FILE, identifier, 1, 1, (data) -> {
-                    }, ((CacheNode) node).getAvroSchemaObj());
+            schema = cacheInputInterface.getSchema(null, identifier);
         }catch(CacheNotFoundException che){
             log.error(che.getMessage());
-            throw new IllegalStateException(String.format("Failed to retrieve cache for %s(%s)", node.getName() ,identifier));
+            throw new CacheNotFoundException(String.format("Failed to retrieve cache for %s(%s)", node.getName() ,identifier));
         }
         PCollection<String> identifierCollection = pipeline.apply(Create.of(identifier));
         PCollection<GenericRecord> genericRecordPCollection = identifierCollection.apply(
@@ -103,6 +101,17 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     log.error("Failed to find CacheInputInterface instance for this run");
                     throw new IllegalStateException("Failed to find CacheInputInterface instance for this run");
                 }
+
+                cacheInputInterface.getStreamRecordFromAvroCache(
+                        null, identifier,(recordPt)->{
+                            GenericData.Record data = (GenericData.Record) recordPt;
+                            GenericRecordBuilder genericRecordBuilder = new GenericRecordBuilder(data);
+                            out.output(genericRecordBuilder.build());
+                            counter.incrementAndGet();
+                        }, null
+                );
+
+                /*
                 int page = 1;
                 int pageSize = 100;
 
@@ -110,7 +119,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     long lastCount = counter.get();
                     Schema schema = null;
                     schema = cacheInputInterface.getPageRecordFromAvroCache(null,
-                            CacheTypeEnum.FILE, identifier, pageSize, page, (record) -> {
+                             identifier, pageSize, page, (record) -> {
                         counter.incrementAndGet();
                         out.output(record);
                     }, schema);
@@ -118,7 +127,7 @@ public class CacheBeamHelper implements NodeBeamHelper {
                     if (counter.get() == lastCount){
                         break;
                     }
-                }
+                }*/
             }
         }
     }

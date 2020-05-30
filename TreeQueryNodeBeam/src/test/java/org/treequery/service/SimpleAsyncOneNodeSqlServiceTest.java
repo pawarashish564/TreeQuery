@@ -39,6 +39,7 @@ public class SimpleAsyncOneNodeSqlServiceTest {
 
     @BeforeEach
     void init() throws IOException {
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();
