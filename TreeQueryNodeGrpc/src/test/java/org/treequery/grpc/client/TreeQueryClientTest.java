@@ -11,10 +11,12 @@ import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProx
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.proto.TreeQueryRequest;
+import org.treequery.utils.DatabaseSettingHelper;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,10 +36,18 @@ class TreeQueryClientTest {
     @Test
     void happyPathSimpleJoin(){
         String AvroTree = "SimpleJoin.json";
-        run(AvroTree, discoveryServiceInterface);
+        run(AvroTree,  discoveryServiceInterface, 1000,
+                (genericRecord)->{
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+
+                });
     }
 
-    private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface){
+
+
+    private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface, int numOfRecord,
+        Consumer<GenericRecord> checking){
         String jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         TreeQueryClient treeQueryClient = TreeQueryClientFactory.
                 createTreeQueryClientFromJsonInput(
@@ -64,8 +74,7 @@ class TreeQueryClientTest {
             List<GenericRecord> genericRecordList = treeQueryResponseResult.getGenericRecordList();
             genericRecordList.forEach(
                     genericRecord -> {
-                        assertThat(genericRecord).isNotNull();
-                        assertThat(genericRecord.get("bondtrade")).isNotNull();
+                        checking.accept(genericRecord);
                         assertThat(genericRecordSet).doesNotContain(genericRecord);
                         counter.incrementAndGet();
                         genericRecordSet.add(genericRecord);
@@ -73,7 +82,7 @@ class TreeQueryClientTest {
             );
             page++;
         }while(treeQueryResult!=null && treeQueryResult.getResult().getDatasize()!=0);
-        assertEquals(1000, counter.get());
-        assertThat(genericRecordSet).hasSize(1000);
+        assertEquals(numOfRecord, counter.get());
+        assertThat(genericRecordSet).hasSize(numOfRecord);
     }
 }

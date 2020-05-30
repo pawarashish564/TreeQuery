@@ -23,6 +23,7 @@ public interface CacheInputInterface {
                                              String identifier,
                                              Consumer<GenericRecord> dataConsumer,
                                              @Nullable Schema schema) throws CacheNotFoundException ;
+    public Schema getSchema(@Nullable Cluster cluster, String identifier);
 
     static Cluster getCluster(DiscoveryServiceInterface discoveryServiceInterface, Cluster cluster, String identifier){
         Cluster clusterStore = Optional.ofNullable(cluster).orElse(discoveryServiceInterface.getCacheResultCluster(identifier));

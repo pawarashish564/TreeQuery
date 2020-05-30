@@ -11,6 +11,7 @@ import org.treequery.model.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.treequery.utils.DatabaseSettingHelper;
 
 import java.io.File;
 import java.util.List;
@@ -33,6 +34,7 @@ class GraphNodePipelineTest {
 
     @BeforeEach
     void init(){
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
         cacheTypeEnum = CacheTypeEnum.FILE;
         nodeFactory = new TransformNodeFactory();
         nodeTreeFactory = NodeTreeFactory.builder().nodeFactory(nodeFactory).build();

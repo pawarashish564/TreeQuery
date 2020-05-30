@@ -54,6 +54,7 @@ public class ClusterTreeQueryBeamServiceHelperTest {
 
     @BeforeEach
     public void init() throws IOException {
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
         String AvroTree = "SimpleJoinCluster.json";
         jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
 

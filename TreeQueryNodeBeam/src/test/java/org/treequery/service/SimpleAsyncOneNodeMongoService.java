@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +40,8 @@ public class SimpleAsyncOneNodeMongoService {
     @BeforeEach
     void init() throws IOException {
         cacheTypeEnum = CacheTypeEnum.FILE;
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
+        assertNotNull(DatabaseSettingHelper.getDatabaseSettingHelper());
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
         avroSchemaHelper = mock(AvroSchemaHelper.class);
         beamCacheOutputInterface = new TestFileBeamCacheOutputImpl();

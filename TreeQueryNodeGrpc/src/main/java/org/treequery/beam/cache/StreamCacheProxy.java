@@ -72,6 +72,14 @@ public class StreamCacheProxy implements CacheInputInterface {
     }
 
     @Override
+    public Schema getSchema(@Nullable Cluster cluster, String identifier) {
+        Cluster _cluster = Optional.ofNullable(cluster).orElse(discoveryServiceInterface.getCacheResultCluster(identifier));
+        Optional.ofNullable(_cluster).orElseThrow(()->new CacheNotFoundException("No cluster for "+identifier));
+        Channel channel = this.getChannel(_cluster);
+        return getRemoteSchema(channel, identifier);
+    }
+
+    @Override
     public void getStreamRecordFromAvroCache(@Nullable Cluster cluster,
                                              String identifier,
                                              Consumer<GenericRecord> dataConsumer,
