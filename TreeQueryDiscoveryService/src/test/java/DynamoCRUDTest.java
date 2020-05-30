@@ -1,17 +1,10 @@
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.internal.StaticCredentialsProvider;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
 import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import com.amazonaws.services.dynamodbv2.model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.client.DynamoClient;
@@ -24,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class DynamoCRUDTest {
     private static DynamoDBProxyServer server;
     private static DiscoveryServiceProxyImpl serviceProxy;
-    private final static String tableName = "ServiceMapping";
+    private final static String avroTableName = "ServiceMapping";
+    private final static String clusterTableName = "ClusterLocationMapping";
     private final static String endpoint = "http://localhost:8000";
 
     private static final BasicAWSCredentials AWS_CREDENTIALS;
@@ -58,9 +52,13 @@ public class DynamoCRUDTest {
 
     private static void createTestTable() {
         try {
-            serviceProxy.getDynamoDB().createTable(tableName,
+            serviceProxy.getDynamoDB().createTable(avroTableName,
                     Arrays.asList(new KeySchemaElement("avro", KeyType.HASH)),
                     Arrays.asList(new AttributeDefinition("avro", ScalarAttributeType.S)),
+                    new ProvisionedThroughput(10L, 10L));
+            serviceProxy.getDynamoDB().createTable(clusterTableName,
+                    Arrays.asList(new KeySchemaElement("cluster", KeyType.HASH)),
+                    Arrays.asList(new AttributeDefinition("cluster", ScalarAttributeType.S)),
                     new ProvisionedThroughput(10L, 10L));
         } catch (Exception ex){
             ex.printStackTrace();
@@ -68,8 +66,22 @@ public class DynamoCRUDTest {
     }
 
     @Test
-    public void whenRegisterCluster_thenCanBeRetrieved() {
+    public void whenRegisterCacheResult_thenCanBeRetrieved() {
         serviceProxy.registerCacheResult("Avro-Test", Cluster.builder().clusterName("TestCluster").build());
         assertEquals("TestCluster", serviceProxy.getCacheResultCluster("Avro-Test").getClusterName());
+    }
+
+    @Test
+    public void whenRegisterNewCluster_thenCanBeRetrieved() {
+        serviceProxy.registerCluster(Cluster.builder().clusterName("TestCluster").build(), "addressTest", 8080);
+        assertEquals("addressTest", serviceProxy.getClusterLocation(Cluster.builder().clusterName("TestCluster").build()).getAddress());
+        assertEquals(8080, serviceProxy.getClusterLocation(Cluster.builder().clusterName("TestCluster").build()).getPort());
+    }
+
+    @Test
+    public void whenRegisterExistingCluster_thenCanBeRetrieved() {
+        serviceProxy.registerCluster(Cluster.builder().clusterName("TestCluster1").build(), "addressTest1", 8080);
+        serviceProxy.registerCluster(Cluster.builder().clusterName("TestCluster1").build(), "addressTest2", 8080);
+        assertEquals(2, serviceProxy.getLocationHelper(Cluster.builder().clusterName("TestCluster1").build()).size());
     }
 }

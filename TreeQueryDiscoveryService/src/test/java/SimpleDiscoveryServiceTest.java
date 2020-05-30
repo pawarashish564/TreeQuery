@@ -1,10 +1,10 @@
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import org.checkerframework.checker.units.qual.Mass;
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,6 +26,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,11 +49,15 @@ public class SimpleDiscoveryServiceTest {
     @Mock
     DynamoDB dynamoDB;
     @Mock
-    Table table;
+    Table arvoTable;
     @Mock
-    PutItemOutcome outcome;
+    Table clusterTable;
+    @Mock
+    PutItemOutcome poutcome;
+    @Mock
+    UpdateItemOutcome uoutcome;
     @InjectMocks
-    DiscoveryServiceInterface proxy = new DiscoveryServiceProxyImpl();
+    DiscoveryServiceProxyImpl proxy = new DiscoveryServiceProxyImpl();
 
     private static HttpClient httpClient;
     private static final String URL_ENDPOINT = "http://localhost:1080/service-instances/TestCluster";
@@ -57,16 +65,22 @@ public class SimpleDiscoveryServiceTest {
 
     @BeforeAll
     public static void init() {
+        /* TODO: usable for Eureka module
         httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
         mockServer = startClientAndServer(1080);
         settingRules();
+
+         */
     }
 
     @AfterAll
     public static void stopServer() {
+        /* TODO: usable for Eureka module
         mockServer.stop();
+
+         */
     }
 
     public static void settingRules() {
@@ -88,25 +102,55 @@ public class SimpleDiscoveryServiceTest {
 
     @Test
     public void whenGetCacheResultCluster_thenReturnValueFromDB() {
-        when(table.getItem(any(GetItemSpec.class))).thenReturn(new Item().withString("cluster", "Cluster-A"));
+        when(arvoTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withString("cluster", "Cluster-A"));
         Cluster cluster = proxy.getCacheResultCluster("test");
         assertEquals("Cluster-A", cluster.getClusterName());
     }
 
     @Test
-    public void whenRegisterCluster_thenWriteIntoDB() {
-        when(table.putItem(any(PutItemSpec.class))).thenReturn(outcome);
-        when(outcome.getPutItemResult()).thenReturn(new PutItemResult());
+    public void whenRegisterCacheCluster_thenWriteIntoDB() {
+        when(arvoTable.putItem(any(PutItemSpec.class))).thenReturn(poutcome);
+        when(poutcome.getPutItemResult()).thenReturn(new PutItemResult());
         proxy.registerCacheResult("test", Cluster.builder().clusterName("test").build());
-        verify(outcome).getPutItemResult();
+        verify(poutcome).getPutItemResult();
+        verify(arvoTable).putItem(any(PutItemSpec.class));
     }
 
-    @Test
-    public void whenRegisterCluster_thenThrowInterfaceMethodNotUsedException() {
+    @Ignore
+    public void whenRegisterClusterLocation_thenThrowInterfaceMethodNotUsedException() {
         assertThrows(InterfaceMethodNotUsedException.class, () -> proxy.registerCluster(Cluster.builder().clusterName("test").build(), "address", 123));
     }
 
     @Test
+    public void whenRegisterNewClusterLocation_thenWriteIntoDB() {
+        ArrayList<HashMap> testList = new ArrayList<>();
+
+        when(clusterTable.putItem(any(PutItemSpec.class))).thenReturn(poutcome);
+        when(poutcome.getPutItemResult()).thenReturn(new PutItemResult());
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", testList));
+        proxy.registerCluster(Cluster.builder().clusterName("test").build(), "addressTest", 123);
+        verify(poutcome).getPutItemResult();
+        verify(clusterTable).putItem(any(PutItemSpec.class));
+    }
+
+    @Test
+    public void whenRegisterExistingClusterLocation_thenWriteIntoDB() {
+        ArrayList<HashMap> testList1 = new ArrayList<>();
+        HashMap<String, Object> testMap = new HashMap<>();
+        testMap.put("address", "addressTest");
+        testMap.put("port", 123);
+        testList1.add(testMap);
+
+        when(clusterTable.updateItem(any(UpdateItemSpec.class))).thenReturn(uoutcome);
+        when(uoutcome.getItem()).thenReturn(new Item());
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", testList1));
+        proxy.registerCluster(Cluster.builder().clusterName("test").build(), "addressTest", 123);
+        verify(uoutcome).getItem();
+        verify(clusterTable).updateItem(any(UpdateItemSpec.class));
+    }
+
+
+    @Ignore
     public void whenGetClusterLocation_thenReturnServerLocation() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(URL_ENDPOINT))
@@ -116,5 +160,33 @@ public class SimpleDiscoveryServiceTest {
         Location location = proxy.getClusterLocation(Cluster.builder().clusterName("TestCluster").build());
         assertEquals("127.0.0.1", location.getAddress());
         assertEquals(8080, location.getPort());
+    }
+
+    @Test
+    public void whenGetClusterLocation_thenReturnSingleServerLocation() {
+        ArrayList<HashMap> testList = new ArrayList<>();
+        HashMap<String, Object> testMap = new HashMap<>();
+        testMap.put("address", "addressTest");
+        testMap.put("port", 123);
+        testList.add(testMap);
+
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", testList));
+        Location location = proxy.getClusterLocation(Cluster.builder().clusterName("test").build());
+        assertEquals("addressTest", location.getAddress());
+        assertEquals(123, location.getPort());
+    }
+
+    @Test
+    public void whenCallGetLocationHelper_thenReturnListofLocations() {
+        Map<String, Object> locationMap = new HashMap<String, Object>();
+        locationMap.put("address", "addressTest");
+        locationMap.put("port", 123);
+
+        List<Map<String, Object>> locationItems = new ArrayList<>();
+        locationItems.add(locationMap);
+
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", locationItems));
+        ArrayList<HashMap> locations = proxy.getLocationHelper(Cluster.builder().clusterName("test").build());
+        assertEquals(1, locations.size());
     }
 }
