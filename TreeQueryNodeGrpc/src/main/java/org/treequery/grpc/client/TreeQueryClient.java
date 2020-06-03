@@ -71,7 +71,7 @@ public class TreeQueryClient {
 
         try {
             TreeQueryResult.TreeQueryResultBuilder treeQueryResultBuilder = TreeQueryResult.builder();
-            treeQueryResponse = blockingStub.query(treeQueryRequestBuilder.build());
+            treeQueryResponse = blockingStub.queryByPage(treeQueryRequestBuilder.build());
             treeQueryResultBuilder.requestHash(treeQueryResponse.getRequestHash());
 
             TreeQueryResult.TreeQueryResponseHeader.TreeQueryResponseHeaderBuilder treeQueryResponseHeaderBuilder =
