@@ -110,24 +110,6 @@ public class CacheBeamHelper implements NodeBeamHelper {
                             counter.incrementAndGet();
                         }, null
                 );
-
-                /*
-                int page = 1;
-                int pageSize = 100;
-
-                while(true){
-                    long lastCount = counter.get();
-                    Schema schema = null;
-                    schema = cacheInputInterface.getPageRecordFromAvroCache(null,
-                             identifier, pageSize, page, (record) -> {
-                        counter.incrementAndGet();
-                        out.output(record);
-                    }, schema);
-                    page++;
-                    if (counter.get() == lastCount){
-                        break;
-                    }
-                }*/
             }
         }
     }
