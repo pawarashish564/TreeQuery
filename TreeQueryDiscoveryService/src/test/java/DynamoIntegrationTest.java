@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DynamoCRUDTest {
+public class DynamoIntegrationTest {
     private static DynamoDBProxyServer server;
     private static DiscoveryServiceProxyImpl serviceProxy;
     private final static String avroTableName = "ServiceMapping";
