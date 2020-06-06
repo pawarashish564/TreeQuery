@@ -6,7 +6,8 @@ option java_outer_classname = "TreeQueryProto";
 option objc_class_prefix = "HC";
 package treequery;
 service TreeQueryService {
-    rpc query(TreeQueryRequest) returns (TreeQueryResponse);
+    rpc queryByPage(TreeQueryRequest) returns (TreeQueryResponse);
+    rpc queryByPageStream(TreeQueryRequest) returns (stream TreeQueryResponseStream);
 }
 
 message TreeQueryRequest{
@@ -40,4 +41,7 @@ message TreeQueryResponseResult{
     uint64 datasize = 3;
     bytes avroLoad = 4;
     string avroSchema = 5;
+}
+message TreeQueryResponseStream{
+    bytes avroLoad = 1;
 }

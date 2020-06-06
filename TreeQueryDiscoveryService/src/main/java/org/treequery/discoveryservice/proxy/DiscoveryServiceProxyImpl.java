@@ -51,16 +51,16 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
     @Override
     public void registerCacheResult(String hashId, Cluster cluster) {
         try {
-            System.out.println("Adding a new item...");
+            log.info("Adding a new item...");
             PutItemSpec putItemSpec = new PutItemSpec()
                     .withItem(new Item().withPrimaryKey("avro", hashId).withString("cluster", cluster.getClusterName()))
                     .withReturnValues(ReturnValue.ALL_OLD);
             PutItemOutcome outcome = avroTable
                     .putItem(putItemSpec);
-            System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult());
+            log.info("PutItem succeeded:\n" + outcome.getPutItemResult());
         } catch (Exception e) {
-            System.err.println("Unable to add item: " + hashId);
-            System.err.println(e);
+            log.error("Unable to add item: " + hashId);
+            log.error(e.toString());
         }
     }
 
@@ -70,15 +70,15 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
         Cluster cluster = null;
 
         try {
-            System.out.println("Attempting to read the item...");
+            log.info("Attempting to read the item...");
             Item outcome = avroTable.getItem(spec);
-            System.out.println("GetItem succeeded: " + outcome);
+            log.info("GetItem succeeded: " + outcome);
             cluster = Cluster.builder()
                     .clusterName(outcome.getString("cluster"))
                     .build();
         } catch (Exception e) {
-            System.err.println("Unable to read item: " + hashId + " ");
-            System.err.println(e);
+            log.error("Unable to read item: " + hashId + " ");
+            log.error(e.toString());
         }
         return cluster;
     }
@@ -96,20 +96,20 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
                 List<Map<String, Object>> locationItems = new ArrayList<Map<String, Object>>();
                 locationItems.add(locationMap);
 
-                System.out.println("Adding a new item...");
+                log.info("Adding a new item...");
                 PutItemSpec putItemSpec = new PutItemSpec()
                         .withItem(new Item().withPrimaryKey("cluster", cluster.getClusterName()).withList("location", locationItems))
                         .withReturnValues(ReturnValue.ALL_OLD);
                 PutItemOutcome outcome = clusterTable
                         .putItem(putItemSpec);
-                System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult());
+                log.info("PutItem succeeded:\n" + outcome.getPutItemResult());
             } catch (Exception e) {
-                System.err.println("Unable to add item: Cluster " + cluster.getClusterName());
-                System.err.println(e);
+                log.error("Unable to add item: Cluster " + cluster.getClusterName());
+                log.error(e.toString());
             }
         } else {
             try {
-                System.out.println("Updating a new item...");
+                log.info("Updating a new item...");
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("address", address);
                 map.put("port", port);
@@ -121,10 +121,10 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
                         .withReturnValues(ReturnValue.UPDATED_NEW);
                 UpdateItemOutcome outcome = clusterTable
                         .updateItem(updateItemSpec);
-                System.out.println("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
+                log.info("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
             } catch (Exception e) {
-                System.err.println("Unable to update item: Cluster " + cluster.getClusterName());
-                System.err.println(e);
+                log.error("Unable to update item: Cluster " + cluster.getClusterName());
+                log.error(e.toString());
             }
         }
 
@@ -164,9 +164,9 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
         ArrayList<HashMap> list = new ArrayList();
 
         try {
-            System.out.println("Attempting to read the item...");
+            log.info("Attempting to read the item...");
             Item outcome = clusterTable.getItem(new GetItemSpec().withPrimaryKey("cluster", cluster.getClusterName()));
-            System.out.println("GetItem succeeded: " + outcome);
+            log.info("GetItem succeeded: " + outcome);
             jArr = JsonParser.parseString(outcome.getJSON("location")).getAsJsonArray();
             for (JsonElement json : jArr){
                 HashMap<String, Object> map = new HashMap<>();
@@ -175,8 +175,8 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
                 list.add(map);
             }
         } catch (Exception e) {
-            System.err.println("Unable to read item: Cluster " + cluster.getClusterName());
-            System.err.println(e);
+            log.error("Unable to read item: Cluster " + cluster.getClusterName());
+            log.error(e.toString());
         }
         return list;
     }
