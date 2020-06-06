@@ -81,7 +81,7 @@ public class PageCacheProxy implements CacheInputInterface {
 
         TreeQueryCacheResponse treeQueryCacheResponse = null;
         try {
-            treeQueryCacheResponse = treeQueryCacheServiceBlockingStub.get(treeQueryCacheRequestBuilder.build());
+            treeQueryCacheResponse = treeQueryCacheServiceBlockingStub.getPage(treeQueryCacheRequestBuilder.build());
         }catch(StatusRuntimeException se){
             log.error(se.getMessage());
             throw new FailConnectionException("Not able to connect to cache:"+se.getMessage());

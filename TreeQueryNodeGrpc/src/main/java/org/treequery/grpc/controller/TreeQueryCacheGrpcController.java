@@ -77,7 +77,7 @@ public class TreeQueryCacheGrpcController extends TreeQueryCacheServiceGrpc.Tree
 
 
     @Override
-    public void get(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {
+    public void getPage(TreeQueryCacheRequest request, StreamObserver<TreeQueryCacheResponse> responseObserver) {
         String identifier = request.getIdentifier();
         long pageSize = request.getPageSize();
         long page = request.getPage();

@@ -8,7 +8,7 @@ option java_outer_classname = "TreeQueryCacheProto";
 option objc_class_prefix = "HC";
 package treequery;
 service TreeQueryCacheService {
-    rpc get (TreeQueryCacheRequest) returns (TreeQueryCacheResponse);
+    rpc getPage (TreeQueryCacheRequest) returns (TreeQueryCacheResponse);
     rpc streamGet(CacheStreamRequest) returns (stream CacheStreamResponse);
     rpc getSchema(SchemaRequest) returns (SchemaResponse);
 }

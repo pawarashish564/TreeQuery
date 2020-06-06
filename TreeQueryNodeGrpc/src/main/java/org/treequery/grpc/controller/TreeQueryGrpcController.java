@@ -32,7 +32,7 @@ public class TreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServi
     private final TreeQueryBeamService treeQueryBeamService;
 
     @Override
-    public void query(TreeQueryRequest request, StreamObserver<TreeQueryResponse> responseObserver) {
+    public void queryByPage(TreeQueryRequest request, StreamObserver<TreeQueryResponse> responseObserver) {
         TreeQueryResponse.Builder treeQueryResponseBuilder = TreeQueryResponse.newBuilder();
 
         TreeQueryRequest.RunMode runMode = request.getRunMode();

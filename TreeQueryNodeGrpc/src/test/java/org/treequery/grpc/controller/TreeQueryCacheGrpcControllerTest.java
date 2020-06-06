@@ -141,7 +141,7 @@ class TreeQueryCacheGrpcControllerTest {
                 public void onCompleted() {
                 }
             };
-            treeQueryCacheGrpcController.get(treeQueryCacheRequest, responseObserver);
+            treeQueryCacheGrpcController.getPage(treeQueryCacheRequest, responseObserver);
             if (counter.get() == inx){
                 break;
             }
