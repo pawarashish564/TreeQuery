@@ -35,7 +35,7 @@ public class VertxRestDiscoveryServiceUnitTest {
     @BeforeEach
     public void setup(VertxTestContext context) {
         vertx = Vertx.vertx();
-        Verticle webVerticle = new WebServerVerticle(ds);
+        Verticle webVerticle = new WebServerVerticle(ds, 8082);
         vertx.deployVerticle(webVerticle, context.completing());
         client = WebClient.create(vertx, new WebClientOptions()
                 .setDefaultHost("localhost")
