@@ -35,7 +35,7 @@ public class ServiceDiscoveryClient implements DiscoveryServiceInterface {
         String json = new StringBuilder()
                 .append("{")
                 .append(String.format("\"identifier\":\"%s\", ", identifier))
-                .append(String.format("\"clusterName\": \"%s\"", cluster.getClusterName()))
+                .append(String.format("\"cluster\": \"%s\"", cluster.getClusterName()))
                 .append("}").toString();
 
         HttpRequest request = HttpRequest.newBuilder()
