@@ -16,7 +16,8 @@ import org.treequery.discoveryservicestatic.model.Location;
 
 @RequiredArgsConstructor
 public class WebServerVerticle extends AbstractVerticle {
-    @NonNull private DiscoveryServiceInterface ds;
+    @NonNull private final DiscoveryServiceInterface ds;
+    private final int PORT;
 
     @Override
     public void start(Future<Void> fut) {
@@ -67,7 +68,7 @@ public class WebServerVerticle extends AbstractVerticle {
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(
-                        config().getInteger("http.port", 8082),
+                        config().getInteger("http.port", PORT),
                         result -> {
                             if (result.succeeded()) {
                                 fut.complete();
