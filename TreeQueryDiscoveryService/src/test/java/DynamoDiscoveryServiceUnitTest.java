@@ -3,7 +3,6 @@ import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
-import org.checkerframework.checker.units.qual.Mass;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +16,6 @@ import org.mockserver.model.Header;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.exception.InterfaceMethodNotUsedException;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
-import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.discoveryservicestatic.model.Location;
 
 import java.io.IOException;
@@ -25,7 +23,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,13 +34,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 @ExtendWith(MockitoExtension.class)
-public class SimpleDiscoveryServiceTest {
+public class DynamoDiscoveryServiceUnitTest {
     @Mock
     HttpClient mockClient;
     @Mock
