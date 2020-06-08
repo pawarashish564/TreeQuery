@@ -1,6 +1,5 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'application'
+apply plugin: 'java'
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
