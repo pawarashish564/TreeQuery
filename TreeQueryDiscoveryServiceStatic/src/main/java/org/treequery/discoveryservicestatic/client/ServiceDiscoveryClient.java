@@ -1,16 +1,21 @@
 package org.treequery.discoveryservicestatic.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.exception.DiscoveryServiceClientException;
+import org.treequery.discoveryservicestatic.exception.EndPointException;
 import org.treequery.discoveryservicestatic.model.Location;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+@Slf4j
 public class ServiceDiscoveryClient implements DiscoveryServiceInterface {
     private HttpClient client;
     private String url;
@@ -46,15 +51,17 @@ public class ServiceDiscoveryClient implements DiscoveryServiceInterface {
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("HTTP Response Code: " + response.statusCode());
-            System.out.println("HTTP Response Body: " + response.body());
             if (response.statusCode() == 200) {
-                System.out.println("RegisterCacheResult successfully.");
+                log.info("RegisterCacheResult successfully.");
+                log.info("HTTP Response Code: " + response.statusCode());
+                log.info("HTTP Response Body: " + response.body());
             } else {
-                System.err.println(String.format("Failed to registerCacheResult: %s (%s)", response.body(), response.statusCode()));
+                String errMsg = String.format("HTTP Repsonse Code: %s.\nError Message: %s", response.statusCode(), response.body());
+                throw new EndPointException(errMsg);
             }
         } catch (Exception ex) {
-            System.err.println("Failed to registerCacheResult: " + ex);
+            log.error("Failed to registerCacheResult: " + ex);
+            throw new DiscoveryServiceClientException(ex.getMessage());
         }
 
 /* TODO: Use Vertx WebCLient and resolve async issue
@@ -84,12 +91,16 @@ public class ServiceDiscoveryClient implements DiscoveryServiceInterface {
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("HTTP Response Code: " + response.statusCode());
-            System.out.println("HTTP Response Body: " + response.body());
-            cluster = mapper.readValue(response.body(), Cluster.class);
-            System.out.println("RegisterCacheResult successfully.");
+            if (response.statusCode() == 200) {
+                log.info("GetCacheResultCluster successfully.");
+                log.info("HTTP Response Code: " + response.statusCode());
+                log.info("HTTP Response Body: " + response.body());
+                cluster = mapper.readValue(response.body(), Cluster.class);
+            } else {
+                log.error(String.format("HTTP Repsonse Code: %s.\nError Message: %s", response.statusCode(), response.body()));
+            }
         } catch (Exception ex) {
-            System.err.println("Failed to registerCacheResult: " + ex);
+            log.error("Failed to getCacheResultCluster: " + ex);
         }
         return cluster;
 /* TODO: Use Vertx WebCLient and resolve async issue
@@ -128,11 +139,15 @@ public class ServiceDiscoveryClient implements DiscoveryServiceInterface {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 System.out.println("RegisterCluster successfully.");
+                log.info("HTTP Response Code: " + response.statusCode());
+                log.info("HTTP Response Body: " + response.body());
             } else {
-                System.err.println(String.format("Failed to registerCluster: %s (%s)", response.body(), response.statusCode()));
+                String errMsg = String.format("HTTP Repsonse Code: %s.\n Error Message: %s", response.statusCode(), response.body());
+                throw new EndPointException(errMsg);
             }
         } catch (Exception ex) {
-            System.err.println("Failed to registerCacheResult: " + ex);
+            log.error("Failed to registerCacheResult: " + ex);
+            throw new DiscoveryServiceClientException(ex.getMessage());
         }
 
 /*  TODO: Use Vertx WebCLient and resolve async issue
@@ -163,12 +178,16 @@ public class ServiceDiscoveryClient implements DiscoveryServiceInterface {
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("HTTP Response Code: " + response.statusCode());
-            System.out.println("HTTP Response Body: " + response.body());
-            location = mapper.readValue(response.body(), Location.class);
-            System.out.println("RegisterCacheResult successfully.");
+            if (response.statusCode() == 200) {
+                log.info("GetClusterLocation successfully.");
+                log.info("HTTP Response Code: " + response.statusCode());
+                log.info("HTTP Response Body: " + response.body());
+                location = mapper.readValue(response.body(), Location.class);
+            } else {
+                log.error(String.format("HTTP Repsonse Code: %s.\nError Message: %s", response.statusCode(), response.body()));
+            }
         } catch (Exception ex) {
-            System.err.println("Failed to registerCacheResult: " + ex);
+            log.error("Failed to getClusterLocation: " + ex);
         }
         return location;
 
