@@ -6,7 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
-import com.amazonaws.services.dynamodbv2.model.ReturnValue;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
@@ -41,11 +41,60 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
         this(new DynamoClient(endpoint).getDynamoDB());
     }
 
-    public DiscoveryServiceProxyImpl(DynamoDB dynamoDB){
+    public DiscoveryServiceProxyImpl(DynamoDB dynamoDB) {
         this.dynamoDB = dynamoDB;
-        this.avroTable = dynamoDB.getTable("ServiceMapping");
-        this.clusterTable = dynamoDB.getTable("ClusterLocationMapping");
+        this.avroTable = getTable("ServiceMapping");
+        this.clusterTable = getTable("ClusterLocationMapping");
         this.client = HttpClient.newHttpClient();
+    }
+
+    private Table getTable(String tableName) {
+        Table table;
+        try {
+            TableDescription tableDescription = dynamoDB.getTable(tableName).describe();
+            log.info(String.format("Table %s is obtained. Status: %s.", tableDescription.getTableName(), tableDescription.getTableStatus()));
+            table = dynamoDB.getTable(tableName);
+        } catch (ResourceNotFoundException ex) {
+            log.warn(String.format("%s table is not found in DynamoDB. A new table is created.", tableName), ex);
+            switch (tableName) {
+                case "ServiceMapping":
+                    table = createTable(tableName, "avro");
+                    break;
+                case "ClusterLocationMapping":
+                    table = createTable(tableName, "cluster");
+                    break;
+                default:
+                    table = null;
+                    log.error(String.format("By default, Table %s is not allowed to be created in DynamoDB.", tableName));
+            }
+        }
+        return table;
+    }
+
+    private Table createTable(String tableName, String keyName) {
+        Table newTable = null;
+        try {
+            List<AttributeDefinition> attributeDefinitions = new ArrayList<AttributeDefinition>();
+            attributeDefinitions.add(new AttributeDefinition().withAttributeName(keyName).withAttributeType("S"));
+
+            List<KeySchemaElement> keySchema = new ArrayList<KeySchemaElement>();
+            keySchema.add(new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH));
+
+            CreateTableRequest request = new CreateTableRequest()
+                    .withTableName(tableName)
+                    .withKeySchema(keySchema)
+                    .withAttributeDefinitions(attributeDefinitions)
+                    .withProvisionedThroughput(new ProvisionedThroughput()
+                            .withReadCapacityUnits(5L)
+                            .withWriteCapacityUnits(6L));
+
+            Table table = dynamoDB.createTable(request);
+            table.waitForActive();
+            newTable = dynamoDB.getTable(tableName);
+        } catch (Exception ex) {
+            log.error(String.format("Unable to create %s table: ", tableName), ex);
+        }
+        return newTable;
     }
 
     @Override
@@ -58,9 +107,9 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             PutItemOutcome outcome = avroTable
                     .putItem(putItemSpec);
             log.info("PutItem succeeded:\n" + outcome.getPutItemResult());
-        } catch (Exception e) {
-            log.error("Unable to add item: " + hashId);
-            log.error(e.toString());
+        } catch (Exception ex) {
+            log.error(String.format("Unable to add item %s: ", hashId), ex);
+            throw ex;
         }
     }
 
@@ -76,11 +125,11 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             cluster = Cluster.builder()
                     .clusterName(outcome.getString("cluster"))
                     .build();
-        } catch (Exception e) {
-            log.error("Unable to read item: " + hashId + " ");
-            log.error(e.toString());
+            return cluster;
+        } catch (Exception ex) {
+            log.error(String.format("Unable to read item %s: ", hashId), ex);
+            throw ex;
         }
-        return cluster;
     }
 
     @Override
@@ -103,9 +152,9 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
                 PutItemOutcome outcome = clusterTable
                         .putItem(putItemSpec);
                 log.info("PutItem succeeded:\n" + outcome.getPutItemResult());
-            } catch (Exception e) {
-                log.error("Unable to add item: Cluster " + cluster.getClusterName());
-                log.error(e.toString());
+            } catch (Exception ex) {
+                log.error(String.format("Unable to add item Cluster %s: ", cluster.getClusterName()), ex);
+                throw ex;
             }
         } else {
             try {
@@ -122,9 +171,9 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
                 UpdateItemOutcome outcome = clusterTable
                         .updateItem(updateItemSpec);
                 log.info("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
-            } catch (Exception e) {
-                log.error("Unable to update item: Cluster " + cluster.getClusterName());
-                log.error(e.toString());
+            } catch (Exception ex) {
+                log.error(String.format("Unable to update item Cluster %s: ", cluster.getClusterName()), ex);
+                throw ex;
             }
         }
 
@@ -135,10 +184,14 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
     @Override
     public Location getClusterLocation(Cluster cluster) {
-        ArrayList<HashMap> locations = getLocationHelper(cluster);
-        Map<String, Object> ele = locations.get(new Random().nextInt(locations.size()));
-        Location location = Location.builder().address(ele.get("address").toString()).port(Integer.parseInt(ele.get("port").toString())).build();
-        return location;
+        try {
+            ArrayList<HashMap> locations = getLocationHelper(cluster);
+            Map<String, Object> ele = locations.get(new Random().nextInt(locations.size()));
+            Location location = Location.builder().address(ele.get("address").toString()).port(Integer.parseInt(ele.get("port").toString())).build();
+            return location;
+        } catch (Exception ex) {
+            throw ex;
+        }
 
         /* TODO: Use Eureka to get Cluster location
         Location location = null;
@@ -168,15 +221,14 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             Item outcome = clusterTable.getItem(new GetItemSpec().withPrimaryKey("cluster", cluster.getClusterName()));
             log.info("GetItem succeeded: " + outcome);
             jArr = JsonParser.parseString(outcome.getJSON("location")).getAsJsonArray();
-            for (JsonElement json : jArr){
+            for (JsonElement json : jArr) {
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("address", json.getAsJsonObject().get("address").getAsString());
                 map.put("port", json.getAsJsonObject().get("port").getAsInt());
                 list.add(map);
             }
-        } catch (Exception e) {
-            log.error("Unable to read item: Cluster " + cluster.getClusterName());
-            log.error(e.toString());
+        } catch (Exception ex) {
+            log.error(String.format("Unable to read item Cluster %s.", cluster.getClusterName()));
         }
         return list;
     }
