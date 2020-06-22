@@ -16,7 +16,8 @@ import org.treequery.discoveryservicestatic.model.Location;
 
 @RequiredArgsConstructor
 public class WebServerVerticle extends AbstractVerticle {
-    @NonNull private final DiscoveryServiceInterface ds;
+    @NonNull
+    private final DiscoveryServiceInterface ds;
     private final int PORT;
 
     @Override
@@ -25,44 +26,60 @@ public class WebServerVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         router.post("/registerCluster").handler(routingContext -> {
-            JsonObject obj = routingContext.getBodyAsJson();
-            Cluster cluster = Cluster.builder().clusterName(obj.getString("cluster")).build();
-            String address = obj.getString("address");
-            int port = obj.getInteger("port");
-            ds.registerCluster(cluster, address, port);
-
             HttpServerResponse response = routingContext.response();
-            response.putHeader("content-type", "application/json")
-                    .end(Json.encodePrettily(Location.builder().address(address).port(port).build()));
+
+            try {
+                JsonObject obj = routingContext.getBodyAsJson();
+                Cluster cluster = Cluster.builder().clusterName(obj.getString("cluster")).build();
+                String address = obj.getString("address");
+                int port = obj.getInteger("port");
+                ds.registerCluster(cluster, address, port);
+                response.putHeader("content-type", "application/json")
+                        .end(Json.encodePrettily(Location.builder().address(address).port(port).build()));
+            } catch (Exception ex) {
+                response.setStatusCode(500).end("Unable to registerCluster. Exception: " + ex);
+            }
         });
 
         router.get("/getClusterLocation/:service").handler(routingContext -> {
-            String name = routingContext.request().getParam("service");
-            Location location = ds.getClusterLocation(Cluster.builder().clusterName(name).build());
-
             HttpServerResponse response = routingContext.response();
-            response.putHeader("content-type", "application/json")
-                    .end(Json.encodePrettily(location));
+
+            try {
+                String name = routingContext.request().getParam("service");
+                Location location = ds.getClusterLocation(Cluster.builder().clusterName(name).build());
+                response.putHeader("content-type", "application/json")
+                        .end(Json.encodePrettily(location));
+            } catch (Exception ex) {
+                response.setStatusCode(500).end("Unable to getClusterLocation. Exception: " + ex);
+            }
         });
 
         router.post("/registerCacheResult").handler(routingContext -> {
-            JsonObject obj = routingContext.getBodyAsJson();
-            Cluster cluster = Cluster.builder().clusterName(obj.getString("cluster")).build();
-            String identifier = obj.getString("identifier");
-            ds.registerCacheResult(identifier, cluster);
-
             HttpServerResponse response = routingContext.response();
-            response.putHeader("content-type", "application/json")
-                    .end(Json.encodePrettily(Cluster.builder().clusterName(cluster.getClusterName()).build()));
+
+            try {
+                JsonObject obj = routingContext.getBodyAsJson();
+                Cluster cluster = Cluster.builder().clusterName(obj.getString("cluster")).build();
+                String identifier = obj.getString("identifier");
+                ds.registerCacheResult(identifier, cluster);
+                response.putHeader("content-type", "application/json")
+                        .end(Json.encodePrettily(Cluster.builder().clusterName(cluster.getClusterName()).build()));
+            } catch (Exception ex) {
+                response.setStatusCode(500).end("Unable to registerCacheResult. Exception: " + ex);
+            }
         });
 
         router.get("/getCacheResultCluster/:identifier").handler(routingContext -> {
-            String identifier = routingContext.request().getParam("identifier");
-            Cluster cluster = ds.getCacheResultCluster(identifier);
-
             HttpServerResponse response = routingContext.response();
-            response.putHeader("content-type", "application/json")
-                    .end(Json.encodePrettily(cluster));
+
+            try {
+                String identifier = routingContext.request().getParam("identifier");
+                Cluster cluster = ds.getCacheResultCluster(identifier);
+                response.putHeader("content-type", "application/json")
+                        .end(Json.encodePrettily(cluster));
+            } catch (Exception ex) {
+                response.setStatusCode(500).end("Unable to getCacheResultCluster. Exception: " + ex);
+            }
         });
 
         vertx.createHttpServer()

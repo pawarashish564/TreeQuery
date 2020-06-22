@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("integration")
@@ -31,27 +32,25 @@ public class ServiceDiscoveryClientIntegrationTest {
     }
 
     @Test
-    public void whenRegisterCacheResult_thenReturnSuccessMsg() {
-        SDClient.registerCacheResult("TestAvro", Cluster.builder().clusterName("TestCluster").build());
-        assertThat(outContent.toString()).contains("RegisterCacheResult successfully");
+    public void whenRegisterCacheResult_thenNoExceptionReturned() {
+        assertDoesNotThrow(() -> SDClient.registerCacheResult("TestAvro", Cluster.builder().clusterName("TestCluster").build()));
     }
 
     @Test
-    public void whenRegisterCluster_thenReturnSuccessMsg() {
-        SDClient.registerCluster(Cluster.builder().clusterName("TestCluster10").build(), "TestAddress", 123);
-        assertThat(outContent.toString()).contains("RegisterCluster successfully");
+    public void whenRegisterCluster_thenNoExceptionReturned() {
+        assertDoesNotThrow(() -> SDClient.registerCluster(Cluster.builder().clusterName("TestCluster").build(), "TestAddress", 123));
     }
 
     @Test
     public void whenGetClusterLocation_thenReturnCorrectLocation() throws Exception {
-        Location location = SDClient.getClusterLocation(Cluster.builder().clusterName("TestCluster10").build());
+        Location location = SDClient.getClusterLocation(Cluster.builder().clusterName("TestCluster").build());
         assertEquals(location.getAddress(), "TestAddress");
         assertEquals(location.getPort(), 123);
     }
 
     @Test
     public void whenGetCacheResultCluster_thenReturnCorrectCluster() {
-        Cluster cluster = SDClient.getCacheResultCluster("Avro-Test");
+        Cluster cluster = SDClient.getCacheResultCluster("TestAvro");
         assertEquals(cluster.getClusterName(), "TestCluster");
     }
 }
