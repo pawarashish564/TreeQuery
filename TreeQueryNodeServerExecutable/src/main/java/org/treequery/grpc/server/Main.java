@@ -54,7 +54,7 @@ public class Main {
     }
 
     public static void main(String [] args) throws IOException, InterruptedException {
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        log.info("Working Directory = " + System.getProperty("user.dir"));
         Options options = new Options();
         Option clusterInput = new Option("c", "cluster", true, "cluster setting");
         clusterInput.setRequired(true);
