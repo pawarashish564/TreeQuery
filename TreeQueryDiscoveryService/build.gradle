@@ -1,6 +1,5 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'application'
+apply plugin: 'java'
 
 group 'org.treequery'
 version '1.0-SNAPSHOT'
@@ -19,6 +18,19 @@ repositories {
         url "https://s3-us-west-2.amazonaws.com/dynamodb-local/release"
     }
 }
+buildscript {
+    repositories {
+        jcenter()
+    }
+    ext{
+        shadowjarVersion = '4.0.3'
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadowjarVersion"
+    }
+}
+apply plugin: 'com.github.johnrengelman.shadow'
+
 
 configurations{
     testImplementation{
@@ -36,10 +48,17 @@ dependencies {
     testImplementation 'com.amazonaws:DynamoDBLocal:[1.12,2.0)'
     testImplementation 'com.almworks.sqlite4java:sqlite4java:1.0.392'
 
+    // Vertx Web Libs
+    implementation('io.vertx:vertx-web:3.9.1')
+    testImplementation 'io.vertx:vertx-web-client:3.9.1'
+    testImplementation 'io.vertx:vertx-junit5:3.9.1'
+
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
+    compile group: 'commons-cli', name: 'commons-cli', version: "$cliVersion"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
@@ -94,4 +113,14 @@ task integrationTest(type: Test) {
 
     dependsOn copyNativeDeps
     systemProperty 'java.library.path', 'build/libs'
+}
+
+mainClassName="org.treequery.discoveryservice.Main"
+shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+    zip64 true
+    mergeServiceFiles()
+    with jar
 }

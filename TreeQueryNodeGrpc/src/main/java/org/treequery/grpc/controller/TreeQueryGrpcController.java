@@ -32,6 +32,18 @@ public class TreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServi
     private final TreeQueryBeamService treeQueryBeamService;
 
     @Override
+    public void queryByPageStream(TreeQueryRequest request, StreamObserver<TreeQueryResponseStream> responseObserver) {
+        TreeQueryResponse.Builder treeQueryResponseBuilder = TreeQueryResponse.newBuilder();
+
+        TreeQueryRequest.RunMode runMode = request.getRunMode();
+        String jsonRequest = request.getJsonInput();
+        boolean renewCache = request.getRenewCache();
+        long pageSize = request.getPageSize();
+        long page = request.getPage();
+        
+    }
+
+    @Override
     public void queryByPage(TreeQueryRequest request, StreamObserver<TreeQueryResponse> responseObserver) {
         TreeQueryResponse.Builder treeQueryResponseBuilder = TreeQueryResponse.newBuilder();
 
@@ -83,6 +95,7 @@ public class TreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServi
         }
 
     }
+
 
     static void prepareSystemErrorException(TreeQueryResponse.Builder treeQueryResponseBuilder, Throwable throwable){
         TreeQueryResponseHeader.Builder headerBuilder = TreeQueryResponseHeader.newBuilder();

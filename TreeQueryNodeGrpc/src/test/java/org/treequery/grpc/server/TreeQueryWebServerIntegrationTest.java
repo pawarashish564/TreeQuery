@@ -39,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("integration")
 class TreeQueryWebServerIntegrationTest {
     static WebServer webServerA, webServerB;
-    final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     static String jsonString;
     static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
