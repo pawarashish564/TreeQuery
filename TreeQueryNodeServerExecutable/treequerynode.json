@@ -1,0 +1,5 @@
+{
+  "name": "treequery-node",
+  "version": "0.0.1",
+  "main": "org.treequery.grpc.server.Main"
+}
