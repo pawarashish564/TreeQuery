@@ -43,6 +43,7 @@ public class ServiceDiscoveryClientIntegrationTest {
 
     @Test
     public void whenGetClusterLocation_thenReturnCorrectLocation() throws Exception {
+        assertDoesNotThrow(() -> SDClient.registerCluster(Cluster.builder().clusterName("TestCluster").build(), "TestAddress", 123));
         Location location = SDClient.getClusterLocation(Cluster.builder().clusterName("TestCluster").build());
         assertEquals(location.getAddress(), "TestAddress");
         assertEquals(location.getPort(), 123);
@@ -50,6 +51,7 @@ public class ServiceDiscoveryClientIntegrationTest {
 
     @Test
     public void whenGetCacheResultCluster_thenReturnCorrectCluster() {
+        assertDoesNotThrow(() -> SDClient.registerCacheResult("TestAvro", Cluster.builder().clusterName("TestCluster").build()));
         Cluster cluster = SDClient.getCacheResultCluster("TestAvro");
         assertEquals(cluster.getClusterName(), "TestCluster");
     }
