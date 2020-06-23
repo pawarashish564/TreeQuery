@@ -7,7 +7,23 @@ option objc_class_prefix = "HC";
 package treequery;
 service TreeQueryService {
     rpc queryByPage(TreeQueryRequest) returns (TreeQueryResponse);
-    rpc queryByPageStream(TreeQueryRequest) returns (stream TreeQueryResponseStream);
+    rpc queryByStream(TreeQueryStreamRequest) returns (stream TreequeryStreamResponse);
+}
+
+message TreeQueryStreamRequest{
+    enum RunMode {
+        UNKNOWN = 0;
+        DIRECT = 1;
+        FLINK = 2;
+        DATAFLOW = 3;
+    }
+    RunMode runMode = 1;
+    string jsonInput = 2;
+    bool renewCache = 3;
+}
+
+message TreequeryStreamResponse{
+    bytes avroLoad = 1;
 }
 
 message TreeQueryRequest{
@@ -41,7 +57,4 @@ message TreeQueryResponseResult{
     uint64 datasize = 3;
     bytes avroLoad = 4;
     string avroSchema = 5;
-}
-message TreeQueryResponseStream{
-    bytes avroLoad = 1;
 }
