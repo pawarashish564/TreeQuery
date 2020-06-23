@@ -1,0 +1,20 @@
+FROM openjdk:16-slim
+
+USER root
+ENV APPUSER javaapp
+ENV HOMEDIR /opt/${APPUSER}
+RUN mkdir -p ${HOMEDIR}
+
+ENV SOFTWARE_PATH TreeQueryDiscoveryService/
+
+RUN groupadd --system --gid=9999 $APPUSER && \
+    useradd --system --home-dir $HOMEDIR --uid=9999 --gid=$APPUSER $APPUSER
+WORKDIR $HOMEDIR
+
+COPY ${SOFTWARE_PATH}/build/libs $HOMEDIR
+COPY $SOFTWARE_PATH/startDiscoveryService.sh $HOMEDIR
+RUN chown -R $APPUSER:$APPUSER $HOMEDIR
+RUN chmod 750 startDiscoveryService.sh
+USER $APPUSER
+
+CMD ["./startDiscoveryService.sh"]

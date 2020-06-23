@@ -4,6 +4,16 @@
 Overall: [![CircleCI](https://circleci.com/gh/dexterchan/TreeQuery.svg?style=svg)](https://circleci.com/gh/dexterchan/TreeQuery) <br>
 Master: [![CircleCI](https://circleci.com/gh/dexterchan/TreeQuery/tree/master.svg?style=svg)](https://circleci.com/gh/dexterchan/TreeQuery/tree/master) <br>
 
+##Discovery Service
+###Docker build
+Build service discovery
+```
+docker build --tag pigpiggcp/treequery.discoveryservice:v0 -f DockerFile.DiscoveryService .
+```
+Run
+````
+docker run -it --rm -p 8082:8082 -e ACCESSKEY=<AWS access key> -e SECRETKEY=<AWS secret key> pigpiggcp/treequery.discoveryservice:v0
+````
 
 ##SQL schema
 ````
