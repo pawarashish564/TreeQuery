@@ -60,7 +60,7 @@ public class SimpleAsyncOneNodeSqlServiceTest {
         SqlQueryFunction sqlQueryFunction = (SqlQueryFunction)queryLeafNode.getQueryAble();
         assertThat(sqlQueryFunction.getDriverClassName()).isNotBlank();
 
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()

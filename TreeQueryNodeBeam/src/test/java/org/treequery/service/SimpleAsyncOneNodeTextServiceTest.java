@@ -54,7 +54,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                     return d.getAvroSchemaObj();
                 }
         );
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
@@ -105,7 +105,7 @@ class SimpleAsyncOneNodeTextServiceTest {
                 }
         );
 
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()

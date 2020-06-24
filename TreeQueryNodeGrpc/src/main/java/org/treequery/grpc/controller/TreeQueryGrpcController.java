@@ -32,15 +32,19 @@ public class TreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServi
     private final TreeQueryBeamService treeQueryBeamService;
 
     @Override
-    public void queryByPageStream(TreeQueryRequest request, StreamObserver<TreeQueryResponseStream> responseObserver) {
-        TreeQueryResponse.Builder treeQueryResponseBuilder = TreeQueryResponse.newBuilder();
+    public void queryByStream(TreeQueryStreamRequest request, StreamObserver<TreequeryStreamResponse> responseObserver) {
+        TreequeryStreamResponse.Builder treeQueryStreamResponseBuilder = TreequeryStreamResponse.newBuilder();
 
-        TreeQueryRequest.RunMode runMode = request.getRunMode();
-        String jsonRequest = request.getJsonInput();
-        boolean renewCache = request.getRenewCache();
-        long pageSize = request.getPageSize();
-        long page = request.getPage();
-        
+        TreeQueryStreamRequest.RunMode runMode = request.getRunMode();
+
+        /*
+            the support implementation :TreeQueryBeamServiceHelper
+            only support synchronous query
+            Parent cluster needs to wait for child cluster to finish the whole sub-batch query before starting to run.
+            We need to address the missing of stream property of TreeQueryBeamServiceHelper
+            and AsyncTreeQueryClusterService
+         */
+        super.queryByStream(request, responseObserver);
     }
 
     @Override

@@ -24,7 +24,7 @@ import org.treequery.beam.cache.CacheInputInterface;
 import java.util.function.Consumer;
 
 @Slf4j
-public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
+public class BatchTreeQueryBeamServiceHelper implements TreeQueryBeamService {
     TreeQueryClusterService treeQueryClusterService;
     @NonNull
     BeamCacheOutputBuilder beamCacheOutputBuilder;
@@ -40,11 +40,11 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     CacheInputInterface cacheInputInterface;
 
     @Builder
-    public TreeQueryBeamServiceHelper(AvroSchemaHelper avroSchemaHelper,
-                                      DiscoveryServiceInterface discoveryServiceInterface,
-                                      TreeQuerySetting treeQuerySetting,
-                                      TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface,
-                                      CacheInputInterface cacheInputInterface){
+    public BatchTreeQueryBeamServiceHelper(AvroSchemaHelper avroSchemaHelper,
+                                           DiscoveryServiceInterface discoveryServiceInterface,
+                                           TreeQuerySetting treeQuerySetting,
+                                           TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface,
+                                           CacheInputInterface cacheInputInterface){
         this.avroSchemaHelper = avroSchemaHelper;
         this.discoveryServiceInterface = discoveryServiceInterface;
         beamCacheOutputBuilder = BeamCacheOutputBuilder.builder()
@@ -56,7 +56,7 @@ public class TreeQueryBeamServiceHelper implements TreeQueryBeamService {
     }
 
     public void init(){
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->
                         TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
