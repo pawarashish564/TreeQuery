@@ -113,7 +113,7 @@ public class SimpleAsyncFlattenTest {
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         assertThat(rootNode).isInstanceOf(FlattenNode.class);
         log.debug("Run for data Identifier:"+ rootNode.getIdentifier());
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()

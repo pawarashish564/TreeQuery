@@ -2,73 +2,60 @@ package org.treequery.grpc.service;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
-import org.apache.avro.Schema;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.treequery.beam.cache.BeamCacheOutputBuilder;
-import org.treequery.beam.cache.CacheInputInterface;
-import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
-import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.utils.TestDataAgent;
-import org.treequery.model.CacheTypeEnum;
-import org.treequery.proto.TreeQueryRequest;
 import org.treequery.service.PreprocessInput;
 import org.treequery.service.ReturnResult;
-import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.service.TreeQueryClusterRunnerImpl;
 import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
-import org.treequery.utils.*;
-import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
+import org.treequery.utils.BasicAvroSchemaHelperImpl;
+import org.treequery.model.CacheTypeEnum;
+import org.treequery.proto.TreeQueryRequest;
+import org.treequery.service.StatusTreeQueryCluster;
+import org.treequery.utils.AvroSchemaHelper;
+import org.treequery.utils.TreeQuerySettingHelper;
 import org.treequery.utils.proxy.LocalCacheInputInterfaceProxyFactory;
+import org.treequery.beam.cache.CacheInputInterface;
+import org.treequery.utils.proxy.CacheInputInterfaceProxyFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
-@Tag("integration")
-public class ClusterTreeQueryBeamServiceHelperTest {
-    final static int PORT = 9009;//ThreadLocalRandom.current().nextInt(9000,9999);
-    final static String HOSTNAME = "localhost";
+@Slf4j
+class SimpleBatchTreeQueryBeamServiceHelperTest {
     String jsonString;
-    static DiscoveryServiceInterface discoveryServiceInterface = null;
-    CacheTypeEnum cacheTypeEnum;
-    TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    BatchTreeQueryBeamServiceHelper batchTreeQueryBeamServiceHelper;
+    DiscoveryServiceInterface discoveryServiceInterface;
     AvroSchemaHelper avroSchemaHelper;
     TreeQuerySetting treeQuerySetting;
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
     CacheInputInterface cacheInputInterface;
 
-    @BeforeAll
-    public static void staticinit(){
-        discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
-    }
-
     @BeforeEach
-    public void init() throws IOException {
-        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
-        String AvroTree = "SimpleJoinCluster.json";
-        jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
-
-        cacheTypeEnum = CacheTypeEnum.FILE;
+    void init(){
+        String AvroTree = "SimpleJoin.json";
+        CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
+        jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-
-        Cluster clusterA = Cluster.builder().clusterName("A").build();
-        Cluster clusterB = Cluster.builder().clusterName("B").build();
-        discoveryServiceInterface.registerCluster(clusterA, HOSTNAME, PORT);
-        discoveryServiceInterface.registerCluster(clusterB, HOSTNAME, PORT);
+        discoveryServiceInterface = mock(DiscoveryServiceInterface.class);
         CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
-        cacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(treeQuerySetting, discoveryServiceInterface);
 
+        cacheInputInterface = mock(CacheInputInterface.class);
 
         treeQueryClusterRunnerProxyInterface = LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
@@ -96,19 +83,18 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                         }
                 )
                 .build();
-        treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
+        batchTreeQueryBeamServiceHelper = BatchTreeQueryBeamServiceHelper.builder()
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
                 .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                 .cacheInputInterface(cacheInputInterface)
                 .build();
-
-
     }
+
     @Test
     void throwIllegalArugmentExceptionIfBlankProxy(){
-        treeQueryBeamServiceHelper = TreeQueryBeamServiceHelper.builder()
+        batchTreeQueryBeamServiceHelper = BatchTreeQueryBeamServiceHelper.builder()
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .cacheInputInterface(cacheInputInterface)
@@ -116,30 +102,32 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                 .build();
         int pageSize = 3;
         DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
-        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
+        PreprocessInput preprocessInput = batchTreeQueryBeamServiceHelper.preprocess(jsonString);
 
-        // assertThrows(IllegalStateException.class,
-        //()->{
-        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
-                preprocessInput,
-                true,
-                pageSize,
-                2,
-                genericRecordConsumer);
-        //}
-        //);
+       // assertThrows(IllegalStateException.class,
+                //()->{
+        ReturnResult returnResult = batchTreeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
+                            preprocessInput,
+                            true,
+                            pageSize,
+                            2,
+                            genericRecordConsumer);
+                //}
+                //);
         assertEquals(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR,returnResult.getStatusTreeQueryCluster().getStatus());
 
     }
 
+
+
     @Test
-    void happyPathRunBeamJoinLocally() throws Exception{
+    void happyPathRunBeamJoinLocally() {
         //TreeQueryRequest treeQueryRequest =  TreeQueryRequest.
         int pageSize = 3;
         DataConsumer2LinkedList genericRecordConsumer = new DataConsumer2LinkedList();
-        PreprocessInput preprocessInput = treeQueryBeamServiceHelper.preprocess(jsonString);
+        PreprocessInput preprocessInput = batchTreeQueryBeamServiceHelper.preprocess(jsonString);
 
-        ReturnResult returnResult = treeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
+        ReturnResult returnResult = batchTreeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
                 preprocessInput,
                 true,
                 pageSize,
@@ -155,30 +143,47 @@ public class ClusterTreeQueryBeamServiceHelperTest {
                 }
         );
 
-
-        pageSize = 10000;
-        long page = 1;
-        AtomicInteger counter = new AtomicInteger();
-        Set<GenericRecord> genericRecordSet = Sets.newHashSet();
-        Schema schema = AvroIOHelper.getPageRecordFromAvroCache(
-                treeQuerySetting,
-                preprocessInput.getNode().getIdentifier(),pageSize,page,
-                (record)->{
-                    assertThat(record).isNotNull();
-                    counter.incrementAndGet();
-                    String isinBondTrade = GenericRecordSchemaHelper.StringifyAvroValue(record, "bondtrade.asset.securityId");
-                    String isinSecCode = GenericRecordSchemaHelper.StringifyAvroValue(record,"bondstatic.isin_code");
-                    assertThat(genericRecordSet).doesNotContain(record);
-                    assertEquals(isinBondTrade, isinSecCode);
-                    assertThat(isinBondTrade.length()).isGreaterThan(5);
-                    genericRecordSet.add(record);
-                });
-
-        assertEquals(1000, counter.get());
-
     }
 
-    private static class DataConsumer2LinkedList implements Consumer<GenericRecord> {
+    @Test
+    void CheckGetFromCacheRecord() {
+        int pageSize = 100;
+        DataConsumer2Set genericRecordConsumer = new DataConsumer2Set();
+        PreprocessInput preprocessInput = batchTreeQueryBeamServiceHelper.preprocess(jsonString);
+
+        ReturnResult returnResult = batchTreeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
+                preprocessInput,
+                true,
+                pageSize,
+                2,
+                genericRecordConsumer);
+
+        assertThat(returnResult.getStatusTreeQueryCluster().getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        assertThat(genericRecordConsumer.getGenericRecordSet()).hasSize(pageSize);
+        genericRecordConsumer.getGenericRecordSet().forEach(
+                genericRecord -> {
+                    //log.debug(genericRecord.toString());
+                    assertThat(genericRecord.toString()).isNotBlank();
+                }
+        );
+        DataConsumer2Set cachedRecordConsumer = new DataConsumer2Set();
+        ReturnResult returnResult2 = batchTreeQueryBeamServiceHelper.runAndPageResult(TreeQueryRequest.RunMode.DIRECT,
+                preprocessInput,
+                false,
+                pageSize,
+                2,
+                cachedRecordConsumer);
+        assertThat(returnResult2.getStatusTreeQueryCluster().getStatus()).isEqualTo(StatusTreeQueryCluster.QueryTypeEnum.SUCCESS);
+        assertThat(cachedRecordConsumer.getGenericRecordSet()).hasSize(pageSize);
+        assertThat(returnResult2.getStatusTreeQueryCluster().getDescription()).isEqualTo("Fresh from cache");
+        genericRecordConsumer.getGenericRecordSet().forEach(
+                genericRecord -> {
+                    assertThat(cachedRecordConsumer.getGenericRecordSet()).contains(genericRecord);
+                }
+        );
+    }
+
+    private static class DataConsumer2LinkedList implements Consumer<GenericRecord>{
         @Getter
         List<GenericRecord> genericRecordList = Lists.newLinkedList();
         @Override
