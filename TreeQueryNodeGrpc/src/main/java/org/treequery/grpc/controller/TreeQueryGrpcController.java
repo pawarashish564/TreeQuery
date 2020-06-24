@@ -40,7 +40,7 @@ public class TreeQueryGrpcController extends TreeQueryServiceGrpc.TreeQueryServi
         /*
             the support implementation :TreeQueryBeamServiceHelper
             only support synchronous query
-            Parent cluster needs to wait for child cluster to finish before starting to run.
+            Parent cluster needs to wait for child cluster to finish the whole sub-batch query before starting to run.
             We need to address the missing of stream property of TreeQueryBeamServiceHelper
             and AsyncTreeQueryClusterService
          */

@@ -207,7 +207,7 @@ public class SimpleAsyncJoinClusterTest {
         Node rootNode = JsonInstructionHelper.createNode(jsonString);
         //assertThat(rootNode).isInstanceOf(JoinNode.class);
         log.debug("Run for data Identifier:"+ rootNode.getIdentifier());
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()

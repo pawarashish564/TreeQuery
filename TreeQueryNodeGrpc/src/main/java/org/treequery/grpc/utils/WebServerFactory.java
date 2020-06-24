@@ -8,7 +8,7 @@ import org.treequery.grpc.controller.TreeQueryCacheGrpcController;
 import org.treequery.grpc.controller.TreeQueryGrpcController;
 import org.treequery.grpc.server.WebServer;
 import org.treequery.grpc.service.TreeQueryBeamService;
-import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
+import org.treequery.grpc.service.BatchTreeQueryBeamServiceHelper;
 import org.treequery.grpc.service.TreeQueryCacheService;
 import org.treequery.grpc.service.TreeQueryCacheServiceHelper;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
@@ -33,7 +33,7 @@ public class WebServerFactory {
 
 
 
-        treeQueryBeamService =  TreeQueryBeamServiceHelper.builder()
+        treeQueryBeamService =  BatchTreeQueryBeamServiceHelper.builder()
                 .avroSchemaHelper(avroSchemaHelper)
                 .discoveryServiceInterface(discoveryServiceInterface)
                 .treeQuerySetting(treeQuerySetting)
