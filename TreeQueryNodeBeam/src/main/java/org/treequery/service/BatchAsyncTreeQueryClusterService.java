@@ -11,14 +11,14 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 
-public class AsyncTreeQueryClusterService implements TreeQueryClusterService {
+public class BatchAsyncTreeQueryClusterService implements TreeQueryClusterService {
     private static final int MAX_THREAD_RUN = 10;
     ExecutorService executor = Executors.newFixedThreadPool(MAX_THREAD_RUN);
     Map<String, TreeQueryClusterRunner> treeQueryClusterRunnerMap = Maps.newConcurrentMap();
 
     TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory;
     @Builder
-    AsyncTreeQueryClusterService(TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory){
+    BatchAsyncTreeQueryClusterService(TreeQueryClusterRunnerFactory treeQueryClusterRunnerFactory){
         this.treeQueryClusterRunnerFactory = treeQueryClusterRunnerFactory;
     }
 

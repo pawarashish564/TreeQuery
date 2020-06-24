@@ -63,7 +63,7 @@ public class SimpleAsyncOneNodeMongoService {
                     return queryLeafNode.getAvroSchemaObj();
                 }
         );
-        treeQueryClusterService =  AsyncTreeQueryClusterService.builder()
+        treeQueryClusterService =  BatchAsyncTreeQueryClusterService.builder()
                 .treeQueryClusterRunnerFactory(()->{
                     return TreeQueryClusterRunnerImpl.builder()
                             .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()

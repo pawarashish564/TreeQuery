@@ -17,7 +17,7 @@ import org.treequery.grpc.client.HealthWebClient;
 import org.treequery.grpc.client.TreeQueryClient;
 import org.treequery.grpc.exception.FailConnectionException;
 import org.treequery.grpc.model.TreeQueryResult;
-import org.treequery.grpc.service.TreeQueryBeamServiceHelper;
+import org.treequery.grpc.service.BatchTreeQueryBeamServiceHelper;
 import org.treequery.grpc.utils.TestDataAgent;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.grpc.utils.proxy.GrpcCacheInputInterfaceProxyFactory;
@@ -47,7 +47,7 @@ class TreeQueryWebServerTest {
     //final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     final static String HOSTNAME = "localhost";
     static String jsonString;
-    static TreeQueryBeamServiceHelper treeQueryBeamServiceHelper;
+    static BatchTreeQueryBeamServiceHelper batchTreeQueryBeamServiceHelper;
     static DiscoveryServiceInterface discoveryServiceInterface;
     static AvroSchemaHelper avroSchemaHelper;
     static TreeQuerySetting treeQuerySettingA, treeQuerySettingB;
