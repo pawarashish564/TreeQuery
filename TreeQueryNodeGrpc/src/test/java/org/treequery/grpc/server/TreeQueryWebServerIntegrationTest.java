@@ -98,14 +98,16 @@ class TreeQueryWebServerIntegrationTest {
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
 
-                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting.TreeQuerySettingBuilder(
                                     _Cluster.getClusterName(),
                                     treeQuerySettingA.getServicehostname(),
                                     treeQuerySettingA.getServicePort(),
                                     treeQuerySettingA.getCacheFilePath(),
                                     treeQuerySettingA.getRedisHostName(),
-                                    treeQuerySettingA.getRedisPort()
-                            );
+                                    treeQuerySettingA.getRedisPort(),
+                                    treeQuerySettingA.getServiceDiscoveryHostName(),
+                                    treeQuerySettingA.getServiceDiscoveryPort()
+                            ).build();
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
                                             .treeQuerySetting(treeQuerySettingA)

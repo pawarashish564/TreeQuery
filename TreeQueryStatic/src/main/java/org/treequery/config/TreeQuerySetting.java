@@ -17,16 +17,21 @@ public class TreeQuerySetting {
     private final String cacheFilePath;
     private final String redisHostName;
     private final int redisPort;
+    private final String serviceDiscoveryHostName;
+    private final int serviceDiscoveryPort;
     private final CacheTypeEnum cacheTypeEnum = CacheTypeEnum.FILE;
 
-    public TreeQuerySetting(String cluster, String servicehostname, int servicePort,
-                            String cacheFilePath, String redisHostName, int redisPort) {
+    private TreeQuerySetting(String cluster, String servicehostname, int servicePort,
+                            String cacheFilePath, String redisHostName, int redisPort,
+                             String serviceDiscoveryHostName, int serviceDiscoveryPort) {
         this.cluster = Cluster.builder().clusterName(cluster).build();
         this.servicehostname = servicehostname;
         this.servicePort = servicePort;
         this.cacheFilePath = cacheFilePath;
         this.redisHostName = redisHostName;
         this.redisPort = redisPort;
+        this.serviceDiscoveryHostName = serviceDiscoveryHostName;
+        this.serviceDiscoveryPort = serviceDiscoveryPort;
     }
 
     public static TreeQuerySettingBuilder builder() {
@@ -50,6 +55,8 @@ public class TreeQuerySetting {
         private String cacheFilePath;
         private String redisHostName;
         private int redisPort;
+        private  String serviceDiscoveryHostName;
+        private  int serviceDiscoveryPort;
 
         public TreeQuerySettingBuilder cluster(String cluster) {
             this.cluster = cluster;
@@ -58,7 +65,10 @@ public class TreeQuerySetting {
 
 
         public TreeQuerySetting build() {
-            return new TreeQuerySetting(cluster, servicehostname, servicePort, cacheFilePath, redisHostName, redisPort);
+            return new TreeQuerySetting(
+                    cluster, servicehostname, servicePort,
+                    cacheFilePath, redisHostName, redisPort,
+                    serviceDiscoveryHostName, serviceDiscoveryPort);
         }
 
         public String toString() {
