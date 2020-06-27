@@ -30,12 +30,12 @@ class TreeQueryClientTest {
     void init(){
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         discoveryServiceInterface.registerCluster(Cluster.builder()
-                .clusterName("A").build(), "localhost", 9002);
+                .clusterName("A").build(), "localhost", 9012);
     }
 
     @Test
     void happyPathSimpleJoin(){
-        String AvroTree = "SimpleJoin.json";
+        String AvroTree = "SimpleJoin.Integration.json";
         run(AvroTree,  discoveryServiceInterface, 1000,
                 (genericRecord)->{
                     assertThat(genericRecord).isNotNull();

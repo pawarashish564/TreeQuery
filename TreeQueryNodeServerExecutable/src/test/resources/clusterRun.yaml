@@ -1,0 +1,6 @@
+---
+servicePort: 9002
+cacheFilePath: "${TMPDIR}"
+cluster: "A"
+serviceDiscoveryHostName: "192.168.1.14"
+serviceDiscoveryPort: 8082

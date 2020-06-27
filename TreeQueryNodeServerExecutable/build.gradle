@@ -6,6 +6,7 @@ version "$TREEQUERY_VERSION"
 
 mainClassName = "org.treequery.grpc.server.Main"
 sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -49,6 +50,21 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
+
+
+
+test {
+    useJUnitPlatform {
+        //includeTags 'io.beam.exp.cryptorealtime.model','controllers'
+        excludeTags 'integration'
+    }
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
 /*
 task buildZip(type: Tar) {
     from compileJava

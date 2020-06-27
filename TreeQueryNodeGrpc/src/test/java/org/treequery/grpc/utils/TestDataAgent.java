@@ -28,7 +28,7 @@ public class TestDataAgent {
                 HOSTNAME,
                 PORT,
                 TestDataAgent.getTestResourceDirectory(avroSampleFile),
-                "",0
+                "",0,"",0
         );
         return treeQuerySettingBuilder.build();
     }

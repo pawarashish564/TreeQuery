@@ -1,0 +1,160 @@
+{
+  "name": "Join5YData",
+  "description": "Join 5Y data",
+  "action": "INNER_JOIN",
+  "cluster": "A",
+  "children": [
+    {
+      "name": "Flatten5Y10Ydata",
+      "description": "Flatten 5Y+10Y data",
+      "action": "FLATTEN",
+      "cluster": "A",
+      "children": [
+        {
+          "name": "Join5YData",
+          "description": "Join 5Y data",
+          "action": "INNER_JOIN",
+          "cluster": "A",
+          "children": [
+            {
+              "name": "Load5YBondTrade",
+              "description": "Load BondTrades 5Y",
+              "action": "LOAD",
+              "cluster": "A",
+              "source": "${WORKDIR}/bondtrade1.avro",
+              "avro_schema": "{\"name\":\"BondTrade\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"cust\",\"type\":\"string\"},{\"name\":\"tradeDate\",\"type\":\"string\"},{\"name\":\"tradeType\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\",\"logicalType\":\"time-millis\"},{\"name\":\"asset\",\"type\":{\"name\":\"Asset\",\"type\":\"record\",\"fields\":[{\"name\":\"securityId\",\"type\":\"string\"},{\"name\":\"notional\",\"type\":\"double\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"currency\",\"type\":\"string\"},{\"name\":\"bidask\",\"type\":{\"name\":\"BidAsk\",\"type\":\"enum\",\"symbols\":[\"BID\",\"ASK\"]}}]}}]}"
+            },
+            {
+              "name": "Load5YStatic",
+              "description": "Load 5Y Bond Static",
+              "action": "LOAD",
+              "cluster": "B",
+              "source": "${WORKDIR}/BondStaticSample.avro",
+              "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"string\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"}]}"
+            }
+          ],
+          "keys": [
+            {
+              "left": 0,
+              "right": 1,
+              "on": [
+                {
+                  "left": "asset.securityId",
+                  "right": "isin_code"
+                }
+              ],
+              "labels": {
+                "left": "bondtrade",
+                "right": "bondstatic"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Join10YData",
+          "description": "Join 10Y data",
+          "action": "INNER_JOIN",
+          "cluster": "B",
+          "children": [
+            {
+              "name": "Load10YBondTrade",
+              "description": "Load BondTrades 10Y",
+              "action": "LOAD",
+              "cluster": "B",
+              "source": "${WORKDIR}/bondtrade2.avro",
+              "avro_schema": "{\"name\":\"BondTrade\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"cust\",\"type\":\"string\"},{\"name\":\"tradeDate\",\"type\":\"string\"},{\"name\":\"tradeType\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\",\"logicalType\":\"time-millis\"},{\"name\":\"asset\",\"type\":{\"name\":\"Asset\",\"type\":\"record\",\"fields\":[{\"name\":\"securityId\",\"type\":\"string\"},{\"name\":\"notional\",\"type\":\"double\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"currency\",\"type\":\"string\"},{\"name\":\"bidask\",\"type\":{\"name\":\"BidAsk\",\"type\":\"enum\",\"symbols\":[\"BID\",\"ASK\"]}}]}}]}"
+            },
+            {
+              "name": "Load10YStatic",
+              "description": "Load 10Y Bond Static",
+              "action": "LOAD",
+              "cluster": "B",
+              "source": "${WORKDIR}/BondStaticSample.avro",
+              "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"string\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"}]}"
+            }
+          ],
+          "keys": [
+            {
+              "left": 0,
+              "right": 1,
+              "on": [
+                {
+                  "left": "asset.securityId",
+                  "right": "isin_code"
+                }
+              ],
+              "labels": {
+                "left": "bondtrade",
+                "right": "bondstatic"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Join15YData",
+          "description": "Join 15Y data",
+          "action": "INNER_JOIN",
+          "cluster": "B",
+          "children": [
+            {
+              "name": "Load15YBondTrade",
+              "description": "Load BondTrades 15Y",
+              "action": "LOAD",
+              "cluster": "B",
+              "source": "${WORKDIR}/bondtrade3.avro",
+              "avro_schema": "{\"name\":\"BondTrade\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"cust\",\"type\":\"string\"},{\"name\":\"tradeDate\",\"type\":\"string\"},{\"name\":\"tradeType\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\",\"logicalType\":\"time-millis\"},{\"name\":\"asset\",\"type\":{\"name\":\"Asset\",\"type\":\"record\",\"fields\":[{\"name\":\"securityId\",\"type\":\"string\"},{\"name\":\"notional\",\"type\":\"double\"},{\"name\":\"price\",\"type\":\"double\"},{\"name\":\"currency\",\"type\":\"string\"},{\"name\":\"bidask\",\"type\":{\"name\":\"BidAsk\",\"type\":\"enum\",\"symbols\":[\"BID\",\"ASK\"]}}]}}]}"
+            },
+            {
+              "name": "Load15YStatic",
+              "description": "Load 15Y Bond Static",
+              "action": "LOAD",
+              "cluster": "B",
+              "source": "${WORKDIR}/BondStaticSample.avro",
+              "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"string\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"}]}"
+            }
+          ],
+          "keys": [
+            {
+              "left": 0,
+              "right": 1,
+              "on": [
+                {
+                  "left": "asset.securityId",
+                  "right": "isin_code"
+                }
+              ],
+              "labels": {
+                "left": "bondtrade",
+                "right": "bondstatic"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "LoadBondPrice",
+      "description": "Load Bond Price",
+      "action": "LOAD",
+      "cluster": "A",
+      "source": "${WORKDIR}/BondPrice.avro",
+      "avro_schema": "{\"name\":\"BondMktData\",\"type\":\"record\",\"namespace\":\"org.treequery.security.model.avro\",\"fields\":[{\"name\":\"AsOfDate\",\"type\":\"string\"},{\"name\":\"Tenor\",\"type\":\"string\"},{\"name\":\"Price\",\"type\":\"double\"}]}"
+    }
+  ],
+  "keys": [
+    {
+      "left": 0,
+      "right": 1,
+      "on": [
+        {
+          "left": "bondstatic.original_maturity",
+          "right": "Tenor"
+        }
+      ],
+      "labels": {
+        "left": "bondtrade_bondstatic",
+        "right": "bondprice"
+      }
+    }
+  ]
+}
