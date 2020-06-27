@@ -6,6 +6,7 @@ version "$TREEQUERY_VERSION"
 
 mainClassName = "org.treequery.grpc.server.Main"
 sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
