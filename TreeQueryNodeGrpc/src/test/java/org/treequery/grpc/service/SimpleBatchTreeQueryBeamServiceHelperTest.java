@@ -62,14 +62,16 @@ class SimpleBatchTreeQueryBeamServiceHelperTest {
                 .avroSchemaHelper(avroSchemaHelper)
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
-                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting.TreeQuerySettingBuilder(
                                     _Cluster.getClusterName(),
                                     treeQuerySetting.getServicehostname(),
                                     treeQuerySetting.getServicePort(),
                                     treeQuerySetting.getCacheFilePath(),
                                     treeQuerySetting.getRedisHostName(),
-                                    treeQuerySetting.getRedisPort()
-                            );
+                                    treeQuerySetting.getRedisPort(),
+                                    treeQuerySetting.getServiceDiscoveryHostName(),
+                                    treeQuerySetting.getServiceDiscoveryPort()
+                            ).build();
 
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()

@@ -84,7 +84,7 @@ public class JoinNodeHelper implements NodeBeamHelper{
             AvroCoder outputCoder = AvroCoder.of(GenericRecord.class, outputSchema);
             result = joinResult.apply(
                     OutputGenericRecordTransform.builder()
-                        .schema(outputSchema)
+                        .schema(outputSchema.toString())
                         .leftLabel(joinKey.getLeftLabel())
                         .rightLabel(joinKey.getRightLabel())
                         .build()
@@ -94,7 +94,7 @@ public class JoinNodeHelper implements NodeBeamHelper{
     }
     @Builder
     private static class OutputGenericRecordTransform extends PTransform<PCollection< KV<String, KV<GenericRecord, GenericRecord>> >, PCollection<GenericRecord> >{
-        protected final Schema schema;
+        protected final String schema;
         protected final String leftLabel;
         protected final String rightLabel;
         @Override
@@ -111,7 +111,9 @@ public class JoinNodeHelper implements NodeBeamHelper{
                                     GenericRecord rightValue = Optional.ofNullable(__value)
                                             .orElseThrow(()->new IllegalArgumentException("failed to get right value"))
                                             .getValue();
-                                    GenericRecord joinResult = new GenericData.Record(schema);
+
+                                    Schema outputSchema = new Schema.Parser().parse(schema);
+                                    GenericRecord joinResult = new GenericData.Record(outputSchema);
                                     joinResult.put(leftLabel, leftValue);
                                     joinResult.put(rightLabel,rightValue);
                                     out.output(joinResult);

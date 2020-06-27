@@ -1,0 +1,91 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.11
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+}
+
+dependencies {
+    compile project(':TreeQueryStatic')
+    compile project (':TreeQueryServiceProxy')
+    compile project(':TreeQueryDiscoveryServiceStatic')
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    compile  "org.apache.beam:beam-sdks-java-core:$beamVersion"
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+
+    compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
+
+    compile "org.apache.avro:avro:${avroVersion}"
+    compile "org.apache.beam:beam-sdks-java-io-google-cloud-platform:$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-io-mongodb', version: "$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-extensions-join-library', version: "$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-io-jdbc', version: "$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-io-kafka', version: "$beamVersion"
+
+    compile group: 'mysql', name: 'mysql-connector-java', version: "$mysqlVersion"
+
+    compile 'org.apache.kafka:kafka-clients:0.10.2.0'
+
+    compile 'io.confluent:kafka-avro-serializer:5.3.2'
+
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
+    testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
+
+
+}
+
+
+test {
+    useJUnitPlatform {
+        //includeTags 'io.beam.exp.cryptorealtime.model','controllers'
+        excludeTags 'integration'
+    }
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    check.dependsOn it
+    shouldRunAfter test
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+apply from: rootProject.file('gradle/profile.gradle')
+
+
+
+
+if(project.hasProperty('nexus')){
+    apply from: rootProject.file('gradle/uploadNexus.gradle');
+}

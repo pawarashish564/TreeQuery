@@ -1,0 +1,8 @@
+{
+  "name": "Load5YStatic",
+  "description": "Load Bond Static",
+  "action": "LOAD",
+  "cluster": "A",
+  "source": "${WORKDIR}/BondStaticSample.avro",
+  "avro_schema": "{\"name\":\"BondStatic\",\"type\":\"record\",\"namespace\":\"io.exp.security.model.avro\",\"fields\":[{\"name\":\"expected_maturity_date\",\"type\":\"string\"},{\"name\":\"original_maturity\",\"type\":\"string\"},{\"name\":\"issue_number\",\"type\":\"string\"},{\"name\":\"isin_code\",\"type\":\"string\"},{\"name\":\"coupon\",\"type\":\"string\"},{\"name\":\"outstanding_size\",\"type\":\"double\"},{\"name\":\"institutional_retail\",\"type\":\"string\"}]}"
+}

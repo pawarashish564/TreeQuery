@@ -52,13 +52,12 @@ class TreeQueryWebServerIntegrationTest {
 
     @BeforeAll
     static void init() throws Exception{
-        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection.yaml", false, true);
-        String AvroTree = "SimpleJoin.json";
+        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection2.yaml", false, true);
         treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
         treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("A").build(),
                 treeQuerySettingA.getServicehostname(), treeQuerySettingA.getServicePort());
@@ -98,14 +97,16 @@ class TreeQueryWebServerIntegrationTest {
                 .createLocalTreeQueryClusterRunnerFunc(
                         (_Cluster)-> {
 
-                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting.TreeQuerySettingBuilder(
                                     _Cluster.getClusterName(),
                                     treeQuerySettingA.getServicehostname(),
                                     treeQuerySettingA.getServicePort(),
                                     treeQuerySettingA.getCacheFilePath(),
                                     treeQuerySettingA.getRedisHostName(),
-                                    treeQuerySettingA.getRedisPort()
-                            );
+                                    treeQuerySettingA.getRedisPort(),
+                                    treeQuerySettingA.getServiceDiscoveryHostName(),
+                                    treeQuerySettingA.getServiceDiscoveryPort()
+                            ).build();
                             return TreeQueryClusterRunnerImpl.builder()
                                     .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
                                             .treeQuerySetting(treeQuerySettingA)
@@ -121,6 +122,20 @@ class TreeQueryWebServerIntegrationTest {
     }
 
 
+    @Test
+    void happyPathTreeQuerySimple(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        String AvroTree = "SimpleJoin.Integration.json";
+        //run3Layers(AvroTree);
+        runLayers(AvroTree, 1000,
+                genericRecord -> {
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+                }
+        );
+    }
     @Test
     void happyPathTreeQuery3layers(){
         discoveryServiceInterface.registerCluster(

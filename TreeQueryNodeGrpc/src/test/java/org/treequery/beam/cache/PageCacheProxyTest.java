@@ -49,7 +49,7 @@ class PageCacheProxyTest {
                 HOSTNAME,
                 PORT,
                 TestDataAgent.getTestResourceDirectory(avroSampleFile),
-                "",0
+                "",0,"",0
         );
         treeQuerySetting = treeQuerySettingBuilder.build();
 

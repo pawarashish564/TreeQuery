@@ -74,14 +74,16 @@ public class SimpleAsyncJoinClusterTest {
                                                 .createLocalTreeQueryClusterRunnerFunc(
                                                         (_Cluster)-> {
 
-                                                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting(
+                                                            TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting.TreeQuerySettingBuilder(
                                                                     _Cluster.getClusterName(),
                                                                     treeQuerySetting.getServicehostname(),
                                                                     treeQuerySetting.getServicePort(),
                                                                     treeQuerySetting.getCacheFilePath(),
                                                                     treeQuerySetting.getRedisHostName(),
-                                                                    treeQuerySetting.getRedisPort()
-                                                            );
+                                                                    treeQuerySetting.getRedisPort(),
+                                                                    treeQuerySetting.getServiceDiscoveryHostName(),
+                                                                    treeQuerySetting.getServiceDiscoveryPort()
+                                                            ).build();
 
                                                             CacheInputInterface _CacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(remoteDummyTreeQuerySetting, discoveryServiceInterface);
 
