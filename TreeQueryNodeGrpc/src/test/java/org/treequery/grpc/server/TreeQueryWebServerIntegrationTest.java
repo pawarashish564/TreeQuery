@@ -52,13 +52,13 @@ class TreeQueryWebServerIntegrationTest {
 
     @BeforeAll
     static void init() throws Exception{
-        DatabaseSettingHelper.initDatabaseSettingHelper("DatabaseConnection.yaml", false, true);
-        String AvroTree = "SimpleJoin.json";
-        treeQuerySettingA = TreeQuerySettingHelper.createFromYaml();
-        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
+        DatabaseSettingHelper.initDatabaseSettingHelper("/Users/dexter/temp/run/DatabaseConnection2.yaml", true, true);
+
+        treeQuerySettingA = TreeQuerySettingHelper.createFromYaml("/Users/dexter/temp/run/treeQueryA.yaml",true);
+        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("/Users/dexter/temp/run/treeQueryB.yaml",true);
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         avroSchemaHelper = new BasicAvroSchemaHelperImpl();
-        jsonString = TestDataAgent.prepareNodeFromJsonInstruction(AvroTree);
+
         discoveryServiceInterface.registerCluster(
                 Cluster.builder().clusterName("A").build(),
                 treeQuerySettingA.getServicehostname(), treeQuerySettingA.getServicePort());
@@ -123,6 +123,20 @@ class TreeQueryWebServerIntegrationTest {
     }
 
 
+    @Test
+    void happyPathTreeQuerySimple(){
+        discoveryServiceInterface.registerCluster(
+                Cluster.builder().clusterName("B").build(),
+                treeQuerySettingB.getServicehostname(), treeQuerySettingB.getServicePort());
+        String AvroTree = "SimpleJoin.Integration.json";
+        //run3Layers(AvroTree);
+        runLayers(AvroTree, 1000,
+                genericRecord -> {
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+                }
+        );
+    }
     @Test
     void happyPathTreeQuery3layers(){
         discoveryServiceInterface.registerCluster(

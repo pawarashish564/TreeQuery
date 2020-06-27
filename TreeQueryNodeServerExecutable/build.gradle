@@ -6,11 +6,11 @@ version "$TREEQUERY_VERSION"
 
 mainClassName = "org.treequery.grpc.server.Main"
 sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
 }
-/*
 buildscript {
     repositories {
         jcenter()
@@ -23,7 +23,6 @@ buildscript {
     }
 }
 apply plugin: 'com.github.johnrengelman.shadow'
-*/
 
 dependencies {
     compile project(':TreeQueryNodeBeam')
@@ -89,7 +88,7 @@ task createTreeQueryGrpcNode(type: Tar, dependsOn: jar) {
 build.dependsOn createTreeQueryGrpcNode
 */
 
-/*
+
 shadowJar {
     manifest {
         attributes 'Main-Class': mainClassName
@@ -97,4 +96,4 @@ shadowJar {
     zip64 true
     mergeServiceFiles()
     with jar
-}*/
+}
