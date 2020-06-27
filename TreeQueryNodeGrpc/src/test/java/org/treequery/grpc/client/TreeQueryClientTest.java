@@ -3,6 +3,7 @@ package org.treequery.grpc.client;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
@@ -43,7 +44,17 @@ class TreeQueryClientTest {
 
                 });
     }
+    @Disabled
+    @Test
+    void happyPathSimpleClusterJoin(){
+        String AvroTree = "SimpleJoinCluster.Integration.json";
+        run(AvroTree,  discoveryServiceInterface, 1000,
+                (genericRecord)->{
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
 
+                });
+    }
 
 
     private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface, int numOfRecord,
