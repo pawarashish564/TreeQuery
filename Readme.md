@@ -12,7 +12,7 @@ docker build --tag pigpiggcp/treequery.discoveryservice:v0 -f DockerFile.Discove
 ```
 Run
 ````
-docker run -it --rm -p 8082:8082 -e ACCESSKEY=<AWS access key> -e SECRETKEY=<AWS secret key> pigpiggcp/treequery.discoveryservice:v0
+docker run -it --rm -p ${PORT}:8082 -e REGION=${$REGION}  -e ACCESSKEY=${ACCESSKEY} -e SECRETKEY=${SECRETKEY} pigpiggcp/treequery.discoveryservice:v0
 ````
 
 ##SQL schema

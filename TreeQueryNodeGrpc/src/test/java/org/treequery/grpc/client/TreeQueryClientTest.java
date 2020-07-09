@@ -44,7 +44,7 @@ class TreeQueryClientTest {
 
                 });
     }
-    @Disabled
+
     @Test
     void happyPathSimpleClusterJoin(){
         String AvroTree = "SimpleJoinCluster.Integration.json";

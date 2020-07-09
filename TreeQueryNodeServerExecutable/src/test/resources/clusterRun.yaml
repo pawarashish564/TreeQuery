@@ -1,6 +1,6 @@
 ---
 servicehostname: "localhost"
-servicePort: 9002
+servicePort: 9012
 cacheFilePath: "${TMPDIR}"
 cluster: "A"
 serviceDiscoveryHostName: "192.168.1.14"
