@@ -38,6 +38,8 @@ dependencies {
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-jdbc', version: "$beamVersion"
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-kafka', version: "$beamVersion"
 
+
+
     compile group: 'mysql', name: 'mysql-connector-java', version: "$mysqlVersion"
 
     compile 'org.apache.kafka:kafka-clients:0.10.2.0'
@@ -50,6 +52,7 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: "$mockitVersion"
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
 
 
 }
