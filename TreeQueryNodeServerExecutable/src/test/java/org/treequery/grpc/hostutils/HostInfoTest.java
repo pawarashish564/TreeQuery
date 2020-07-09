@@ -30,7 +30,7 @@ class HostInfoTest {
         String treeQueryYaml = "clusterRun.yaml";
         TreeQuerySetting treeQuerySetting = TreeQuerySettingHelper.createFromYaml(treeQueryYaml, false);
         assertThat(treeQuerySetting).isNotNull();
-        assertThat(treeQuerySetting.getServicehostname()).isNull();
+        assertThat(treeQuerySetting.getServicehostname()).isNotNull();
         assertThat(treeQuerySetting.getCluster()).isEqualTo(Cluster.builder().clusterName("A").build());
         assertThat(treeQuerySetting.getServiceDiscoveryPort()).isEqualTo(8082);
     }
