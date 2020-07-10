@@ -47,7 +47,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
     compile group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     compile group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
-    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: "$jacksonCodehausVersion"
+
 
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"
     testCompile group: 'org.mockito', name: 'mockito-core', version: "$mockitVersion"

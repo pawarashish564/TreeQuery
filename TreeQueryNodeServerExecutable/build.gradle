@@ -42,7 +42,6 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 
     compile group: 'commons-cli', name: 'commons-cli', version: "$cliVersion"
-    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: "$jacksonCodehausVersion"
 
 
     testCompile group: 'org.assertj', name: 'assertj-core', version: "$assetjVersion"

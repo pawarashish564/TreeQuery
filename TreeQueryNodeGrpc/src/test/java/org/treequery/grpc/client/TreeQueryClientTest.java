@@ -34,7 +34,8 @@ class TreeQueryClientTest {
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         discoveryServiceInterface.registerCluster(Cluster.builder()
                 .clusterName("A").build(), "localhost", 9012);*/
-        String URL = String.format("http://%s:%d", "ec2-3-128-198-150.us-east-2.compute.amazonaws.com", 80);
+        //String URL = String.format("http://%s:%d", "ec2-3-128-198-150.us-east-2.compute.amazonaws.com", 80);
+        String URL = String.format("http://%s:%d", "localhost", 8082);
         discoveryServiceInterface =
                 new ServiceDiscoveryClient(URL);
     }
