@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.client.ServiceDiscoveryClient;
 import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -29,9 +30,13 @@ class TreeQueryClientTest {
 
     @BeforeEach
     void init(){
+        /*
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         discoveryServiceInterface.registerCluster(Cluster.builder()
-                .clusterName("A").build(), "localhost", 9012);
+                .clusterName("A").build(), "localhost", 9012);*/
+        String URL = String.format("http://%s:%d", "ec2-3-128-198-150.us-east-2.compute.amazonaws.com", 80);
+        discoveryServiceInterface =
+                new ServiceDiscoveryClient(URL);
     }
 
     @Test
