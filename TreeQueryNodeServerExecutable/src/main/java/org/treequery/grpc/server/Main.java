@@ -2,9 +2,11 @@ package org.treequery.grpc.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
+import org.treequery.cluster.Cluster;
 import org.treequery.config.TreeQuerySetting;
 
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.client.ServiceDiscoveryClient;
 import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.utils.WebServerFactory;
 import org.treequery.proto.TreeQueryRequest;
@@ -21,8 +23,10 @@ public class Main {
     static boolean RENEW_CACHE = false;
 
 
-    private static DiscoveryServiceInterface getDiscoveryServiceProxy(){
-        DiscoveryServiceInterface discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
+    private static DiscoveryServiceInterface getDiscoveryServiceProxy(String hostname, int port){
+        String URL = String.format("http://%s:%d", hostname, port);
+        DiscoveryServiceInterface discoveryServiceInterface =
+                new ServiceDiscoveryClient(URL);
 
         return discoveryServiceInterface;
     }
@@ -37,7 +41,10 @@ public class Main {
     private static WebServer startTreeQueryServer(String treeQueryYaml){
         TreeQuerySetting treeQuerySetting = TreeQuerySettingHelper.createFromYaml(treeQueryYaml, true);
         log.info("Run with following configuration:" + treeQuerySetting.toString());
-        DiscoveryServiceInterface discoveryServiceInterface = getDiscoveryServiceProxy();
+        DiscoveryServiceInterface discoveryServiceInterface = getDiscoveryServiceProxy(
+                treeQuerySetting.getServiceDiscoveryHostName(),
+                treeQuerySetting.getServiceDiscoveryPort()
+        );
         TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface = createRemoteProxy(discoveryServiceInterface);
 
 

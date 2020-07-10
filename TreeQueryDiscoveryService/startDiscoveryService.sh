@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -z "$PORT" ] ; then PORT=8082; fi
 if [ -z "$REGION" ] ; then REGION="us-west-2"; fi
