@@ -3,10 +3,12 @@ package org.treequery.grpc.client;
 import org.apache.avro.generic.GenericRecord;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
+import org.treequery.discoveryservicestatic.client.ServiceDiscoveryClient;
 import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.grpc.model.TreeQueryResult;
 import org.treequery.grpc.utils.TestDataAgent;
@@ -28,9 +30,14 @@ class TreeQueryClientTest {
 
     @BeforeEach
     void init(){
+        /*
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         discoveryServiceInterface.registerCluster(Cluster.builder()
-                .clusterName("A").build(), "localhost", 9012);
+                .clusterName("A").build(), "localhost", 9012);*/
+        //String URL = String.format("http://%s:%d", "ec2-3-128-198-150.us-east-2.compute.amazonaws.com", 80);
+        String URL = String.format("http://%s:%d", "localhost", 8082);
+        discoveryServiceInterface =
+                new ServiceDiscoveryClient(URL);
     }
 
     @Test
@@ -44,6 +51,16 @@ class TreeQueryClientTest {
                 });
     }
 
+    @Test
+    void happyPathSimpleClusterJoin(){
+        String AvroTree = "SimpleJoinCluster.Integration.json";
+        run(AvroTree,  discoveryServiceInterface, 1000,
+                (genericRecord)->{
+                    assertThat(genericRecord).isNotNull();
+                    assertThat(genericRecord.get("bondtrade")).isNotNull();
+
+                });
+    }
 
 
     private void run(String AvroTree, DiscoveryServiceInterface discoveryServiceInterface, int numOfRecord,

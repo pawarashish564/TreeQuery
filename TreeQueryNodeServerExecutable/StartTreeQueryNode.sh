@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -z "$CONFIGDIR" ] ; then CONFIGDIR="."; fi
+TREE_QUERY_CLUSTER=${CONFIGDIR}/$CLUSTERCFG
+DB_COMFIG=${CONFIGDIR}/$DBCFG
+BASEDIR=./TreeQueryNodeServerExecutable-1.0-SNAPSHOT/bin
+$BASEDIR/TreeQueryNodeServerExecutable -c $TREE_QUERY_CLUSTER -d $DB_COMFIG

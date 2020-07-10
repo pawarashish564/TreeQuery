@@ -30,8 +30,6 @@ public class TreeQuerySettingHelper {
         }else{
             file = new File(fileName);
         }
-
-
         // Instantiating a new ObjectMapper as a YAMLFactory
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
 
