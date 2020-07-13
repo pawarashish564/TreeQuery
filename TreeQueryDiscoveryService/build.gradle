@@ -52,6 +52,7 @@ dependencies {
     implementation('io.vertx:vertx-web:3.9.1')
     testImplementation 'io.vertx:vertx-web-client:3.9.1'
     testImplementation 'io.vertx:vertx-junit5:3.9.1'
+    implementation 'io.vertx:vertx-health-check:3.9.1'
 
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")

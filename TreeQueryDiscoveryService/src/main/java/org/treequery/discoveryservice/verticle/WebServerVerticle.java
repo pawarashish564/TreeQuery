@@ -6,6 +6,8 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import lombok.NonNull;
@@ -24,6 +26,10 @@ public class WebServerVerticle extends AbstractVerticle {
     public void start(Future<Void> fut) {
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
+        HealthCheckHandler hcHandler = HealthCheckHandler.create(vertx);
+        hcHandler.register("endpoints-process", future -> future.complete(Status.OK()));
+
+        router.route("/healthCheck").handler(hcHandler);
 
         router.post("/registerCluster").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
@@ -81,6 +87,8 @@ public class WebServerVerticle extends AbstractVerticle {
                 response.setStatusCode(500).end("Unable to getCacheResultCluster. Exception: " + ex);
             }
         });
+
+
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
