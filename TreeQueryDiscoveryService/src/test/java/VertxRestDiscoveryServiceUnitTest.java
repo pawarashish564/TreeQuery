@@ -49,6 +49,19 @@ public class VertxRestDiscoveryServiceUnitTest {
     }
 
     @Test
+    public void checkHealthCheckHandlder(VertxTestContext context) {
+        client.get("/healthCheck").send(ar -> {
+            if (ar.succeeded()) {
+                HttpResponse<Buffer> response = ar.result();
+                context.verify(() -> assertEquals(response.statusCode(), 200));
+                context.completeNow();
+            } else {
+                context.failNow(ar.cause());
+            }
+        });
+    }
+
+    @Test
     public void checkWeCanRegisterCluster(VertxTestContext context) {
         client.post("/registerCluster")
                 .sendJsonObject(new JsonObject()

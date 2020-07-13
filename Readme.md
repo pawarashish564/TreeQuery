@@ -1,11 +1,11 @@
 
-##Build Status
+## Build Status
 
 Overall: [![CircleCI](https://circleci.com/gh/dexterchan/TreeQuery.svg?style=svg)](https://circleci.com/gh/dexterchan/TreeQuery) <br>
 Master: [![CircleCI](https://circleci.com/gh/dexterchan/TreeQuery/tree/master.svg?style=svg)](https://circleci.com/gh/dexterchan/TreeQuery/tree/master) <br>
 
-##Discovery Service
-###Docker build
+## Discovery Service
+### Docker build
 Build service discovery
 ```
 docker build --tag pigpiggcp/treequery.discoveryservice:v0 -f DockerFile.DiscoveryService .
@@ -15,7 +15,7 @@ Run
 docker run -it --rm -p ${PORT}:8082 -e REGION=${$REGION}  -e ACCESSKEY=${ACCESSKEY} -e SECRETKEY=${SECRETKEY} pigpiggcp/treequery.discoveryservice:v0
 ````
 
-##SQL schema
+## SQL schema
 ````
 create table DailyGovBondPrice(
 	AsOfDate varchar(12),
@@ -25,7 +25,7 @@ create table DailyGovBondPrice(
 )
 ````
 
-###Upload to maven repository
+### Upload to maven repository
 ``````
 gradlew -Pnexus uploadArchives
 ``````
