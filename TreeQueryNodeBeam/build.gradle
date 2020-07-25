@@ -38,6 +38,7 @@ dependencies {
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-mongodb', version: "$beamVersion"
     compile group: 'org.apache.beam', name: 'beam-sdks-java-extensions-join-library', version: "$beamVersion"
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-jdbc', version: "$beamVersion"
+    compile group: 'org.apache.beam', name: 'beam-sdks-java-io-amazon-web-services', version: "$beamVersion"
 
     compile group: 'mysql', name: 'mysql-connector-java', version: "$mysqlVersion"
 
