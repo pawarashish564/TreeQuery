@@ -1,0 +1,7 @@
+---
+servicehostname: "localhost"
+servicePort: 9000
+cacheFilePath: "${TMPDIR}"
+cluster: "NodeA"
+serviceDiscoveryHostName: "192.168.1.14"
+serviceDiscoveryPort: 9001
