@@ -1,3 +1,5 @@
+./gradlew clean build -x test -x integration
+
 pushd TreeQueryDiscoveryService
 docker build --tag pigpiggcp/treequery.discoveryservice:v0 .
 popd
