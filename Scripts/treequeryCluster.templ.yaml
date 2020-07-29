@@ -1,0 +1,7 @@
+---
+servicehostname: "${NODE_HOSTNAME}"
+servicePort: ${NODE_PORT}
+cacheFilePath: "${TMPDIR}"
+cluster: "${CLUSTERNAME}"
+serviceDiscoveryHostName: "${SERVICE_DISCOVERY_HOSTNAME}"
+serviceDiscoveryPort: ${SERVICE_DISCOVERY_PORT}
