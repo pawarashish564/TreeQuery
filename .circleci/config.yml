@@ -42,3 +42,14 @@ jobs:
       - run: gradle test -x integration
 
       - setup_remote_docker
+
+      - run: |
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_LOGIN --password-stdin
+          TAG="${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}"
+          TAG="${CIRCLE_BRANCH}.latest"
+
+          docker build --tag $DOCKER_LOGIN/treequery.discoveryservice:${TAG} TreeQueryDiscoveryService
+          docker build --tag $DOCKER_LOGIN/treequery.node:${TAG} TreeQueryNodeServerExecutable
+
+          docker push $DOCKER_LOGIN/treequery.discoveryservice:${TAG}
+          docker push $DOCKER_LOGIN/treequery.node:${TAG}
