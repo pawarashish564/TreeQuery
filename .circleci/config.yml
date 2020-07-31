@@ -49,7 +49,7 @@ jobs:
           TAG="${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}"
           TAG="${CIRCLE_BRANCH}.latest"
           ls TreeQueryDiscoveryService
-          ls TreeQueryDiscoveryService/build/libs/
+          ls TreeQueryDiscoveryService/build/
 
           #docker build --tag $DOCKER_LOGIN/treequery.discoveryservice:${TAG} TreeQueryDiscoveryService
 
