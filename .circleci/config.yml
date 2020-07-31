@@ -4,12 +4,6 @@
 #
 version: 2.1
 
-workflows:
-  build:
-    jobs:
-      - build:
-        context: treequery
-
 jobs:
   build:
     docker:
@@ -60,3 +54,9 @@ jobs:
 
           docker push $DOCKER_LOGIN/treequery.discoveryservice:${TAG}
           docker push $DOCKER_LOGIN/treequery.node:${TAG}
+
+workflows: # a single workflow with a single job called build
+  build:
+    jobs:
+      - build:
+          context: treequery
