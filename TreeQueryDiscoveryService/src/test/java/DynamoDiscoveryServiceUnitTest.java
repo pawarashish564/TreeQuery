@@ -3,6 +3,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import com.google.common.collect.Maps;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -116,7 +116,7 @@ public class DynamoDiscoveryServiceUnitTest {
     public void whenRegisterClusterLocation_thenThrowInterfaceMethodNotUsedException() {
         assertThrows(InterfaceMethodNotUsedException.class, () -> proxy.registerCluster(Cluster.builder().clusterName("test").build(), "address", 123));
     }
-
+/*
     @Test
     public void whenRegisterNewClusterLocation_thenWriteIntoDB() {
         ArrayList<HashMap> testList = new ArrayList<>();
@@ -127,19 +127,33 @@ public class DynamoDiscoveryServiceUnitTest {
         proxy.registerCluster(Cluster.builder().clusterName("test").build(), "addressTest", 123);
         verify(poutcome).getPutItemResult();
         verify(clusterTable).putItem(any(PutItemSpec.class));
+    }*/
+
+    @Test
+    public void whenRegisterNewClusterLocation_singlelocation_thenWriteIntoDB() {
+        ArrayList<HashMap> testList = new ArrayList<>();
+        Map locationmap = Maps.newHashMap();
+
+        when(clusterTable.putItem(any(PutItemSpec.class))).thenReturn(poutcome);
+        when(poutcome.getPutItemResult()).thenReturn(new PutItemResult());
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withMap("location", locationmap));
+        //when(clusterTable.updateItem(any(UpdateItemSpec.class))).thenReturn(uoutcome);
+        proxy.registerCluster(Cluster.builder().clusterName("test").build(), "addressTest", 123);
+        verify(poutcome).getPutItemResult();
+        verify(clusterTable).putItem(any(PutItemSpec.class));
     }
 
     @Test
     public void whenRegisterExistingClusterLocation_thenWriteIntoDB() {
-        ArrayList<HashMap> testList1 = new ArrayList<>();
+        //ArrayList<HashMap> testList1 = new ArrayList<>();
         HashMap<String, Object> testMap = new HashMap<>();
         testMap.put("address", "addressTest");
         testMap.put("port", 123);
-        testList1.add(testMap);
+        //testList1.add(testMap);
 
         when(clusterTable.updateItem(any(UpdateItemSpec.class))).thenReturn(uoutcome);
         when(uoutcome.getItem()).thenReturn(new Item());
-        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", testList1));
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withMap("location", testMap));
         proxy.registerCluster(Cluster.builder().clusterName("test").build(), "addressTest", 123);
         verify(uoutcome).getItem();
         verify(clusterTable).updateItem(any(UpdateItemSpec.class));
@@ -160,13 +174,13 @@ public class DynamoDiscoveryServiceUnitTest {
 
     @Test
     public void whenGetClusterLocation_thenReturnSingleServerLocation() {
-        ArrayList<HashMap> testList = new ArrayList<>();
+        //ArrayList<HashMap> testList = new ArrayList<>();
         HashMap<String, Object> testMap = new HashMap<>();
         testMap.put("address", "addressTest");
         testMap.put("port", 123);
-        testList.add(testMap);
+        //testList.add(testMap);
 
-        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", testList));
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withMap("location", testMap));
         Location location = proxy.getClusterLocation(Cluster.builder().clusterName("test").build());
         assertEquals("addressTest", location.getAddress());
         assertEquals(123, location.getPort());
@@ -177,12 +191,17 @@ public class DynamoDiscoveryServiceUnitTest {
         Map<String, Object> locationMap = new HashMap<String, Object>();
         locationMap.put("address", "addressTest");
         locationMap.put("port", 123);
-
+        /*
         List<Map<String, Object>> locationItems = new ArrayList<>();
-        locationItems.add(locationMap);
+        locationItems.add(locationMap);*/
+        Cluster test= Cluster.builder().clusterName("test").build();
+        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withMap("location", locationMap));
 
-        when(clusterTable.getItem(any(GetItemSpec.class))).thenReturn(new Item().withList("location", locationItems));
-        ArrayList<HashMap> locations = proxy.getLocationHelper(Cluster.builder().clusterName("test").build());
-        assertEquals(1, locations.size());
+        Location returnLocation = proxy.getClusterLocation(test);
+        assertAll(
+                ()->assertEquals(locationMap.get("address"), returnLocation.getAddress()),
+                ()->assertEquals(locationMap.get("port"), returnLocation.getPort())
+        );
+
     }
 }

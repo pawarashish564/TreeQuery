@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.treequery.cluster.Cluster;
 import org.treequery.discoveryservice.client.DynamoClient;
 import org.treequery.discoveryservice.proxy.DiscoveryServiceProxyImpl;
+import org.treequery.discoveryservicestatic.model.Location;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DynamoIntegrationTest {
@@ -80,8 +82,15 @@ public class DynamoIntegrationTest {
 
     @Test
     public void whenRegisterExistingCluster_thenCanBeRetrieved() {
-        serviceProxy.registerCluster(Cluster.builder().clusterName("TestCluster1").build(), "addressTest1", 8080);
-        serviceProxy.registerCluster(Cluster.builder().clusterName("TestCluster1").build(), "addressTest2", 8080);
-        assertEquals(2, serviceProxy.getLocationHelper(Cluster.builder().clusterName("TestCluster1").build()).size());
+        Cluster testCluster1 = Cluster.builder().clusterName("TestCluster1").build();
+        serviceProxy.registerCluster( testCluster1, "addressTest1", 8080);
+        serviceProxy.registerCluster(testCluster1, "addressTest2", 8082);
+        //assertEquals(2, serviceProxy.getLocationHelper(Cluster.builder().clusterName("TestCluster1").build()).size());
+        Location location = serviceProxy.getClusterLocation(testCluster1);
+        assertAll(
+                ()->assertEquals("addressTest2",location.getAddress()),
+                ()->assertEquals(8082, location.getPort())
+        );
+
     }
 }
