@@ -9,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -132,22 +133,34 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
         }
     }
 
+    private  Map<String, Object> getLocationMapFromDynamoMap(Cluster cluster) {
+        Map<String, Object> location = getSingleLocationHelper(cluster);
+        Map<String,Object> LocMap = Optional.ofNullable((Map<String, Object>)location.get("location")).orElseThrow(
+                ()->new NullPointerException("Location Map not found")
+        );
+        return LocMap;
+    }
     @Override
     public void registerCluster(Cluster cluster, String address, int port) {
-        ArrayList<HashMap> locations = getLocationHelper(cluster);
-
-        if (locations.size() == 0) {
+        //Should return One map only
+        //ArrayList<HashMap> locations = getLocationHelper(cluster);
+        Map<String,Object> LocMap = getLocationMapFromDynamoMap(cluster);
+        if (LocMap.size() == 0) {
             try {
                 Map<String, Object> locationMap = new HashMap<String, Object>();
                 locationMap.put("address", address);
                 locationMap.put("port", port);
 
-                List<Map<String, Object>> locationItems = new ArrayList<Map<String, Object>>();
-                locationItems.add(locationMap);
+                /*
+                //We only keep one location, not a list
+                //List<Map<String, Object>> locationItems = new ArrayList<Map<String, Object>>();
+                //locationItems.add(locationMap);
+                 */
 
                 log.info("Adding a new item...");
                 PutItemSpec putItemSpec = new PutItemSpec()
-                        .withItem(new Item().withPrimaryKey("cluster", cluster.getClusterName()).withList("location", locationItems))
+                        //.withItem(new Item().withPrimaryKey("cluster", cluster.getClusterName()).withList("location", locationItems))
+                        .withItem(new Item().withPrimaryKey("cluster", cluster.getClusterName()).withMap("location", locationMap))
                         .withReturnValues(ReturnValue.ALL_OLD);
                 PutItemOutcome outcome = clusterTable
                         .putItem(putItemSpec);
@@ -162,11 +175,11 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("address", address);
                 map.put("port", port);
-                locations.add(map);
+                //locations.add(map);
                 UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("cluster", cluster.getClusterName())
                         .withUpdateExpression("set #loc = :l")
                         .withNameMap(new NameMap().with("#loc", "location"))
-                        .withValueMap(new ValueMap().withList(":l", locations))
+                        .withValueMap(new ValueMap().withMap(":l", map))
                         .withReturnValues(ReturnValue.UPDATED_NEW);
                 UpdateItemOutcome outcome = clusterTable
                         .updateItem(updateItemSpec);
@@ -184,6 +197,14 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
 
     @Override
     public Location getClusterLocation(Cluster cluster) {
+        Map<String,Object> LocMap = getLocationMapFromDynamoMap(cluster);
+        Location location =
+                Location.builder()
+                        .address(LocMap.get("address").toString())
+                        .port(Integer.parseInt(LocMap.get("port").toString()))
+                        .build();
+        return location;
+        /*
         try {
             ArrayList<HashMap> locations = getLocationHelper(cluster);
             Map<String, Object> ele = locations.get(new Random().nextInt(locations.size()));
@@ -191,7 +212,7 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             return location;
         } catch (Exception ex) {
             throw ex;
-        }
+        }*/
 
         /* TODO: Use Eureka to get Cluster location
         Location location = null;
@@ -212,6 +233,19 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
          */
     }
 
+    public Map getSingleLocationHelper(Cluster cluster){
+        try{
+            log.info("Attempting to read item...");
+            Item outcome = clusterTable.getItem(new GetItemSpec().withPrimaryKey("cluster", cluster.getClusterName()));
+            return Optional.ofNullable(outcome).map(
+                    (hasValueOutCome)->outcome.asMap()
+            ).orElse(Map.of("location", Maps.newHashMap()));
+        }catch(ProvisionedThroughputExceededException pe){
+            //to be handled properly
+            throw pe;
+        }
+    }
+    /*
     public ArrayList<HashMap> getLocationHelper(Cluster cluster) {
         JsonArray jArr;
         ArrayList<HashMap> list = new ArrayList();
@@ -231,5 +265,5 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
             log.error(String.format("Unable to read item Cluster %s.", cluster.getClusterName()));
         }
         return list;
-    }
+    }*/
 }
