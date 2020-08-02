@@ -46,6 +46,7 @@ jobs:
       - run: gradle build -x test -x integration
 
       - setup_remote_docker
+          docker_layer_caching: true
 
       - run: |
           echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_LOGIN --password-stdin
