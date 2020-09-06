@@ -4,12 +4,13 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.Duration;
+
 import org.treequery.exception.TimeOutException;
 import org.treequery.service.StatusTreeQueryCluster;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class AsyncRunHelper {
     private final Object __object;

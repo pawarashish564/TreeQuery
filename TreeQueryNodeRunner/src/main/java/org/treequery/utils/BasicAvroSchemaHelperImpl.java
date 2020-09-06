@@ -10,6 +10,7 @@ import org.treequery.Transform.JoinNode;
 import org.treequery.model.DataSource;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
+import org.treequery.utils.AvroSchemaHelper;
 
 import java.util.List;
 

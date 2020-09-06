@@ -84,22 +84,22 @@ public class GenericRecordSchemaHelper {
 
         switch (schemaType){
             case STRING:
-                StringField stringField = new StringField();
+                GenericRecordSchemaHelper.StringField stringField = new GenericRecordSchemaHelper.StringField();
                 GenericRecordSchemaHelper.getValue(genericRecord,path, stringField);
                 sb.append(stringField.getValue());
                 break;
             case INT:
-                IntField intField = new IntField();
+                GenericRecordSchemaHelper.IntField intField = new GenericRecordSchemaHelper.IntField();
                 GenericRecordSchemaHelper.getValue(genericRecord, path, intField);
                 sb.append(intField.getValue().toString());
                 break;
             case DOUBLE:
-                DoubleField doubleField = new DoubleField();
+                GenericRecordSchemaHelper.DoubleField doubleField = new GenericRecordSchemaHelper.DoubleField();
                 GenericRecordSchemaHelper.getValue(genericRecord, path, doubleField);
                 sb.append(doubleField.getValue().toString());
                 break;
             case ENUM:
-                EnumSymbolField enumSymbolField = new EnumSymbolField();
+                GenericRecordSchemaHelper.EnumSymbolField enumSymbolField = new GenericRecordSchemaHelper.EnumSymbolField();
                 GenericRecordSchemaHelper.getValue(genericRecord, path, enumSymbolField);
                 sb.append(enumSymbolField.getValue().toString());
                 break;

@@ -199,8 +199,15 @@ Therefore, postorder traversal of the tree construct the pipeline beginning from
 
 [Algorithm Cluster to Pipeline conversion in Python](PythonAlgorithm/cluster/TreeQueryExecute.py)
 
-### Algorithm: Convert each cluster to workflow pipeline
-####Definition: Pipeline 
+### Design: orchestrate each workflow pipline execution
+After the workflow pipeline creation, we iterate from the leave of cluster for execution in each location.
+Client first connect to a node to submit Tree execution.
+If the data is not located in local cluster, it will submit to Remote cluster via Internet.
+Internet channel is not 100% reliable. Therefore, we should have an asynchronous and recoverable framework to store the query state
+and recover the run at intermediate steps.
+If there is failure in the workflow pipeline, e.g. network connection drop, node can re-submit the failure run.
+![orchestrate each workflow pipeline run](resource/TreeQueryStatelessNode.png)
+
 
 ### Note on Join
 By now, we only support INNER Join of two data sources.

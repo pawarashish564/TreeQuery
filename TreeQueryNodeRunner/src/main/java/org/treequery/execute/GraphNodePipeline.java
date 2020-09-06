@@ -3,14 +3,14 @@ package org.treequery.execute;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
 import org.treequery.exception.NotAllChildBeamReadyToAttach;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.CacheNode;
 import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
-import org.treequery.utils.AvroSchemaHelper;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;

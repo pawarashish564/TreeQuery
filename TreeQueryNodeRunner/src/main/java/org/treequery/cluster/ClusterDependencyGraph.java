@@ -4,8 +4,8 @@ package org.treequery.cluster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import lombok.Builder;
 import org.treequery.model.Node;
+import lombok.Builder;
 
 import java.io.Serializable;
 import java.util.*;
@@ -122,7 +122,7 @@ public class ClusterDependencyGraph implements Serializable {
     }
 
     public static ClusterDependencyGraph createClusterDependencyGraph(Node rootNode){
-        ClusterDependencyGraphBuilder clusterDependencyGraphBuilder = ClusterDependencyGraph.builder();
+        ClusterDependencyGraph.ClusterDependencyGraphBuilder clusterDependencyGraphBuilder = ClusterDependencyGraph.builder();
         clusterDependencyGraphBuilder.constructDependencyGraph(rootNode);
         ClusterDependencyGraph clusterDependencyGraph = clusterDependencyGraphBuilder.build();
         return clusterDependencyGraph;

@@ -1,22 +1,39 @@
 package org.treequery.beam.transform;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.io.JsonDecoder;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.BigEndianIntegerCoder;
+import org.apache.beam.sdk.coders.KvCoder;
+import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.io.mongodb.MongoDbIO;
+import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.bson.Document;
 import org.treequery.Transform.QueryLeafNode;
 import org.treequery.Transform.function.MongoQueryFunction;
 import org.treequery.Transform.function.SqlQueryFunction;
+
 import org.treequery.beam.transform.query.JDBCReadTransform;
 import org.treequery.beam.transform.query.MongoDocumentTransform;
 import org.treequery.model.Node;
 import org.treequery.model.QueryAble;
 
+import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.List;
-
 @Slf4j
 public class QueryLeafNodeHelper implements NodeBeamHelper {
     @Override
