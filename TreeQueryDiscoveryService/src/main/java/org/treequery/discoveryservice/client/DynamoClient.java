@@ -26,8 +26,8 @@ public class DynamoClient {
                 .build();
         this.dynamoDB = new DynamoDB(amazonDynamoDB);
     }
-    public DynamoClient(String endpoint){
-        this.amazonDynamoDB = getBuilder(endpoint, "us-west-2").build();
+    public DynamoClient(String endpoint, String region){
+        this.amazonDynamoDB = getBuilder(endpoint, region).build();
         this.dynamoDB = new DynamoDB(amazonDynamoDB);
     }
 }

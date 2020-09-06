@@ -16,11 +16,13 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.treequery.beam.cache.CacheInputInterface;
 import org.treequery.config.TreeQuerySetting;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.exception.CacheNotFoundException;
 import org.treequery.model.CacheNode;
+import org.treequery.model.CacheTypeEnum;
 import org.treequery.model.Node;
+import org.treequery.beam.cache.CacheInputInterface;
 
 import java.util.List;
 import java.util.Optional;

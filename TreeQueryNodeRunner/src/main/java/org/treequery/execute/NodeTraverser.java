@@ -1,11 +1,10 @@
 package org.treequery.execute;
 
-import lombok.extern.slf4j.Slf4j;
 import org.treequery.cluster.Cluster;
 import org.treequery.model.Node;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-
 @Slf4j
 public class NodeTraverser {
     public static List<Node> postOrderTraversalExecution (Node node, Node parentNode, List<Node> jobList,NodePipeline nodePipeline){

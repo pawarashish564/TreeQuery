@@ -38,8 +38,8 @@ public class DiscoveryServiceProxyImpl implements DiscoveryServiceInterface {
     @Getter
     private DynamoDB dynamoDB;
 
-    public DiscoveryServiceProxyImpl(String endpoint) {
-        this(new DynamoClient(endpoint).getDynamoDB());
+    public DiscoveryServiceProxyImpl(String endpoint , String region) {
+        this(new DynamoClient(endpoint, region).getDynamoDB());
     }
 
     public DiscoveryServiceProxyImpl(DynamoDB dynamoDB) {

@@ -51,7 +51,7 @@ public class JoinFunction implements JoinAble {
             if (!keyNode.isArray()) {
                 throw new IllegalArgumentException("keys should be lists");
             }
-            JoinKey.JoinKeyBuilder joinKeyBuilder = JoinKey.builder();
+            JoinAble.JoinKey.JoinKeyBuilder joinKeyBuilder = JoinAble.JoinKey.builder();
             ArrayNode arrayNode = (ArrayNode) keyNode;
             final int lengthOfKey = ((ArrayNode)(Optional.ofNullable(this.jsonNode.get("children"))
                     .orElseThrow(()->new IllegalArgumentException(String.format("No children for join node:%s", jsonNode.toString())))))
@@ -71,7 +71,7 @@ public class JoinFunction implements JoinAble {
                         joinKeyBuilder.rightLabel(
                             Optional.ofNullable(labelNode.get("right")).orElseThrow(()->new IllegalArgumentException("right label missing")).asText()
                         );
-                        List<KeyColumn> keyColumnList = Lists.newLinkedList();
+                        List<JoinAble.KeyColumn> keyColumnList = Lists.newLinkedList();
                         JsonNode jNodeOn = Optional.ofNullable(jCNode.get("on")).orElseThrow(()->new IllegalArgumentException("Missing 'on' in join"));
                         if(!jNodeOn.isArray()){
                             throw new IllegalArgumentException("key join 'ON' should be array");
@@ -79,7 +79,7 @@ public class JoinFunction implements JoinAble {
                         ArrayNode arrayOnNode = (ArrayNode) jNodeOn;
                         arrayOnNode.forEach(
                                 jOnChild->{
-                                    KeyColumn.KeyColumnBuilder keyColumnBuilder = KeyColumn.builder();
+                                    JoinAble.KeyColumn.KeyColumnBuilder keyColumnBuilder = JoinAble.KeyColumn.builder();
                                     keyColumnList.add(
                                             keyColumnBuilder
                                                     .leftColumn(Optional.ofNullable(jOnChild.get("left")).orElseThrow(()->new IllegalArgumentException("Missing left in join")).asText())

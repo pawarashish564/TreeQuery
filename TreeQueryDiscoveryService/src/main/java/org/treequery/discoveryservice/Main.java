@@ -48,7 +48,9 @@ public class Main {
         ).orElse(port);
         log.info(String.format("host service at %d", port));
 
-        String region = cmd.getOptionValue("region");
+        String region = Optional.ofNullable(cmd.getOptionValue("region")).orElseThrow(
+                ()->new IllegalArgumentException("please provide region")
+        );
         String endpoint = Optional.ofNullable(cmd.getOptionValue("endpoint"))
                 .orElse(
                         Optional.ofNullable(region).map(
@@ -60,7 +62,7 @@ public class Main {
         String secretKey = cmd.getOptionValue("secretKey");
 
         if (accessKey ==null || secretKey == null){
-            return new DiscoveryServiceProxyImpl(endpoint);
+            return new DiscoveryServiceProxyImpl(endpoint, region);
         }else {
             BasicAWSCredentials AWS_CREDENTIALS = new BasicAWSCredentials(
                     accessKey,

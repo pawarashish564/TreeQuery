@@ -9,7 +9,6 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroCoder;
-import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -19,14 +18,16 @@ import org.treequery.Transform.JoinNode;
 import org.treequery.Transform.function.JoinFunction;
 import org.treequery.Transform.function.NoJoinAbleFunction;
 import org.treequery.exception.JoinOnlySupport2NodesException;
+import org.treequery.utils.AvroSchemaHelper;
 import org.treequery.model.JoinAble;
 import org.treequery.model.Node;
-import org.treequery.utils.AvroSchemaHelper;
-import org.treequery.utils.GenericRecordSchemaHelper;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.apache.beam.sdk.extensions.joinlibrary.Join;
+import org.treequery.utils.GenericRecordSchemaHelper;
 
 @Slf4j
 @RequiredArgsConstructor

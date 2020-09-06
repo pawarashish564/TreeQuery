@@ -1,12 +1,12 @@
 package org.treequery.beam.transform;
 
+import org.treequery.Transform.LoadLeafNode;
+import org.treequery.model.Node;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.AvroIO;
 import org.apache.beam.sdk.values.PCollection;
-import org.treequery.Transform.LoadLeafNode;
-import org.treequery.model.Node;
 
 import java.util.List;
 

@@ -6,9 +6,15 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.BigEndianIntegerCoder;
+import org.apache.beam.sdk.coders.KvCoder;
+import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
+import org.apache.beam.sdk.values.KV;
+
 import org.treequery.Transform.function.SqlQueryFunction;
 import org.treequery.exception.JDBCConversionRuntimeException;
+import org.treequery.utils.GenericRecordSchemaHelper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
