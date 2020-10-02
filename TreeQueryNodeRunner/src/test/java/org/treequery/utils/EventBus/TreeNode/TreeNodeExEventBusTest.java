@@ -7,9 +7,11 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.treequery.Transform.JoinNode;
+import org.treequery.cluster.ClusterDependencyGraph;
 import org.treequery.dto.TreeNodeEvent;
 import org.treequery.exception.FatalSubscriptionException;
 import org.treequery.model.Node;
@@ -51,6 +53,8 @@ class TreeNodeExEventBusTest {
         refTreeNodeEventList.add(TreeNodeEvent.builder()
                 .calcNode(node)
                 .id(UUID.randomUUID().toString())
+                .StatusCallback(statusTreeQueryCluster -> {})
+                .clusterDependencyGraph(ClusterDependencyGraph.builder().build())
                 .build());
 
     }
