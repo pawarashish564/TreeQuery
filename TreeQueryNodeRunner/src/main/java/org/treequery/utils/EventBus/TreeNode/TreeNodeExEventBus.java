@@ -17,7 +17,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 @Slf4j
-
+@Deprecated
 public class TreeNodeExEventBus implements EventBusSubject<TreeNodeEvent> {
     protected final Executor executor;
     private EventBus localEventBus ;

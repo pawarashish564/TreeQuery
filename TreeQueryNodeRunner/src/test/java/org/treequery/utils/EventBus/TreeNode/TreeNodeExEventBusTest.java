@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 @Slf4j
+@Deprecated
 class TreeNodeExEventBusTest {
     private static final int MAX_THREAD_RUN = Runtime.getRuntime().availableProcessors()-1;
     final static ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREAD_RUN);
