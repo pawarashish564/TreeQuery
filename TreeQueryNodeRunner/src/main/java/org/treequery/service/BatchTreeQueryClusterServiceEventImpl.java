@@ -1,14 +1,18 @@
 package org.treequery.service;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.Flow.TreeNodeEventSubscriber;
 import org.treequery.cluster.Cluster;
 import org.treequery.cluster.ClusterDependencyGraph;
 import org.treequery.config.TreeQuerySetting;
+import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.dto.TreeNodeEvent;
 import org.treequery.model.Node;
+import org.treequery.model.QueryTypeEnum;
+import org.treequery.utils.AppExceptionHandler;
 import org.treequery.utils.EventBus.TreeNodeEventBusTrafficLight;
 
 import java.util.List;
@@ -27,6 +31,8 @@ public class BatchTreeQueryClusterServiceEventImpl implements TreeQueryClusterSe
     private final TreeQueryClusterRunner localTreeQueryClusterRunner;
     private final TreeQueryClusterRunner remoteTreeQueryClusterRunner;
 
+    @NonNull private final DiscoveryServiceInterface discoveryServiceInterface;
+
     private SubmissionPublisher<TreeNodeEvent> localPublisher;
     private SubmissionPublisher<TreeNodeEvent> remotePublisher;
 
@@ -36,11 +42,13 @@ public class BatchTreeQueryClusterServiceEventImpl implements TreeQueryClusterSe
     BatchTreeQueryClusterServiceEventImpl(TreeQuerySetting treeQuerySetting,
                                                  TreeNodeEventBusTrafficLight<Node> eventTreeNodeEventBusTrafficLight,
                                                  TreeQueryClusterRunner localTreeQueryClusterRunner,
-                                                 TreeQueryClusterRunner remoteTreeQueryClusterRunner){
+                                                 TreeQueryClusterRunner remoteTreeQueryClusterRunner,
+                                          DiscoveryServiceInterface discoveryServiceInterface){
         this.treeQuerySetting = treeQuerySetting;
         this.eventTreeNodeEventBusTrafficLight = eventTreeNodeEventBusTrafficLight;
         this.localTreeQueryClusterRunner = localTreeQueryClusterRunner;
         this.remoteTreeQueryClusterRunner = remoteTreeQueryClusterRunner;
+        this.discoveryServiceInterface = discoveryServiceInterface;
         this.localPublisher = new SubmissionPublisher<>();
         this.remotePublisher = new SubmissionPublisher<>();
         initPublisher(this.localPublisher, this.eventTreeNodeEventBusTrafficLight, localTreeQueryClusterRunner);
@@ -95,18 +103,23 @@ public class BatchTreeQueryClusterServiceEventImpl implements TreeQueryClusterSe
         );
         if (nodeList.size() == 0){
             statusTreeQueryCluster.ifPresentOrElse(
-                    statusTreeQueryClusterResult -> StatusCallback.accept(statusTreeQueryClusterResult),
+                    statusTreeQueryClusterResult -> {
+                        Node node = statusTreeQueryClusterResult.getNode();
+                        String identifier = node.getIdentifier();
+                        if (statusTreeQueryClusterResult.getStatus() == StatusTreeQueryCluster.QueryTypeEnum.SUCCESS){
+                            discoveryServiceInterface.registerCacheResult(identifier, node.getCluster());
+                        }
+                        StatusCallback.accept(statusTreeQueryClusterResult);
+                    },
                     ()->{
-                        StatusCallback.accept(
-                        StatusTreeQueryCluster.builder()
-                                .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
-                                .node(rootNode)
-                                .description("Fail to get any result")
-                                .cluster(rootNode.getCluster())
-                                .build()
+                        AppExceptionHandler.feedBackException2Client(
+                                StatusCallback, rootNode,
+                                "Fail to get any result",
+                                StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR
                         );
                     }
             );
+
         }
 
         nodeList.forEach(

@@ -8,6 +8,7 @@ import org.treequery.exception.FailClusterRunException;
 import org.treequery.model.Node;
 import org.treequery.service.StatusTreeQueryCluster;
 import org.treequery.service.TreeQueryClusterRunner;
+import org.treequery.utils.AppExceptionHandler;
 import org.treequery.utils.EventBus.TreeNodeEventBusTrafficLight;
 
 import java.util.UUID;
@@ -33,33 +34,41 @@ public class TreeNodeEventSubscriber implements Flow.Subscriber<TreeNodeEvent>{
         log.info(String.format("%s Execute Node:%s", treeQueryClusterRunner.getClass().toString(),calcNode ));
 
         //register
-        this.treeQueryClusterRunner.runQueryTreeNetwork(
-                calcNode,
-                statusTreeQueryCluster -> {
-                    final StatusTreeQueryCluster.QueryTypeEnum Status = statusTreeQueryCluster.getStatus();
-                    if (Status == StatusTreeQueryCluster.QueryTypeEnum.FAIL ||
-                            Status == StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR){
-                        item.getStatusCallback().accept(statusTreeQueryCluster);
-                        throw new FailClusterRunException(statusTreeQueryCluster);
+        try {
+            this.treeQueryClusterRunner.runQueryTreeNetwork(
+                    calcNode,
+                    statusTreeQueryCluster -> {
+                        final StatusTreeQueryCluster.QueryTypeEnum Status = statusTreeQueryCluster.getStatus();
+                        if (Status == StatusTreeQueryCluster.QueryTypeEnum.FAIL ||
+                                Status == StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR) {
+                            item.getStatusCallback().accept(statusTreeQueryCluster);
+                            throw new FailClusterRunException(statusTreeQueryCluster);
+                        }
+                        //Push the next waiting node
+                        try {
+                            treeNodeEventBusTrafficLight.unqueue(item.getId(), statusTreeQueryCluster);
+                        } catch (Throwable ine) {
+                            log.error(ine.getMessage());
+                            String errMsg = "Not able to insert item to event bus:" + ine.getMessage();
+                            AppExceptionHandler.feedBackException2Client(
+                                    item.getStatusCallback(),
+                                    calcNode,
+                                    errMsg,
+                                    StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR
+                            );
+                            throw new RuntimeException(errMsg);
+                        }
                     }
-                    //Push the next waiting node
-                    try {
-                        treeNodeEventBusTrafficLight.unqueue(item.getId(), statusTreeQueryCluster);
-                    }catch (Throwable ine){
-                        log.error(ine.getMessage());
-                        String errMsg = "Not able to insert item to event bus:"+ine.getMessage();
-                        item.getStatusCallback().accept(
-                                StatusTreeQueryCluster.builder()
-                                        .status(StatusTreeQueryCluster.QueryTypeEnum.SYSTEMERROR)
-                                        .node(calcNode)
-                                        .description(errMsg)
-                                        .cluster(calcNode.getCluster())
-                                        .build()
-                        );
-                        throw new RuntimeException(errMsg);
-                    }
-                }
-        );
+            );
+        }catch(Throwable th){
+            AppExceptionHandler.feedBackException2Client(
+                    item.getStatusCallback(),
+                    calcNode,
+                    th.getMessage(),
+                    StatusTreeQueryCluster.QueryTypeEnum.FAIL
+            );
+            throw new RuntimeException(th.getMessage());
+        }
     }
 
     @Override
