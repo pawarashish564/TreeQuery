@@ -6,9 +6,14 @@ import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import java.util.function.Consumer;
 
 public class RemoteProxyTreeQueryClusterRunner implements TreeQueryClusterRunner{
+
+    TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
+
     @Override
     public void runQueryTreeNetwork(Node node, Consumer<StatusTreeQueryCluster> StatusCallback) {
-
+        treeQueryClusterRunnerProxyInterface.runQueryTreeNetwork(
+                node, StatusCallback
+        );
     }
 
     @Override

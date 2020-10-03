@@ -127,10 +127,10 @@ class BatchTreeQueryClusterServiceEventImplTest {
         remoteTreeQueryClusterRunner =  LocalTreeQueryClusterRunner.builder()
                 .avroSchemaHelper(avroSchemaHelper)
                 .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                        .treeQuerySetting(treeQuerySettingB)
+                        .treeQuerySetting(treeQuerySetting)
                         .build())
                 .discoveryServiceInterface(discoveryServiceInterface)
-                .treeQuerySetting(treeQuerySettingB)
+                .treeQuerySetting(treeQuerySetting)
                 .cacheInputInterface(cacheInputInterface)
                 .build();
         runQuery(node);
