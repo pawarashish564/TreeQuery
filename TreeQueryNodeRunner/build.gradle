@@ -39,14 +39,13 @@ dependencies {
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-kafka', version: "$beamVersion"
     compile group: 'org.apache.beam', name: 'beam-sdks-java-io-amazon-web-services', version: "$beamVersion"
 
+    compile group: 'io.github.resilience4j', name: 'resilience4j-retry', version: "$resilience4jVersion"
+    compile group: 'org.quartz-scheduler', name: 'quartz', version: "$quartzVersion"
 
     compile group: 'mysql', name: 'mysql-connector-java', version: "$mysqlVersion"
 
     compile 'org.apache.kafka:kafka-clients:0.10.2.0'
-
     compile 'io.confluent:kafka-avro-serializer:5.3.2'
-
-    compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
 
 
     testCompile "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
