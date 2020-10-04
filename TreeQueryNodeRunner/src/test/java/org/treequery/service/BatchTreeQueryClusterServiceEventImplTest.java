@@ -9,6 +9,7 @@ import org.assertj.core.data.Offset;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -104,6 +105,13 @@ class BatchTreeQueryClusterServiceEventImplTest {
         checkSimpleJoinCriteria(node);
     }
     @Test
+    void SimpleAsyncJoinTestWithDiffCluster() throws Exception{
+        String AvroTree = "SimpleJoinB.json";
+        node = prepareSample(AvroTree);
+        runQuery(node);
+        checkSimpleJoinCriteria(node);
+    }
+    @Test
     void shouldRunSimpleClusterJoinLocalRunner() throws Exception{
         String AvroTree = "SimpleJoinCluster.json";
         node = prepareSample(AvroTree);
@@ -112,7 +120,7 @@ class BatchTreeQueryClusterServiceEventImplTest {
         checkSimpleJoinCriteria(node);
     }
 
-    @Test
+    @RepeatedTest(1)
     public void AsyncJoinTest4layers() throws Exception {
         String AvroTree = "TreeQueryInput4.json";
         node = prepareSample(AvroTree);
