@@ -79,6 +79,7 @@ public class LocalTreeQueryClusterRunner implements TreeQueryClusterRunner{
 
     @Override
     public void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
-        throw new NoSuchMethodError("Not supported for new LocalTreeQueryClusterRunner");
+        log.debug("No action");
+        //throw new NoSuchMethodError("Not supported for new LocalTreeQueryClusterRunner");
     }
 }

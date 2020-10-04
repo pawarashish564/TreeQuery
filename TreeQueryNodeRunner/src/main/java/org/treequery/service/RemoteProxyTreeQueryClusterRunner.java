@@ -1,5 +1,6 @@
 package org.treequery.service;
 
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.treequery.model.Node;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
@@ -8,6 +9,7 @@ import org.treequery.utils.AppExceptionHandler;
 import java.util.function.Consumer;
 
 @Slf4j
+@Builder
 public class RemoteProxyTreeQueryClusterRunner implements TreeQueryClusterRunner{
 
     TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface;
@@ -30,6 +32,7 @@ public class RemoteProxyTreeQueryClusterRunner implements TreeQueryClusterRunner
 
     @Override
     public void setTreeQueryClusterRunnerProxyInterface(TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface) {
-        throw new NoSuchMethodError("Not supported for new LocalTreeQueryClusterRunner");
+        log.debug("No action");
+        //throw new NoSuchMethodError("Not supported for new LocalTreeQueryClusterRunner");
     }
 }

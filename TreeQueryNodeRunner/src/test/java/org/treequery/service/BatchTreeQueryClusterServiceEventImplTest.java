@@ -21,6 +21,7 @@ import org.treequery.config.TreeQuerySetting;
 import org.treequery.discoveryservicestatic.DiscoveryServiceInterface;
 import org.treequery.discoveryservicestatic.proxy.LocalDummyDiscoveryServiceProxy;
 import org.treequery.exception.CacheNotFoundException;
+import org.treequery.service.proxy.LocalDummyTreeQueryClusterRunnerProxy;
 import org.treequery.service.proxy.TreeQueryClusterRunnerProxyInterface;
 import org.treequery.utils.*;
 import org.treequery.utils.EventBus.BasicTreeNodeEventBusTrafficLightImpl;
@@ -44,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 class BatchTreeQueryClusterServiceEventImplTest {
     private static TreeQuerySetting treeQuerySetting;
-    private static TreeQuerySetting treeQuerySettingB;
+    //private static TreeQuerySetting treeQuerySettingB;
     private static int WAITSECOND = 60 ;
     private final static int PORT = 9002;//ThreadLocalRandom.current().nextInt(9000,9999);
     private final static String HOSTNAME = "localhost";
@@ -60,7 +61,7 @@ class BatchTreeQueryClusterServiceEventImplTest {
     @BeforeAll
     static void initAll(){
         treeQuerySetting = TreeQuerySettingHelper.createFromYaml();
-        treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
+        //treeQuerySettingB = TreeQuerySettingHelper.createFromYaml("treeQueryB.yaml",false);
         discoveryServiceInterface = new LocalDummyDiscoveryServiceProxy();
         Cluster clusterA = Cluster.builder().clusterName("A").build();
         Cluster clusterB = Cluster.builder().clusterName("B").build();
@@ -106,14 +107,39 @@ class BatchTreeQueryClusterServiceEventImplTest {
         String AvroTree = "SimpleJoinCluster.json";
         node = prepareSample(AvroTree);
 
-        remoteTreeQueryClusterRunner =  LocalTreeQueryClusterRunner.builder()
-                .avroSchemaHelper(avroSchemaHelper)
-                .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
-                        .treeQuerySetting(treeQuerySetting)
-                        .build())
-                .discoveryServiceInterface(discoveryServiceInterface)
+        TreeQueryClusterRunnerProxyInterface treeQueryClusterRunnerProxyInterface =
+                LocalDummyTreeQueryClusterRunnerProxy.builder()
                 .treeQuerySetting(treeQuerySetting)
-                .cacheInputInterface(cacheInputInterface)
+                .avroSchemaHelper(avroSchemaHelper)
+                .createLocalTreeQueryClusterRunnerFunc(
+                                (_Cluster)-> {
+                                    TreeQuerySetting remoteDummyTreeQuerySetting = new TreeQuerySetting.TreeQuerySettingBuilder(
+                                            _Cluster.getClusterName(),
+                                            treeQuerySetting.getServicehostname(),
+                                            treeQuerySetting.getServicePort(),
+                                            treeQuerySetting.getCacheFilePath(),
+                                            treeQuerySetting.getRedisHostName(),
+                                            treeQuerySetting.getRedisPort(),
+                                            treeQuerySetting.getServiceDiscoveryHostName(),
+                                            treeQuerySetting.getServiceDiscoveryPort()
+                                    ).build();
+                                    CacheInputInterfaceProxyFactory cacheInputInterfaceProxyFactory = new LocalCacheInputInterfaceProxyFactory();
+                                    CacheInputInterface _CacheInputInterface = cacheInputInterfaceProxyFactory.getDefaultCacheInterface(remoteDummyTreeQuerySetting, discoveryServiceInterface);
+
+                                    return  LocalTreeQueryClusterRunner.builder()
+                                            .avroSchemaHelper(avroSchemaHelper)
+                                            .beamCacheOutputBuilder(BeamCacheOutputBuilder.builder()
+                                                    .treeQuerySetting(remoteDummyTreeQuerySetting)
+                                                    .build())
+                                            .discoveryServiceInterface(discoveryServiceInterface)
+                                            .treeQuerySetting(remoteDummyTreeQuerySetting)
+                                            .cacheInputInterface(cacheInputInterface)
+                                            .build();
+                                }
+                ).build();
+
+        remoteTreeQueryClusterRunner =  RemoteProxyTreeQueryClusterRunner.builder()
+                .treeQueryClusterRunnerProxyInterface(treeQueryClusterRunnerProxyInterface)
                 .build();
 
         runQuery(node);
