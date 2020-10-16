@@ -36,4 +36,6 @@ ext{
     mockitVersion = "3.2.4"
     snakeymlVersion = "1.26"
     mysqlVersion = "5.1.49"
+    resilience4jVersion = "1.5.0"
+    quartzVersion = "2.3.2"
 }
