@@ -40,7 +40,7 @@ public class LocalDummyTreeQueryClusterRunnerProxy implements TreeQueryClusterRu
 
         if (treeQueryClusterRunnerMap.get(cluster) == null){
             TreeQueryClusterRunner treeQueryClusterRunner = createLocalTreeQueryClusterRunnerFunc.apply(cluster);
-            //treeQueryClusterRunner.setTreeQueryClusterRunnerProxyInterface(this);
+            treeQueryClusterRunner.setTreeQueryClusterRunnerProxyInterface(this);
             treeQueryClusterRunnerMap.put(cluster, treeQueryClusterRunner);
         }
 
