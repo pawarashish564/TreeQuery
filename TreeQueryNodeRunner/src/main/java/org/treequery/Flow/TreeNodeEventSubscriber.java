@@ -74,7 +74,6 @@ public class TreeNodeEventSubscriber implements Flow.Subscriber<TreeNodeEvent>{
     @Override
     public void onError(Throwable throwable) {
         log.error("Subscriber OnError:"+throwable.getMessage());
-        ;
     }
 
     @Override
